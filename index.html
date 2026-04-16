@@ -1,1718 +1,292 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seller Acquisition — CedCommerce</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<style>
-:root {
-  --navy:#0f1b2d; --navy2:#162236; --navy3:#1d2e47;
-  --line:rgba(255,255,255,0.07); --line2:rgba(255,255,255,0.13);
-  --twht:#e8e2d8; --twht2:#a8b4c4;
-  --bg:#f0ede8; --surf:#f7f4f0; --surf2:#ebe7e1; --surf3:#e2ddd6;
-  --bdr:rgba(0,0,0,0.09); --bdr2:rgba(0,0,0,0.15);
-  --t1:#1a1610; --t2:#5a5448; --t3:#8a8278;
-  --teal:#0d9488; --teal2:#0f766e; --teal-l:#ccfbf1; --teal-t:rgba(13,148,136,0.12);
-  --green:#16a34a; --green-l:#dcfce7;
-  --amber:#d97706; --amber-l:#fef3c7;
-  --red:#dc2626; --red-l:#fee2e2;
-  --blue:#2563eb; --blue-l:#dbeafe;
-  --purple:#7c3aed; --purple-l:#ede9fe;
-  --r:10px; --rs:6px;
-  --font:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);background:var(--bg);color:var(--t1);font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased;}
-.shell{display:flex;min-height:100vh;}
-
-/* SIDEBAR */
-.sidebar{width:230px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
-.slogo{padding:20px 18px 14px;border-bottom:1px solid var(--line);}
-.slogo-mark{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--teal);border-radius:8px;margin-bottom:10px;}
-.slogo-mark svg{width:18px;height:18px;color:#fff;}
-.brand{font-size:15px;font-weight:600;color:#fff;letter-spacing:-.01em;}
-.sub{font-size:11px;color:var(--twht2);margin-top:2px;}
-.nsec{padding:8px 0;}
-.nlabel{font-size:10px;font-weight:500;color:rgba(168,180,196,0.5);letter-spacing:.1em;text-transform:uppercase;padding:8px 18px 5px;}
-.ni{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;color:var(--twht2);font-size:13px;border-left:2px solid transparent;transition:all .13s;}
-.ni:hover{background:var(--navy3);color:var(--twht);}
-.ni.active{background:var(--teal-t);color:#5eead4;border-left-color:var(--teal);font-weight:500;}
-.ni svg{width:15px;height:15px;flex-shrink:0;opacity:.8;}
-.ni.active svg{opacity:1;}
-.psw{padding:6px 12px;}
-.pbtn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;margin-bottom:3px;border-radius:var(--rs);border:1px solid var(--line);cursor:pointer;font-size:12px;font-family:var(--font);background:transparent;color:var(--twht2);text-align:left;transition:all .13s;}
-.pbtn:hover{background:var(--navy3);color:var(--twht);border-color:var(--line2);}
-.pbtn.active{background:var(--teal-t);color:#5eead4;border-color:rgba(13,148,136,.3);font-weight:500;}
-.pdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.addprog{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:7px;border-radius:var(--rs);border:1px dashed rgba(255,255,255,.18);cursor:pointer;font-size:12px;font-family:var(--font);color:var(--twht2);background:transparent;margin-top:4px;transition:all .13s;}
-.addprog:hover{color:#5eead4;border-color:var(--teal);}
-.sb-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--line);}
-.db-status{font-size:11px;color:var(--twht2);opacity:.6;display:flex;align-items:center;gap:5px;}
-.db-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;}
-.db-dot.offline{background:#ef4444;}
-.db-dot.loading{background:var(--amber);}
-
-/* MAIN */
-.main{flex:1;overflow-y:auto;min-width:0;}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 26px;background:var(--surf);border-bottom:1px solid var(--bdr);gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:40;}
-.topbar-title{font-size:17px;font-weight:600;letter-spacing:-.02em;}
-.topbar-sub{font-size:12px;color:var(--t3);margin-top:2px;}
-.topbar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.content{padding:22px 26px;}
-
-/* BUTTONS */
-.btn{padding:7px 14px;border-radius:var(--rs);border:1px solid var(--bdr2);cursor:pointer;font-size:13px;font-family:var(--font);background:var(--surf);color:var(--t2);transition:all .13s;white-space:nowrap;}
-.btn:hover{background:var(--surf3);color:var(--t1);}
-.btn:disabled{opacity:.4;cursor:not-allowed;}
-.btn-teal{background:var(--teal);color:#fff;border-color:var(--teal);font-weight:500;}
-.btn-teal:hover{background:var(--teal2);color:#fff;}
-.btn-green{background:var(--green);color:#fff;border-color:var(--green);}
-.btn-green:hover{background:#15803d;color:#fff;}
-.btn-sm{padding:4px 10px;font-size:11px;}
-.btn-icon{display:inline-flex;align-items:center;gap:5px;}
-
-/* METRICS */
-.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin-bottom:20px;}
-.mcard{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:15px 17px;position:relative;overflow:hidden;}
-.mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--bdr2);border-radius:var(--r) var(--r) 0 0;}
-.mcard.teal::before{background:var(--teal);}
-.mcard.green::before{background:var(--green);}
-.mcard.amber::before{background:var(--amber);}
-.mcard.blue::before{background:var(--blue);}
-.mcard.purple::before{background:var(--purple);}
-.mcard .ml{font-size:11px;color:var(--t3);letter-spacing:.03em;margin-bottom:7px;margin-top:2px;}
-.mcard .mv{font-size:26px;font-weight:600;color:var(--t1);line-height:1;font-variant-numeric:tabular-nums;}
-.mcard .ms{font-size:11px;color:var(--t3);margin-top:4px;}
-.mcard.teal .mv{color:var(--teal2);}
-.mcard.green .mv{color:var(--green);}
-.mcard.amber .mv{color:var(--amber);}
-.mcard.blue .mv{color:var(--blue);}
-.mcard.purple .mv{color:var(--purple);}
-
-/* CARDS */
-.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;margin-bottom:16px;}
-.card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
-.card-title{font-size:14px;font-weight:600;letter-spacing:-.01em;}
-.card-sub{font-size:12px;color:var(--t3);margin-top:2px;}
-
-/* AFFILIATE LINK BOX */
-.aff-box{background:var(--navy);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.aff-label{font-size:11px;color:var(--twht2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
-.aff-link{font-size:11px;font-family:var(--mono);color:#5eead4;word-break:break-all;max-width:500px;}
-.aff-actions{display:flex;gap:8px;flex-shrink:0;}
-.aff-btn{padding:5px 12px;border-radius:var(--rs);border:1px solid var(--line2);cursor:pointer;font-size:11px;font-family:var(--font);background:transparent;color:var(--twht);transition:all .13s;white-space:nowrap;}
-.aff-btn:hover{background:var(--navy3);}
-
-/* GRID */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-.g3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
-
-/* TABLE */
-.tbl-wrap{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;}
-th{font-size:11px;font-weight:500;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;padding:9px 11px;text-align:left;border-bottom:1px solid var(--bdr);background:var(--surf2);white-space:nowrap;}
-td{padding:9px 11px;border-bottom:1px solid var(--bdr);font-size:13px;vertical-align:middle;}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:var(--surf2);}
-
-/* PILLS */
-.pill{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:3px 9px;border-radius:100px;white-space:nowrap;}
-.p-green{background:var(--green-l);color:#15803d;}
-.p-blue{background:var(--blue-l);color:#1d4ed8;}
-.p-teal{background:var(--teal-l);color:var(--teal2);}
-.p-amber{background:var(--amber-l);color:#92400e;}
-.p-red{background:var(--red-l);color:#991b1b;}
-.p-purple{background:var(--purple-l);color:#5b21b6;}
-.p-gray{background:var(--surf3);color:var(--t2);}
-
-/* SOURCE / TAG CHIPS */
-.stag{display:inline-block;font-size:10px;font-family:var(--mono);padding:2px 6px;border-radius:4px;margin:1px;border:1px solid var(--bdr);}
-.stag-temu{background:#dbeafe;color:#1d4ed8;border-color:#bfdbfe;}
-.stag-bd{background:#fef3c7;color:#92400e;border-color:#fde68a;}
-.stag-camp{background:var(--green-l);color:#166534;border-color:#bbf7d0;}
-.stag-mql{background:var(--purple-l);color:#5b21b6;border-color:#ddd6fe;}
-.stag-nl{background:var(--teal-l);color:var(--teal2);border-color:#99f6e4;}
-.stag-def{background:var(--surf2);color:var(--t2);border-color:var(--bdr);}
-.tchip{display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:2px 7px;border-radius:100px;margin:1px;}
-.t-hot{background:#fee2e2;color:#991b1b;}
-.t-vat{background:#fef3c7;color:#92400e;}
-.t-noreply{background:var(--surf3);color:var(--t2);}
-.t-doc{background:var(--purple-l);color:#5b21b6;}
-.t-price{background:var(--blue-l);color:#1d4ed8;}
-.t-list{background:var(--teal-l);color:var(--teal2);}
-.t-tech{background:#fee2e2;color:#991b1b;}
-.t-follow{background:var(--blue-l);color:var(--blue);}
-.t-def{background:var(--surf3);color:var(--t2);}
-
-/* OUTREACH BTNS */
-.ob{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:var(--rs);border:1px solid var(--bdr2);cursor:pointer;font-size:11px;font-family:var(--font);background:var(--surf2);color:var(--blue);transition:all .12s;margin-right:3px;}
-.ob:hover{background:var(--blue-l);}
-.ob-wa{color:var(--teal2);}
-.ob-wa:hover{background:var(--teal-l);}
-
-/* PAYMENT */
-.paid{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:100px;background:var(--green-l);color:#15803d;}
-.pend{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:100px;background:var(--amber-l);color:#92400e;}
-.rev-row{display:flex;align-items:flex-start;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bdr);gap:8px;flex-wrap:wrap;}
-.rev-row:last-child{border-bottom:none;}
-
-/* SEARCH / FILTER */
-.sbar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
-.sbar input,.sbar select{padding:8px 12px;border:1px solid var(--bdr2);border-radius:var(--rs);font-size:13px;font-family:var(--font);background:var(--surf);color:var(--t1);}
-.sbar input{flex:1;min-width:200px;}
-.sbar input:focus,.sbar select:focus{outline:none;border-color:var(--teal);}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
-.chip{padding:4px 13px;border-radius:100px;border:1px solid var(--bdr2);font-size:12px;font-family:var(--font);cursor:pointer;color:var(--t2);background:transparent;transition:all .13s;}
-.chip:hover{background:var(--surf3);color:var(--t1);}
-.chip.active{background:var(--teal-t);color:var(--teal);border-color:rgba(13,148,136,.35);font-weight:500;}
-
-/* FUNNEL */
-.funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
-.funnel-label{font-size:12px;color:var(--t2);min-width:195px;}
-.funnel-track{flex:1;background:var(--surf2);border-radius:4px;height:20px;overflow:hidden;}
-.funnel-fill{height:100%;border-radius:4px;}
-.funnel-n{font-size:12px;font-weight:600;min-width:28px;text-align:right;font-variant-numeric:tabular-nums;}
-
-/* CAMP CARDS */
-.camp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;}
-.ccard{background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--rs);padding:13px;}
-.ccard-title{font-size:12px;font-weight:600;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--bdr);}
-.cstat{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;}
-.cstat .l{color:var(--t3);}
-.cstat .v{font-weight:600;font-variant-numeric:tabular-nums;}
-
-/* MODAL */
-.overlay{display:none;position:fixed;inset:0;background:rgba(15,27,45,.55);z-index:200;align-items:center;justify-content:center;}
-.overlay.open{display:flex;}
-.modal{background:var(--surf);border-radius:var(--r);border:1px solid var(--bdr);width:90%;max-width:560px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
-.modal-lg{max-width:700px;}
-.mhead{padding:16px 20px 13px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:var(--surf2);border-radius:var(--r) var(--r) 0 0;}
-.mhead h3{font-size:15px;font-weight:600;}
-.mclose{background:none;border:none;font-size:20px;cursor:pointer;color:var(--t3);line-height:1;}
-.mclose:hover{color:var(--t1);}
-.mbody{padding:18px 20px;}
-.mfoot{padding:13px 20px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px;}
-.field{margin-bottom:12px;}
-.field label{display:block;font-size:12px;font-weight:500;color:var(--t2);margin-bottom:4px;}
-.field input,.field select,.field textarea{width:100%;padding:8px 11px;border:1px solid var(--bdr2);border-radius:var(--rs);font-size:13px;font-family:var(--font);background:var(--surf);color:var(--t1);}
-.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--teal);}
-.field textarea{resize:vertical;min-height:68px;}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
-.info-box{background:var(--surf2);border-left:3px solid var(--bdr2);border-radius:0 var(--rs) var(--rs) 0;padding:10px 13px;font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.6;}
-.info-box.green{border-left-color:var(--green);background:var(--green-l);color:#15803d;}
-.info-box.amber{border-left-color:var(--amber);background:var(--amber-l);color:#92400e;}
-.info-box.teal{border-left-color:var(--teal);background:var(--teal-l);color:var(--teal2);}
-.tag-picker{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--surf2);border-radius:var(--rs);border:1px solid var(--bdr);}
-.tag-opt{padding:3px 10px;border-radius:100px;font-size:11px;cursor:pointer;border:1px solid var(--bdr2);background:var(--surf);color:var(--t2);font-family:var(--font);transition:all .12s;}
-.tag-opt.sel{border-color:var(--teal);background:var(--teal-t);color:var(--teal);}
-
-/* IMPORT */
-.imp-drop{border:2px dashed var(--bdr2);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:all .18s;background:var(--surf2);}
-.imp-drop:hover,.imp-drop.drag{border-color:var(--teal);background:var(--teal-l);}
-
-/* VIEWS */
-.view{display:none;}
-.view.active{display:block;}
-
-/* LOADING */
-.loading-overlay{position:fixed;inset:0;background:rgba(15,27,45,.7);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
-.loading-overlay.hidden{display:none;}
-.spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,.15);border-top-color:#5eead4;border-radius:50%;animation:spin .8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.loading-text{color:var(--twht);font-size:13px;}
-
-/* TOAST */
-.toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:var(--twht);padding:11px 17px;border-radius:var(--rs);font-size:13px;z-index:999;opacity:0;transform:translateY(8px);transition:all .18s;pointer-events:none;border:1px solid var(--navy3);}
-.toast.show{opacity:1;transform:translateY(0);}
-.toast.error{border-color:var(--red);color:#fca5a5;}
-
-/* SETUP SCREEN */
-.setup-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
-.setup-card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:32px;max-width:560px;width:100%;}
-.setup-card h2{font-size:20px;font-weight:600;margin-bottom:6px;}
-.setup-card p{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:20px;}
-.setup-step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--bdr);}
-.setup-step:last-child{border:none;}
-.step-num{width:24px;height:24px;border-radius:50%;background:var(--teal);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
-.step-body{font-size:13px;color:var(--t2);line-height:1.6;}
-.step-body strong{color:var(--t1);}
-.step-body code{font-family:var(--mono);background:var(--surf2);padding:1px 5px;border-radius:3px;font-size:12px;}
-
-/* OVERLAP DOT */
-.ovr{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amber);margin-right:4px;}
-
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px;}
-@media(max-width:960px){.g2,.g3{grid-template-columns:1fr;}}
-@media print{.sidebar,.topbar-actions,.overlay{display:none!important;}}
-</style>
-</head>
-<body>
-
-<!-- LOADING OVERLAY -->
-<div class="loading-overlay" id="loading">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">Connecting to database...</div>
-</div>
-
-<!-- SETUP SCREEN (shown if no Supabase keys configured) -->
-<div class="setup-screen" id="setup-screen" style="display:none;">
-  <div class="setup-card">
-    <div style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:var(--teal);border-radius:10px;margin-bottom:16px;">
-      <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.8"><path d="M10 2L2 6v8l8 4 8-4V6L10 2z"/><path d="M10 2v18M2 6l8 4 8-4"/></svg>
-    </div>
-    <h2>CedCommerce Acquisition Hub</h2>
-    <p>This app stores all data in a shared Supabase database so your whole team works from the same live data. One-time setup takes 5 minutes.</p>
-    <div class="setup-step">
-      <div class="step-num">1</div>
-      <div class="step-body"><strong>Create free Supabase account</strong><br>Go to <a href="https://supabase.com" target="_blank" style="color:var(--teal)">supabase.com</a> → New project → name it <code>ced-acquisition</code></div>
-    </div>
-    <div class="setup-step">
-      <div class="step-num">2</div>
-      <div class="step-body"><strong>Run the SQL schema</strong><br>In your project → SQL Editor → paste and run the schema from the <code>setup_schema.sql</code> file provided with this app</div>
-    </div>
-    <div class="setup-step">
-      <div class="step-num">3</div>
-      <div class="step-body"><strong>Enter your project credentials</strong><br>Settings → API → copy Project URL and anon/public key below</div>
-    </div>
-    <div class="field" style="margin-top:16px;"><label>Supabase Project URL</label><input id="setup-url" placeholder="https://xxxxx.supabase.co"></div>
-    <div class="field"><label>Supabase Anon (public) Key</label><input id="setup-key" placeholder="eyJhbGc..."></div>
-    <button class="btn btn-teal" style="width:100%;padding:11px;margin-top:4px;" onclick="saveSetup()">Connect & initialise database</button>
-    <div id="setup-msg" style="margin-top:12px;"></div>
-  </div>
-</div>
-
-<!-- MAIN APP -->
-<div class="shell" id="app" style="display:none;">
-<aside class="sidebar">
-  <div class="slogo">
-    <div class="slogo-mark"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2L2 6v8l8 4 8-4V6L10 2z"/><path d="M10 2v18M2 6l8 4 8-4"/></svg></div>
-    <div class="brand">CedCommerce</div>
-    <div class="sub">Acquisition Hub</div>
-  </div>
-  <div class="nsec">
-    <div class="nlabel">Programs</div>
-    <div class="psw" id="prog-sw"></div>
-    <div style="padding:0 12px"><button class="addprog" onclick="openModal('m-new-prog')">+ New program</button></div>
-  </div>
-  <div class="nsec" style="border-top:1px solid var(--line);margin-top:8px;">
-    <div class="nlabel">Views</div>
-    <div class="ni active" onclick="sv('overview',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg><span>Overview</span></div>
-    <div class="ni" onclick="sv('sellers',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg><span>All sellers</span></div>
-    <div class="ni" onclick="sv('revenue',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v14M4 5h6a2 2 0 010 4H6a2 2 0 000 4h6"/></svg><span>Revenue & incentives</span></div>
-    <div class="ni" onclick="sv('campaigns',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 4l7 5 7-5"/><rect x="1" y="3" width="14" height="10" rx="1.5"/></svg><span>Campaigns & MQLs</span></div>
-    <div class="ni" onclick="sv('bd',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/><path d="M1 13c0-2.2 1.8-4 4-4s4 1.8 4 4M11 9c2.2 0 4 1.8 4 4"/></svg><span>BD team</span></div>
-    <div class="ni" onclick="sv('import',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v9m-3-3l3 3 3-3"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg><span>Import leads</span></div>
-  </div>
-  <div class="sb-footer">
-    <div class="db-status"><div class="db-dot loading" id="db-dot"></div><span id="db-label">Connecting...</span></div>
-    <button onclick="openSettings()" style="margin-top:8px;background:none;border:none;cursor:pointer;font-size:11px;color:var(--twht2);opacity:.5;font-family:var(--font);padding:0">Change credentials</button>
-  </div>
-</aside>
-
-<div class="main">
-  <div class="topbar">
-    <div><div class="topbar-title" id="page-title">Overview</div><div class="topbar-sub" id="page-sub">Loading...</div></div>
-    <div class="topbar-actions">
-      <button class="btn btn-icon" onclick="sv('import',document.querySelector('[onclick*=import]'))"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1v9m-3-3l3 3 3-3"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg>Import leads</button>
-      <button class="btn" onclick="exportCSV()">Export CSV</button>
-      <button class="btn btn-teal" onclick="openAddSeller()">+ Add seller</button>
-    </div>
-  </div>
-
-  <div class="content">
-
-    <!-- OVERVIEW -->
-    <div class="view active" id="view-overview">
-      <div id="ov-aff"></div>
-      <div class="metrics-grid" id="ov-metrics"></div>
-      <div class="g2">
-        <div class="card"><div class="card-header"><div><div class="card-title">Pipeline funnel</div></div></div><div id="ov-funnel"></div></div>
-        <div class="card"><div class="card-header"><div><div class="card-title">Payment receipts</div><div class="card-sub">As confirmed by accounts — not tied to onboard month</div></div></div><div id="ov-paylog"></div></div>
-      </div>
-      <div id="ov-activity" style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;margin-bottom:16px"></div>
-      <div class="g3">
-        <div class="card">
-          <div class="card-header"><div><div class="card-title" id="ov-q-title">Qualified sellers</div></div></div>
-          <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Store</th><th>BDA</th><th>1st Sale</th><th>Temu paid CED</th></tr></thead><tbody id="ov-q-tbl"></tbody></table></div>
-        </div>
-        <div class="card"><div class="card-header"><div><div class="card-title">Lead sources</div></div></div><div id="ov-sources"></div></div>
-      </div>
-    </div>
-
-    <!-- SELLERS -->
-    <div class="view" id="view-sellers">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-        <button class="btn btn-teal btn-icon" onclick="openAddSeller()">+ Add seller</button>
-        <span style="font-size:12px;color:var(--t3)" id="sellers-count"></span>
-      </div>
-      <div class="sbar">
-        <input type="text" id="s-search" placeholder="Search email, store, associate, tag..." oninput="buildSellersTable()">
-        <select id="s-src-f" onchange="buildSellersTable()">
-          <option value="">All sources</option>
-          <option value="BD">BD Team Referred</option>
-          <option value="Marketplace">Marketplace Recognised</option>
-          <option value="Campaign">Campaign Prospect</option>
-        </select>
-        <select id="s-tag-f" onchange="buildSellersTable()">
-          <option value="">All tags</option><option value="Hot lead">Hot lead</option><option value="VAT issue">VAT issue</option>
-          <option value="No reply">No reply</option><option value="Document pending">Doc pending</option>
-          <option value="Follow up scheduled">Follow up</option>
-        </select>
-        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);white-space:nowrap;cursor:pointer">
-          <input type="checkbox" id="s-multi-f" onchange="buildSellersTable()"> Multi-source only
-        </label>
-      </div>
-      <div class="chips" id="s-chips"></div>
-      <!-- Bulk action bar -->
-      <div id="bulk-bar" style="display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--navy);border-radius:var(--rs);margin-bottom:12px;flex-wrap:wrap">
-        <span style="font-size:13px;color:var(--twht);font-weight:500" id="bulk-count">0 selected</span>
-        <button class="aff-btn" onclick="bulkEmail()">Send bulk email (BCC all)</button>
-        <button class="aff-btn" onclick="selectAllSellers()">Select all</button>
-        <button class="aff-btn" onclick="clearSelection()">Clear</button>
-      </div>
-      <!-- Bulk status update bar (shown after bulk email) -->
-      <div id="bulk-status-bar" style="display:none;align-items:center;gap:10px;padding:10px 14px;background:var(--amber-l);border-radius:var(--rs);margin-bottom:12px;border:1px solid var(--amber)">
-        <span style="font-size:12px;color:var(--amber)">Update status for all selected sellers:</span>
-        <select id="bulk-status-sel" style="padding:6px 10px;border:1px solid var(--bdr2);border-radius:var(--rs);font-size:12px;font-family:var(--font)">
-          <option value="">— Choose new status —</option>
-          <option>Email Outreach 1</option><option>Email Outreach 2</option><option>Email Outreach 3</option>
-          <option>INCOMMUNICATION</option><option>REGISTRATION DONE</option>
-        </select>
-        <button class="btn btn-teal btn-sm" onclick="applyBulkStatus()">Apply</button>
-        <button class="btn btn-sm" onclick="document.getElementById('bulk-status-bar').style.display='none'">Dismiss</button>
-      </div>
-      <div class="card" style="padding:0;">
-        <div class="tbl-wrap"><table>
-          <thead><tr><th style="width:32px"><input type="checkbox" onchange="if(this.checked)selectAllSellers();else clearSelection()"></th><th>Email</th><th>Store</th><th>Status</th><th>Tags</th><th>Source(s)</th><th>Owner</th><th>Updated</th><th>Last action</th><th>WA</th><th></th></tr></thead>
-          <tbody id="s-tbody"></tbody>
-        </table></div>
-      </div>
-    </div>
-
-    <!-- REVENUE -->
-    <div class="view" id="view-revenue">
-      <div class="metrics-grid" id="rev-metrics"></div>
-      <div class="card">
-        <div class="card-header"><div><div class="card-title" id="rev-title">Qualified sellers — payment log</div><div class="card-sub">Payments received from Temu on their schedule, not tied to onboarding month</div></div><button class="btn btn-green" onclick="openModal('m-qual')">+ Mark qualified</button></div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>#</th><th>Store</th><th>Mall ID</th><th>Email</th><th>BDA</th><th>1st Sale</th><th>Amount</th><th>Temu paid CED</th><th>CED paid CSA</th><th>BD incentive</th><th>Notes</th></tr></thead>
-          <tbody id="rev-tbody"></tbody>
-          <tfoot><tr style="background:var(--surf2)"><td colspan="6" style="padding:10px 12px;font-weight:600">Total</td><td style="padding:10px 12px;font-weight:700;color:var(--green)" id="rev-total"></td><td style="padding:10px 12px;font-weight:600;color:var(--green);font-size:12px" id="rev-paid-c"></td><td colspan="3"></td></tr></tfoot>
-        </table></div>
-      </div>
-      <div class="card">
-        <div class="card-title" style="margin-bottom:12px">Payment timeline — confirmed by accounts team</div>
-        <div id="pay-tl"></div>
-      </div>
-    </div>
-
-    <!-- CAMPAIGNS -->
-    <div class="view" id="view-campaigns">
-      <div class="metrics-grid" id="camp-metrics"></div>
-      <div class="card">
-        <div class="card-header"><div><div class="card-title">Campaign performance</div><div class="card-sub">All campaigns — one row each</div></div><button class="btn btn-teal" onclick="openModal('m-campaign')">+ Add campaign</button></div>
-        <div class="tbl-wrap" id="camp-cards"></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div><div class="card-title">Campaign effectiveness</div><div class="card-sub">Campaign-sourced sellers near or at onboarding</div></div></div>
-        <div id="camp-effective"></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div><div class="card-title">All campaign-sourced sellers</div><div class="card-sub">Status and last updated date</div></div></div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>Email</th><th>Store</th><th>Status</th><th>Tags</th><th>Last updated</th><th></th></tr></thead>
-          <tbody id="mql-tbody"></tbody>
-        </table></div>
-      </div>
-    </div>
-
-    <!-- BD -->
-    <div class="view" id="view-bd">
-      <div class="metrics-grid" id="bd-metrics"></div>
-      <div class="g2">
-        <div class="card">
-          <div class="card-header"><div><div class="card-title">Associate performance</div></div><div style="display:flex;gap:8px"><button class="btn btn-sm" onclick="exportBDList()">Export CSV</button></div></div>
-          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-            <input type="text" id="bd-new-name" placeholder="Add BD member name..." style="flex:1;min-width:180px;padding:7px 11px;border:1px solid var(--bdr2);border-radius:var(--rs);font-size:13px;font-family:var(--font);background:var(--surf);color:var(--t1)">
-            <button class="btn btn-teal btn-sm" onclick="addBDMember()">Add member</button>
-          </div>
-          <div class="field" style="margin-bottom:10px"><label>Bulk import names (one per line)</label><textarea id="bd-import-txt" rows="3" placeholder="John Smith&#10;Jane Doe"></textarea></div>
-          <button class="btn btn-sm" onclick="importBDList()" style="margin-bottom:14px">Import list</button>
-          <div class="tbl-wrap"><table><thead><tr><th>Associate</th><th>Referred</th><th>Completed</th><th>Rate</th><th>Incentive</th><th></th></tr></thead><tbody id="bd-tbody"></tbody></table></div>
-        </div>
-        <div class="card"><div class="card-header"><div><div class="card-title">BD incentive log</div><div class="card-sub" id="bd-inc-sub"></div></div></div><div id="bd-inc-list"></div></div>
-      </div>
-    </div>
-
-    <!-- IMPORT -->
-    <div class="view" id="view-import">
-      <div class="g2">
-        <div>
-          <div class="card">
-            <div class="card-header"><div><div class="card-title">Import leads</div><div class="card-sub">Paste emails one per line — duplicates detected automatically</div></div></div>
-            <div class="imp-drop" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)" onclick="document.getElementById('file-pick').click()">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--t3);margin-bottom:6px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-              <div style="font-size:13px;color:var(--t2)">Click to browse or drop file here</div>
-              <div style="font-size:11px;color:var(--t3);margin-top:3px">CSV or Excel (.xlsx) supported</div>
-            </div>
-            <input type="file" id="file-pick" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleFilePick(event)">
-            <div class="field" style="margin-top:12px"><label>Paste emails (one per line)</label><textarea id="imp-emails" rows="8" placeholder="seller@example.co.uk&#10;store@business.com"></textarea></div>
-            <div class="frow">
-              <div class="field"><label>Program</label><select id="imp-prog"></select></div>
-              <div class="field"><label>Source type</label><select id="imp-src"><option value="MQL">MQL</option><option value="Temu">Temu confirmed</option><option value="BD">BD referral</option><option value="Campaign">Campaign</option><option value="Newsletter">Newsletter</option><option value="CRM">CRM cadence</option></select></div>
-            </div>
-            <div class="field"><label>Batch label (optional)</label><input type="text" id="imp-label" placeholder="April 2026 campaign..."></div>
-            <button class="btn btn-teal" style="width:100%;padding:10px" onclick="runImport()">Import & match</button>
-            <div id="imp-result" style="margin-top:12px"></div>
-          </div>
-          <div class="card">
-            <div class="card-header"><div><div class="card-title">Full CSV import</div><div class="card-sub">Paste from the Excel import template</div></div></div>
-            <div class="field"><label>CSV data (with header row)</label><textarea id="imp-csv" rows="5" placeholder="Email,Store,Status,Source,Associate,Tags,StoreID&#10;seller@example.co.uk,Store Name,..."></textarea></div>
-            <button class="btn btn-teal" style="width:100%;padding:9px" onclick="runCSVImport()">Parse & import CSV</button>
-            <div id="csv-result" style="margin-top:10px"></div>
-          </div>
-        </div>
-        <div>
-          <div class="card">
-            <div class="card-header"><div><div class="card-title">Database</div></div></div>
-            <div class="info-box teal">All data is stored in your Supabase database. Changes by any team member are visible to everyone instantly.</div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn btn-teal" onclick="exportCSV()">Export sellers CSV</button>
-              <button class="btn" onclick="refreshAll()">Refresh data</button>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header"><div><div class="card-title">Add new program</div></div></div>
-            <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Each program has its own seller list, revenue tracking, and affiliate link. Data never overlaps between programs.</p>
-            <button class="btn btn-teal" style="width:100%" onclick="openModal('m-new-prog')">+ Create new program</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-</div>
-
-<!-- MODALS -->
-<!-- Add/Edit Seller -->
-<div class="overlay" id="m-seller"><div class="modal modal-lg">
-  <div class="mhead"><h3 id="m-seller-title">Add seller</h3><button class="mclose" onclick="closeModal('m-seller')">x</button></div>
-  <div class="mbody">
-    <div class="frow">
-      <div class="field"><label>Email</label><input id="f-email" type="email" placeholder="seller@store.co.uk"></div>
-      <div class="field"><label>Store / Company</label><input id="f-company" placeholder="Store name"></div>
-    </div>
-    <div class="frow">
-      <div class="field"><label>Mall ID / Store ID</label><input id="f-storeid" placeholder="670702093... (if no email available)"></div>
-      <div class="field"><label>Phone / WhatsApp</label><input id="f-phone" placeholder="+44 7..."></div>
-    </div>
-    <div class="frow">
-      <div class="field"><label>Program</label><select id="f-prog"></select></div>
-      <div class="field"><label>Lead source</label><select id="f-src"><option value="BD">BD Referral</option><option value="Temu">Temu confirmed</option><option value="Campaign">Campaign</option><option value="MQL">MQL</option><option value="Newsletter">Newsletter</option><option value="CRM">CRM cadence</option></select></div>
-    </div>
-    <div class="frow">
-      <div class="field"><label>Status</label><select id="f-status" onchange="toggleQualSec()"></select></div>
-      <div class="field"><label>BD associate</label><select id="f-assoc"></select></div>
-    </div>
-    <div class="field"><label>Website</label><input id="f-website" placeholder="https://store.myshopify.com"></div>
-    <div class="field"><label>Tags</label><div class="tag-picker" id="tag-picker"></div></div>
-    <div class="field"><label>Remarks</label><textarea id="f-remarks" placeholder="Notes, blockers, WhatsApp updates..."></textarea></div>
-    <div id="qual-sec" style="display:none;">
-      <div class="info-box green">Marking as Onboarding Complete — log this in Revenue tab for payment tracking.</div>
-    </div>
-  </div>
-  <div class="mfoot"><button class="btn" onclick="closeModal('m-seller')">Cancel</button><button class="btn btn-teal" id="save-seller-btn" onclick="saveSeller()">Save</button></div>
-</div></div>
-
-<!-- Mark Qualified -->
-<div class="overlay" id="m-qual"><div class="modal">
-  <div class="mhead"><h3>Mark seller as qualified</h3><button class="mclose" onclick="closeModal('m-qual')">x</button></div>
-  <div class="mbody">
-    <div class="info-box teal">First organic order achieved. Status → Onboarding Complete. Added to revenue tracker.</div>
-    <div class="field"><label>Select existing seller (auto-fills fields)</label><select id="q-email-sel" onchange="onQualEmailSelect()" onclick="populateQualifiedEmail()"><option value="">— Search existing sellers —</option></select></div>
-    <div class="frow">
-      <div class="field"><label>Store name *</label><input id="q-store" placeholder="Store name"></div>
-      <div class="field"><label>Email (if known)</label><input id="q-email" placeholder="seller@store.co.uk"></div>
-    </div>
-    <div class="frow">
-      <div class="field"><label>Mall ID / Store ID</label><input id="q-sid" placeholder="670702..."></div>
-      <div class="field"><label>BDA *</label><select id="q-bda"></select></div>
-    </div>
-    <div class="frow">
-      <div class="field"><label>Month of 1st sale</label><input id="q-month" type="month"></div>
-      <div class="field"><label>Amount</label><input id="q-amt" type="number"></div>
-    </div>
-    <div class="frow">
-      <div class="field"><label>Temu paid CED?</label><select id="q-cedpaid"><option value="pending">Pending</option><option value="paid">Paid</option></select></div>
-      <div class="field"><label>CED paid CSA?</label><select id="q-csapaid"><option value="pending">Pending</option><option value="paid">Paid</option></select></div>
-    </div>
-    <div class="field"><label>Notes</label><textarea id="q-notes" rows="2"></textarea></div>
-  </div>
-  <div class="mfoot"><button class="btn" onclick="closeModal('m-qual')">Cancel</button><button class="btn btn-green" onclick="saveQualified()">Mark qualified</button></div>
-</div></div>
-
-<!-- New Program -->
-<div class="overlay" id="m-new-prog"><div class="modal">
-  <div class="mhead"><h3>New program</h3><button class="mclose" onclick="closeModal('m-new-prog')">x</button></div>
-  <div class="mbody">
-    <div class="frow">
-      <div class="field"><label>Program name *</label><input id="pn-name" placeholder="Temu US, Walmart UK..."></div>
-      <div class="field"><label>Marketplace</label><select id="pn-mkt"><option>Temu</option><option>Walmart</option><option>AliExpress</option><option>eBay</option><option>Amazon</option><option>Other</option></select></div>
-    </div>
-    <div class="frow">
-      <div class="field"><label>Region</label><input id="pn-region" placeholder="UK, US, EU..."></div>
-      <div class="field"><label>Incentive per seller</label><input id="pn-inc" type="number" value="800" placeholder="800"></div>
-    </div>
-    <div class="frow">
-      <div class="field"><label>Currency</label><select id="pn-cur"><option value="EUR">EUR (€)</option><option value="USD">USD ($)</option><option value="GBP">GBP (£)</option></select></div>
-      <div class="field"><label>Color</label><select id="pn-col"><option value="teal">Teal</option><option value="blue">Blue</option><option value="green">Green</option><option value="purple">Purple</option><option value="amber">Amber</option></select></div>
-    </div>
-    <div class="frow">
-      <div class="field"><label>Program manager name</label><input id="pn-manager" placeholder="John Smith"></div>
-      <div class="field"><label>Manager email</label><input id="pn-mgr-email" type="email" placeholder="john@threecolts.com"></div>
-    </div>
-    <div class="field"><label>Affiliate / tracking link</label><input id="pn-link" placeholder="https://seller.temu.com/..."></div>
-    <div class="field"><label>Notes / eligibility criteria</label><textarea id="pn-notes" rows="3"></textarea></div>
-  </div>
-  <div class="mfoot"><button class="btn" onclick="closeModal('m-new-prog')">Cancel</button><button class="btn btn-teal" onclick="saveProgram()">Create</button></div>
-</div></div>
-
-<!-- Add Campaign -->
-<div class="overlay" id="m-campaign"><div class="modal">
-  <div class="mhead"><h3>Add campaign</h3><button class="mclose" onclick="closeModal('m-campaign')">x</button></div>
-  <div class="mbody">
-    <div class="frow">
-      <div class="field"><label>Campaign name *</label><input id="c-name" placeholder="April 2026 Set A"></div>
-      <div class="field"><label>Date</label><input id="c-date" type="date"></div>
-    </div>
-    <div class="frow">
-      <div class="field"><label>Sent</label><input id="c-sent" type="number"></div>
-      <div class="field"><label>Opens</label><input id="c-opens" type="number"></div>
-    </div>
-    <div class="frow">
-      <div class="field"><label>Clicks</label><input id="c-clicks" type="number"></div>
-      <div class="field"><label>Replies</label><input id="c-replies" type="number"></div>
-    </div>
-    <div class="field"><label>Segment</label><input id="c-seg" placeholder="Amazon, Etsy & Shopify database"></div>
-  </div>
-  <div class="mfoot"><button class="btn" onclick="closeModal('m-campaign')">Cancel</button><button class="btn btn-teal" onclick="saveCampaign()">Save</button></div>
-</div></div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-// ============================================================
-// CONFIG — filled in after setup
-// ============================================================
-const CFG_KEY = 'ced_supabase_cfg';
-let SB_URL = '';
-let SB_KEY = '';
-
-// ============================================================
-// SUPABASE API WRAPPER
-// ============================================================
-async function sbFetch(path, method='GET', body=null) {
-  const opts = {
-    method,
-    headers: { 'Content-Type':'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': method==='POST'?'return=representation':'return=minimal' }
-  };
-  if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(SB_URL + '/rest/v1/' + path, opts);
-  if (!r.ok) {
-    const err = await r.text();
-    throw new Error(err);
-  }
-  const txt = await r.text();
-  return txt ? JSON.parse(txt) : null;
-}
-
-const DB = {
-  from: (table) => ({
-    select: (cols='*') => sbFetch(`${table}?select=${cols}`),
-    selectEq: (cols, col, val) => sbFetch(`${table}?select=${cols}&${col}=eq.${encodeURIComponent(val)}`),
-    insert: (data) => sbFetch(table, 'POST', Array.isArray(data) ? data : [data]),
-    update: (id, data) => sbFetch(`${table}?id=eq.${id}`, 'PATCH', data),
-    delete: (id) => sbFetch(`${table}?id=eq.${id}`, 'DELETE'),
-    upsert: (data) => sbFetch(table + '?on_conflict=id', 'POST', Array.isArray(data) ? data : [data])
-  })
-};
-
-// ============================================================
-// STATE
-// ============================================================
-let PROGRAMS = [];
-let SELLERS = [];
-let QUALIFIED = [];
-let CAMPAIGNS = [];
-let PAYMENTS = [];
-let ACTIVITY = [];
-let MQL_EMAILS = [];
-let CUR_PROG = '';
-let CUR_VIEW = 'overview';
-let SF = 'all';
-let EDIT_ID = null;
-let SEL_TAGS = [];
-let SAVING = false;
-let REALTIME_CHANNEL = null;
-let OV_DATE_FILTER = null;
-
-// ============================================================
-// CONSTANTS
-// ============================================================
-const STATUSES = [
-  // Campaign engagement stages
-  'Opened','Clicked','Replied',
-  // Outreach stages
-  'Email Outreach 1','Email Outreach 2','Email Outreach 3',
-  'WHATSAPP FOLLOW UP IN PROGRESS','REGISTRATION DONE',
-  'INCOMMUNICATION','NOT INTERESTED','STUCK','Document Verification','1st Sign Up Done',
-  'Engagement','Product Setup','MANUAL LISTING IN PROGRESS','LISTING VIA APP IN PROGRESS',
-  'SALES AWAITING','ONBOARDING COMPLETE','APP CONNECTED','FRAMEWORK NOT SUPPORTED','Not eligible'
-];
-const CAMPAIGN_STATUSES = ['Opened','Clicked','Replied'];
-const SOURCES = {
-  BD: 'BD Team Referred',
-  MARKETPLACE: 'Marketplace Recognised',
-  CAMPAIGN: 'Campaign Prospect'
-};
-const ASSOCIATES = [
-  'Sarina Sufiyan','Suryansh Chauhan','Nadeem Khan','Shaim kumar','Divyam Gupta',
-  'Rishu Agarwal','Shivangi Tiwari','Aditi Sinha','Mohd Fahad Khan','Kartikey Mishra',
-  'Raju Sah','Yashi Rastogi','Mohd Shadab','Gaurav Mishra','Abhijeet Srivastava',
-  'Siddhartha Raj','Yashwita','Yogesh','Akshay Singh','Mobin Rana','Sahil Pandey',
-  'Khushi Bhasin','Mannu Pratap Singh','Dhruv Prashant','Prashant Srivastava'
-];
-const ALL_TAGS = ['Hot lead','VAT issue','No reply','Document pending','Price concern','Listing help needed','Technical issue','Follow up scheduled','Closed - won'];
-const TAG_CLS = {'Hot lead':'t-hot','VAT issue':'t-vat','No reply':'t-noreply','Document pending':'t-doc','Price concern':'t-price','Listing help needed':'t-list','Technical issue':'t-tech','Follow up scheduled':'t-follow','Closed - won':'t-def'};
-const PROG_COLORS = {teal:'#0d9488',blue:'#2563eb',green:'#16a34a',purple:'#7c3aed',amber:'#d97706'};
-const CURRENCIES = {EUR:'€',USD:'$',GBP:'£'};
-
-// Email templates
-const ETPL = {
-  'EMAIL FOLLOW UP IN PROGRESS': {
-    sub: 'Grow your sales on Temu — exclusive programme via CedCommerce',
-    body: `Hi [NAME],\n\nI am reaching out from CedCommerce regarding a funded seller programme on Temu that we are running.\n\nWe help sellers list their products on Temu with free onboarding, product listing support, and a dedicated account manager throughout.\n\nCould we have a quick 15-minute call this week to walk you through the details?\n\nBest,\n[YOUR NAME]\nCedCommerce`
-  },
-  'INCOMMUNICATION': {
-    sub: 'Checking in — Temu programme still open for [STORE]',
-    body: `Hi [NAME],\n\nI wanted to check in as we have not connected in a while regarding your Temu onboarding.\n\nThe programme is still active and we would love to help you get started.\n\nIf the timing is not right, just let me know and I can follow up at a better time.\n\nBest,\n[YOUR NAME]\nCedCommerce`
-  },
-  'REGISTRATION DONE': {
-    sub: 'Next steps — your Temu store registration is confirmed',
-    body: `Hi [NAME],\n\nYour Temu store registration is complete. Your next steps are:\n1. Complete document verification\n2. Set up your store profile\n3. Upload your first products\n\nWe can help with all of this. Shall we schedule a session this week?\n\nBest,\n[YOUR NAME]\nCedCommerce`
-  },
-  'Document Verification': {
-    sub: 'Document verification — how we can help [STORE]',
-    body: `Hi [NAME],\n\nI am following up on the document verification step for your Temu store.\n\nCommon documents needed: business registration, VAT certificate (if applicable), ID verification.\n\nI can guide you through each step. Would a quick call help?\n\nBest,\n[YOUR NAME]\nCedCommerce`
-  },
-  'STUCK': {
-    sub: 'Let us get your Temu store unblocked — [STORE]',
-    body: `Hi [NAME],\n\nI want to help resolve the challenge you are facing with your Temu onboarding.\n\nCommon blockers we help with: VAT, document issues, portal access, product listings.\n\nPlease reply or call and we will sort it together.\n\nBest,\n[YOUR NAME]\nCedCommerce`
-  },
-  'DEFAULT': {
-    sub: 'Following up — your Temu onboarding',
-    body: `Hi [NAME],\n\nI am following up from CedCommerce regarding your Temu onboarding. Please let me know if there is anything I can help with.\n\nBest,\n[YOUR NAME]\nCedCommerce`
-  }
-};
-
-function getTpl(status) { return ETPL[status] || ETPL['DEFAULT']; }
-
-function getTplForProg(status) {
-  const t = getTpl(status);
-  const prog = curProg();
-  const mkt = prog.market || 'marketplace';
-  return {
-    sub: t.sub.replace(/Temu/g, mkt),
-    body: t.body.replace(/Temu/g, mkt)
-  };
-}
-
-function openEmail(email, company, status) {
-  if (!email || email.includes('@update')) { toast('No email available for this seller', true); return; }
-  const t = getTpl(status);
-  const nm = (company || 'there').split(' ')[0];
-  const sub = encodeURIComponent(t.sub.replace(/\[STORE\]/g, company||'').replace(/\[NAME\]/g, nm));
-  const body = encodeURIComponent(t.body.replace(/\[STORE\]/g, company||'').replace(/\[NAME\]/g, nm));
-  window.open('https://mail.google.com/mail/?view=cm&to=' + encodeURIComponent(email) + '&su=' + sub + '&body=' + body, '_blank');
-}
-
-function openWA(phone, company, sellerId) {
-  const nm = (company || 'there').split(' ')[0];
-  const prog = curProg();
-  const msg = encodeURIComponent('Hi ' + nm + ', following up from CedCommerce about your ' + (prog.market||'') + ' onboarding. Do you have 10 minutes for a quick call?');
-  window.open('https://wa.me/' + (phone||'').replace(/\D/g,'') + '?text=' + msg, '_blank');
-  if (sellerId) logActivity(sellerId, 'WhatsApp Outreach', 'WhatsApp message sent to ' + (company||phone), CUR_PROG);
-}
-
-// ============================================================
-// ACTIVITY LOGGER
-// ============================================================
-async function logActivity(seller_id, action_type, description, program_id) {
-  const entry = {
-    id: crypto.randomUUID ? crypto.randomUUID() : 'a'+Date.now(),
-    seller_id: seller_id || null,
-    program_id: program_id || CUR_PROG,
-    action_type,
-    description,
-    created_at: new Date().toISOString()
-  };
-  ACTIVITY.unshift(entry);
-  try { await sbFetch('activity_log', 'POST', [entry]); } catch(e) { console.warn('Activity log failed:', e.message); }
-}
-
-// ============================================================
-// HELPERS
-// ============================================================
-const uid = () => crypto.randomUUID ? crypto.randomUUID() : 'x' + Math.random().toString(36).slice(2,11);
-const now = () => new Date().toLocaleDateString('en-GB');
-function fmtM(m) {
-  if (!m) return '—';
-  const [y, mo] = m.split('-');
-  const mths = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return mths[parseInt(mo)-1] + ' ' + (y > '2025' ? "'" + y.slice(2) : y);
-}
-function toast(msg, isError=false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (isError ? ' error' : '');
-  clearTimeout(t._t);
-  t._t = setTimeout(() => t.classList.remove('show'), 2800);
-}
-function loading(show, text='Saving...') {
-  document.getElementById('loading').classList.toggle('hidden', !show);
-  if (text) document.getElementById('loading-text').textContent = text;
-}
-function setDBStatus(state) {
-  const dot = document.getElementById('db-dot');
-  const lbl = document.getElementById('db-label');
-  dot.className = 'db-dot ' + (state==='ok'?'':'loading' );
-  if (state==='ok') { dot.style.background='#22c55e'; lbl.textContent='Database connected'; }
-  else if (state==='err') { dot.style.background='#ef4444'; lbl.textContent='Database error'; }
-  else { dot.style.background=PROG_COLORS.amber; lbl.textContent='Connecting...'; }
-}
-
-function sPill(s) {
-  if (!s) return '<span class="pill p-gray">—</span>';
-  const u = s.toUpperCase();
-  let c = 'p-gray';
-  if (u.includes('ONBOARD')) c='p-green';
-  else if (u.includes('EMAIL FOLLOW')) c='p-blue';
-  else if (u.includes('WHATSAPP')) c='p-teal';
-  else if (u.includes('REGISTRATION')||u.includes('SIGN UP')) c='p-purple';
-  else if (u.includes('NOT INTEREST')||u.includes('STUCK')||u.includes('NOT ELIG')) c='p-red';
-  else if (u.includes('DOCUMENT')||u.includes('INCOMMUNICATION')) c='p-amber';
-  else if (u.includes('PRODUCT')||u.includes('LISTING')||u.includes('SALES')) c='p-blue';
-  const lbl = s.length > 24 ? s.slice(0,24)+'...' : s;
-  return '<span class="pill ' + c + '">' + lbl + '</span>';
-}
-
-function srcTags(sources) {
-  return (sources||[]).map(s => {
-    const sl = (s||'').toLowerCase();
-    let c = 'stag-def', label = s;
-    if (sl.includes('bd') || sl.includes('team')) { c='stag-bd'; label='BD Team'; }
-    else if (sl.includes('marketplace') || sl.includes('temu') || sl.includes('recognised')) { c='stag-temu'; label='Marketplace'; }
-    else if (sl.includes('campaign') || sl.includes('mql') || sl.includes('newsletter') || sl.includes('prospect')) { c='stag-camp'; label='Campaign'; }
-    return '<span class="stag ' + c + '">' + label + '</span>';
-  }).join('');
-}
-
-function tagChips(tags) {
-  return (tags||[]).map(t => '<span class="tchip ' + (TAG_CLS[t]||'t-def') + '">' + t + '</span>').join('');
-}
-
-function curProg() { return PROGRAMS.find(p => p.id === CUR_PROG) || {}; }
-function progCurr() { return CURRENCIES[curProg().currency] || '€'; }
-function curSellers() { return SELLERS.filter(s => s.program_id === CUR_PROG); }
-function curQualified() { return QUALIFIED.filter(q => q.program_id === CUR_PROG); }
-function curPayments() { return PAYMENTS.filter(p => p.program_id === CUR_PROG); }
-function curCampaigns() { return CAMPAIGNS.filter(c => c.program_id === CUR_PROG); }
-
-// ============================================================
-// SETUP
-// ============================================================
-function saveSetup() {
-  const url = document.getElementById('setup-url').value.trim().replace(/\/$/, '');
-  const key = document.getElementById('setup-key').value.trim();
-  if (!url || !key) { document.getElementById('setup-msg').innerHTML = '<div class="info-box amber">Please enter both URL and key.</div>'; return; }
-  localStorage.setItem(CFG_KEY, JSON.stringify({url, key}));
-  SB_URL = url; SB_KEY = key;
-  document.getElementById('setup-msg').innerHTML = '<div class="info-box teal">Connecting...</div>';
-  initApp();
-}
-
-// ============================================================
-// INIT & DATA LOAD
-// ============================================================
-async function initApp() {
-  const cfg = JSON.parse(localStorage.getItem(CFG_KEY)||'null');
-  if (!cfg || !cfg.url || !cfg.key) {
-    document.getElementById('loading').classList.add('hidden');
-    document.getElementById('setup-screen').style.display = 'flex';
-    return;
-  }
-  SB_URL = cfg.url; SB_KEY = cfg.key;
-  document.getElementById('loading').classList.remove('hidden');
-  document.getElementById('loading-text').textContent = 'Connecting to database...';
-  let retries = 0;
-  const tryConnect = async () => {
-    try {
-      await refreshAll(true);
-      document.getElementById('loading').classList.add('hidden');
-      document.getElementById('setup-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'flex';
-      setDBStatus('ok');
-      renderProgs();
-      if (PROGRAMS.length > 0) { CUR_PROG = PROGRAMS[0].id; }
-      renderView();
-      initRealtime();
-    } catch(e) {
-      retries++;
-      if (retries < 3) {
-        document.getElementById('loading-text').textContent = 'Retrying connection (' + retries + '/3)...';
-        setTimeout(tryConnect, 2000 * retries);
-      } else {
-        document.getElementById('loading').classList.add('hidden');
-        if (e.message && e.message.includes('does not exist')) {
-          document.getElementById('setup-screen').style.display = 'flex';
-          document.getElementById('setup-msg').innerHTML = '<div class="info-box amber">Tables not found. Please run the SQL schema first, then try again.</div>';
-        } else {
-          // Show app anyway with error — don't lock user out
-          document.getElementById('app').style.display = 'flex';
-          setDBStatus('err');
-          renderProgs();
-          toast('Database connection failed — working offline', true);
-        }
-      }
-    }
-  };
-  tryConnect();
-}
-
-function openSettings() {
-  const cfg = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
-  document.getElementById('setup-url').value = cfg.url||'';
-  document.getElementById('setup-key').value = cfg.key||'';
-  document.getElementById('setup-screen').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-}
-
-async function refreshAll(init=false) {
-  if (init) document.getElementById('loading-text').textContent = 'Loading programs...';
-  PROGRAMS   = await sbFetch('programs?select=*&order=name');
-  SELLERS    = await sbFetch('sellers?select=*&order=created_at.desc');
-  QUALIFIED  = await sbFetch('qualified_sellers?select=*&order=created_at.asc');
-  CAMPAIGNS  = await sbFetch('campaigns?select=*&order=campaign_date.desc');
-  PAYMENTS   = await sbFetch('payments?select=*&order=created_at.asc');
-  ACTIVITY   = await sbFetch('activity_log?select=*&order=created_at.desc&limit=500') || [];
-  MQL_EMAILS = JSON.parse(localStorage.getItem('ced_mql_emails')||'[]');
-  if (!init) { renderProgs(); renderView(); toast('Data refreshed'); }
-}
-
-// ============================================================
-// REALTIME
-// ============================================================
-function initRealtime() {
-  if (!window.RealtimeClient || REALTIME_CHANNEL) return;
-  try {
-    const wsUrl = SB_URL.replace('https://', 'wss://') + '/realtime/v1/websocket?apikey=' + SB_KEY + '&vsn=1.0.0';
-    const socket = new window.RealtimeClient(wsUrl);
-    socket.connect();
-    REALTIME_CHANNEL = socket.channel('realtime:public');
-    ['sellers','qualified_sellers','payments','campaigns','activity_log'].forEach(tbl => {
-      REALTIME_CHANNEL.on('postgres_changes', {event:'*', schema:'public', table:tbl}, async () => {
-        await refreshAll(false);
-      });
-    });
-    REALTIME_CHANNEL.subscribe();
-  } catch(e) { console.warn('Realtime not available:', e.message); }
-}
-
-// ============================================================
-// PROGRAMS
-// ============================================================
-function renderProgs() {
-  document.getElementById('prog-sw').innerHTML = PROGRAMS.map(p =>
-    '<button class="pbtn' + (p.id===CUR_PROG?' active':'') + '" onclick="switchProg(\'' + p.id + '\')">' +
-    '<span class="pdot" style="background:' + (PROG_COLORS[p.color]||'#888') + '"></span><span>' + p.name + '</span></button>'
-  ).join('');
-  // Populate program selects in modals
-  const opts = PROGRAMS.map(p => '<option value="' + p.id + '">' + p.name + '</option>').join('');
-  ['f-prog','imp-prog'].forEach(id => { const el=document.getElementById(id); if(el) el.innerHTML=opts; });
-}
-
-function switchProg(id) { CUR_PROG=id; renderProgs(); renderView(); }
-
-async function saveProgram() {
-  const name = document.getElementById('pn-name').value.trim();
-  if (!name) { alert('Program name required'); return; }
-  const data = { id: uid(), name, market:document.getElementById('pn-mkt').value, region:document.getElementById('pn-region').value, incentive_amount:parseInt(document.getElementById('pn-inc').value)||800, currency:document.getElementById('pn-cur').value, color:document.getElementById('pn-col').value, affiliate_link:document.getElementById('pn-link').value, notes:document.getElementById('pn-notes').value, manager_name:document.getElementById('pn-manager').value, manager_email:document.getElementById('pn-mgr-email').value, active:true };
-  try {
-    await DB.from('programs').insert(data);
-    PROGRAMS.push(data);
-    renderProgs();
-    closeModal('m-new-prog');
-    toast('Program created');
-  } catch(e) { toast('Error: ' + e.message, true); }
-}
-
-// ============================================================
-// NAVIGATION
-// ============================================================
-function sv(name, el) {
-  CUR_VIEW = name;
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  if (el) el.classList.add('active');
-  const p = curProg();
-  document.getElementById('page-title').textContent = (p.name||'') + ' — ' + name.charAt(0).toUpperCase() + name.slice(1);
-  document.getElementById('page-sub').textContent = 'Program: ' + (p.region||'') + ' · ' + (p.market||'');
-  renderView();
-}
-
-function renderView() {
-  if (CUR_VIEW==='overview') renderOverview();
-  else if (CUR_VIEW==='sellers') renderSellerView();
-  else if (CUR_VIEW==='revenue') renderRevenue();
-  else if (CUR_VIEW==='campaigns') renderCampaigns();
-  else if (CUR_VIEW==='bd') renderBD();
-}
-
-// ============================================================
-// OVERVIEW
-// ============================================================
-function renderOverview() {
-  const prog = curProg();
-  const sellers = curSellers();
-  const qual = curQualified();
-  const paid = qual.filter(q => q.temu_paid_ced==='paid').length;
-  const pend = qual.length - paid;
-  const curr = progCurr();
-  const inc = prog.incentive_amount || 800;
-
-  // Affiliate link box
-  document.getElementById('ov-aff').innerHTML = prog.affiliate_link ? `
-    <div class="aff-box">
-      <div style="flex:1;min-width:0">
-        <div class="aff-label">${prog.name} affiliate link</div>
-        <div class="aff-link" id="aff-link-text">${prog.affiliate_link}</div>
-      </div>
-      <div class="aff-actions">
-        <button class="aff-btn" onclick="copyAff()">Copy link</button>
-        <a href="${prog.affiliate_link}" target="_blank"><button class="aff-btn">Open</button></a>
-      </div>
-    </div>` : '';
-
-  const bdCount = sellers.filter(s=>(s.sources||[]).some(x=>x.toLowerCase().includes('bd'))).length;
-  const mktCount = sellers.filter(s=>(s.sources||[]).some(x=>x.toLowerCase().includes('marketplace')||x.toLowerCase().includes('temu')||x.toLowerCase().includes('recognised'))).length;
-  const campCount = sellers.filter(s=>(s.sources||[]).some(x=>x.toLowerCase().includes('campaign')||x.toLowerCase().includes('mql')||x.toLowerCase().includes('prospect'))).length;
-  document.getElementById('ov-metrics').innerHTML = `
-    <div class="mcard teal"><div class="ml">Sellers tracked</div><div class="mv">${sellers.length}</div><div class="ms">${prog.name}</div></div>
-    <div class="mcard green"><div class="ml">Onboarding complete</div><div class="mv">${sellers.filter(s=>(s.status||'').toUpperCase().includes('ONBOARD')).length}</div><div class="ms">Qualified for ${curr}${inc}</div></div>
-    <div class="mcard amber"><div class="ml">Pending payment</div><div class="mv">${pend}</div><div class="ms">${curr}${pend*inc} outstanding</div></div>
-    <div class="mcard blue"><div class="ml">${prog.market||'Marketplace'} → CED paid</div><div class="mv">${paid}</div><div class="ms">${curr}${paid*inc} received</div></div>
-    <div class="mcard"><div class="ml">BD referred</div><div class="mv">${bdCount}</div><div class="ms">BD Team source</div></div>
-    <div class="mcard"><div class="ml">Campaign prospects</div><div class="mv">${campCount}</div><div class="ms">From campaigns/MQL</div></div>
-  `;
-
-  // Funnel
-  const stages = [
-    {l:'Email follow-up',k:'EMAIL FOLLOW',c:'#2563eb'},{l:'WhatsApp follow-up',k:'WHATSAPP',c:'#0d9488'},
-    {l:'Registration done',k:'REGISTRATION DONE',c:'#7c3aed'},{l:'1st sign up done',k:'SIGN UP',c:'#7c3aed'},
-    {l:'Document verification',k:'DOCUMENT',c:'#d97706'},{l:'Engagement',k:'ENGAG',c:'#9ca3af'},
-    {l:'Product setup',k:'PRODUCT SETUP',c:'#2563eb'},{l:'Manual listing',k:'MANUAL LISTING',c:'#d97706'},
-    {l:'Listing via app',k:'LISTING VIA APP',c:'#0d9488'},{l:'Sales awaiting',k:'SALES AW',c:'#7c3aed'},
-    {l:'Incommunication',k:'INCOMMUNICATION',c:'#9ca3af'},{l:'Onboarding complete',k:'ONBOARD',c:'#16a34a'},
-    {l:'Not interested / not eligible',k:'NOT INTEREST',c:'#dc2626'},
-  ];
-  const counts = stages.map(s=>({...s,n:sellers.filter(x=>(x.status||'').toUpperCase().includes(s.k)).length})).filter(c=>c.n>0);
-  const mx = Math.max(...counts.map(c=>c.n),1);
-  document.getElementById('ov-funnel').innerHTML = counts.map(c =>
-    '<div class="funnel-row"><div class="funnel-label">' + c.l + '</div><div class="funnel-track"><div class="funnel-fill" style="width:' + Math.max(6,Math.round(c.n/mx*100)) + '%;background:' + c.c + '22;border-left:3px solid ' + c.c + '"></div></div><div class="funnel-n">' + c.n + '</div></div>'
-  ).join('');
-
-  // Payment log
-  const pays = curPayments();
-  document.getElementById('ov-paylog').innerHTML = pays.length ? pays.map(p =>
-    '<div class="rev-row"><div><strong style="font-size:13px">' + p.period + '</strong>' +
-    (p.stores_note ? '<div style="font-size:11px;color:var(--t3);margin-top:2px">' + p.stores_note + '</div>' : '') + '</div>' +
-    '<div style="font-size:14px;font-weight:700;color:' + (p.received?'var(--green)':'var(--t3)') + '">' + p.amount + '</div>' +
-    (p.received ? '<span class="paid">' + p.seller_count + ' seller' + (p.seller_count!==1?'s':'') + '</span>' : '<span class="pill p-gray" style="font-size:10px">No payment</span>') + '</div>'
-  ).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px 0">No payment records yet. Add in Revenue tab.</div>';
-
-  // Qualified table
-  document.getElementById('ov-q-title').textContent = qual.length + ' qualified sellers — ' + prog.name;
-  document.getElementById('ov-q-tbl').innerHTML = qual.map((q,i) =>
-    '<tr><td style="color:var(--t3);font-size:11px">' + (i+1) + '</td>' +
-    '<td><strong style="font-size:12px">' + q.store_name + '</strong></td>' +
-    '<td style="font-size:12px">' + (q.bda||'—') + '</td>' +
-    '<td>' + fmtM(q.first_sale_month) + '</td>' +
-    '<td>' + (q.temu_paid_ced==='paid'?'<span class="paid">Paid</span>':'<span class="pend">Pending</span>') + '</td></tr>'
-  ).join('') || '<tr><td colspan="5" style="color:var(--t3);padding:16px;text-align:center">No qualified sellers yet</td></tr>';
-
-  // Dynamic source counts from live DB data
-  const srcData = [
-    {n:'BD Team Referred',  c:bdCount,   t:'bd'},
-    {n:prog.market+' Recognised', c:mktCount, t:'temu'},
-    {n:'Campaign Prospect', c:campCount, t:'camp'},
-    {n:'Multi-source (overlap)', c:sellers.filter(s=>(s.sources||[]).length>1).length, t:'def'},
-  ];
-  document.getElementById('ov-sources').innerHTML = srcData.map(s =>
-    '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr)">' +
-    '<span style="font-size:13px">' + s.n + '</span><div style="display:flex;align-items:center;gap:8px">' +
-    '<span class="stag stag-' + s.t + '">' + s.t + '</span><span style="font-size:13px;font-weight:600">' + s.c.toLocaleString() + '</span></div></div>'
-  ).join('');
-
-  // Activity date filter + log
-  const progAct = ACTIVITY.filter(a => a.program_id === CUR_PROG);
-  const filtAct = OV_DATE_FILTER ? progAct.filter(a => a.created_at && a.created_at.slice(0,10) === OV_DATE_FILTER) : progAct.slice(0,20);
-  document.getElementById('ov-activity').innerHTML =
-    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">' +
-    '<strong style="font-size:13px">Recent activity</strong>' +
-    '<input type="date" id="act-date-filter" value="' + (OV_DATE_FILTER||'') + '" onchange="OV_DATE_FILTER=this.value||null;renderOverview()" style="padding:5px 9px;border:1px solid var(--bdr2);border-radius:var(--rs);font-size:12px;font-family:var(--font);background:var(--surf);color:var(--t1)">' +
-    (OV_DATE_FILTER ? '<button onclick="OV_DATE_FILTER=null;renderOverview()" style="font-size:11px;color:var(--teal);background:none;border:none;cursor:pointer">Clear</button>' : '') +
-    '</div>' +
-    (filtAct.length ? filtAct.map(a =>
-      '<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--bdr)">' +
-      '<div style="width:6px;height:6px;border-radius:50%;background:var(--teal);margin-top:5px;flex-shrink:0"></div>' +
-      '<div><div style="font-size:12px;color:var(--t1)">' + (a.description||a.action_type) + '</div>' +
-      '<div style="font-size:11px;color:var(--t3);margin-top:2px">' + (a.created_at ? new Date(a.created_at).toLocaleString('en-GB') : '') + '</div></div></div>'
-    ).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px 0">' + (OV_DATE_FILTER?'No activity on this date':'No recent activity') + '</div>');
-}
-
-function copyAff() {
-  const link = curProg().affiliate_link;
-  if (!link) return;
-  navigator.clipboard.writeText(link).then(() => toast('Affiliate link copied'));
-}
-
-// ============================================================
-// SELLERS VIEW
-// ============================================================
-const S_CHIPS = [
-  {k:'all',l:'All'},{k:'ONBOARD',l:'Onboarded'},{k:'EMAIL FOLLOW',l:'Email f/u'},
-  {k:'WHATSAPP',l:'WhatsApp f/u'},{k:'REGISTRATION DONE',l:'Registered'},
-  {k:'INCOMMUNICATION',l:'Incommunication'},{k:'DOCUMENT',l:'Doc verify'},
-  {k:'NOT INTEREST',l:'Not interested'},{k:'STUCK',l:'Stuck'},{k:'PRODUCT SETUP',l:'Product setup'},
-  {k:'SALES AW',l:'Sales awaiting'},
-];
-
-function renderSellerView() {
-  document.getElementById('s-chips').innerHTML = S_CHIPS.map(c =>
-    '<button class="chip' + (SF===c.k?' active':'') + '" onclick="setSF(\'' + c.k + '\')">' + c.l + '</button>'
-  ).join('');
-  buildSellersTable();
-}
-
-function setSF(k) { SF=k; renderSellerView(); }
-
-let SELECTED_SELLERS = new Set();
-
-function buildSellersTable() {
-  const q = (document.getElementById('s-search')||{value:''}).value.toLowerCase();
-  const sf = (document.getElementById('s-src-f')||{value:''}).value;
-  const tf = (document.getElementById('s-tag-f')||{value:''}).value;
-  const multiOnly = document.getElementById('s-multi-f') && document.getElementById('s-multi-f').checked;
-  let rows = curSellers().filter(s => {
-    if (q && !((s.email||'').toLowerCase().includes(q)||(s.company||'').toLowerCase().includes(q)||(s.associate||'').toLowerCase().includes(q)||(s.tags||[]).join(' ').toLowerCase().includes(q)||(s.store_id||'').includes(q))) return false;
-    if (SF!=='all' && !(s.status||'').toUpperCase().includes(SF.toUpperCase())) return false;
-    if (sf) {
-      const srcMatch = (s.sources||[]).some(x => {
-        const xl = x.toLowerCase();
-        if (sf==='BD') return xl.includes('bd')||xl.includes('team');
-        if (sf==='Marketplace') return xl.includes('marketplace')||xl.includes('recognised')||xl.includes('temu');
-        if (sf==='Campaign') return xl.includes('campaign')||xl.includes('mql')||xl.includes('prospect')||xl.includes('newsletter');
-        return xl.includes(sf.toLowerCase());
-      });
-      if (!srcMatch) return false;
-    }
-    if (tf && !(s.tags||[]).includes(tf)) return false;
-    if (multiOnly && (s.sources||[]).length < 2) return false;
-    return true;
-  });
-  document.getElementById('sellers-count').textContent = rows.length + ' sellers';
-  // Bulk action bar
-  const bulkBar = document.getElementById('bulk-bar');
-  if (bulkBar) bulkBar.style.display = SELECTED_SELLERS.size > 0 ? 'flex' : 'none';
-  if (document.getElementById('bulk-count')) document.getElementById('bulk-count').textContent = SELECTED_SELLERS.size + ' selected';
-
-  document.getElementById('s-tbody').innerHTML = rows.length ? rows.map(s => {
-    const dup = (s.sources||[]).length > 1;
-    const noEmail = !s.email || s.email.includes('@update');
-    const isBD = (s.sources||[]).some(x=>(x||'').toLowerCase().includes('bd'));
-    const owner = isBD ? (s.associate||'—') : (curProg().manager_name || '—');
-    const checked = SELECTED_SELLERS.has(s.id) ? 'checked' : '';
-    const lastAct = ACTIVITY.find(a => a.seller_id === s.id);
-    return '<tr>' +
-      '<td style="width:32px"><input type="checkbox" ' + checked + ' onchange="toggleSellerCheck(\'' + s.id + '\',this.checked)" style="cursor:pointer"></td>' +
-      '<td><div style="display:flex;align-items:center;font-size:12px;font-family:var(--mono)">' + (dup?'<span class="ovr" title="Multi-source"></span>':'') + '<span title="' + (s.email||'') + '">' + (noEmail && s.store_id ? 'Mall: '+s.store_id : (s.email||'').length>26?(s.email||'').slice(0,26)+'...':(s.email||'—')) + '</span></div></td>' +
-      '<td style="font-size:12px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">' + (s.company||'—') + '</td>' +
-      '<td>' + sPill(s.status) + '</td>' +
-      '<td>' + tagChips(s.tags) + '</td>' +
-      '<td>' + srcTags(s.sources) + '</td>' +
-      '<td style="font-size:12px">' + owner + '</td>' +
-      '<td style="font-size:11px;color:var(--t3)">' + (s.updated_at ? new Date(s.updated_at).toLocaleDateString('en-GB') : '—') + '</td>' +
-      '<td style="font-size:11px;color:var(--t3)">' + (lastAct ? lastAct.action_type : '—') + '</td>' +
-      (s.phone ? '<td><button class="ob ob-wa" onclick="openWA(\'' + s.phone + '\',\'' + (s.company||'').replace(/'/g,"\\'") + '\')">WA</button></td>' : '<td></td>') +
-      '<td><button class="btn btn-sm" onclick="editSeller(\'' + s.id + '\')">Update</button></td></tr>';
-  }).join('') : '<tr><td colspan="11" style="text-align:center;padding:22px;color:var(--t3)">No sellers match</td></tr>';
-}
-
-function toggleSellerCheck(id, checked) {
-  checked ? SELECTED_SELLERS.add(id) : SELECTED_SELLERS.delete(id);
-  const bulkBar = document.getElementById('bulk-bar');
-  if (bulkBar) bulkBar.style.display = SELECTED_SELLERS.size > 0 ? 'flex' : 'none';
-  if (document.getElementById('bulk-count')) document.getElementById('bulk-count').textContent = SELECTED_SELLERS.size + ' selected';
-}
-
-function selectAllSellers() {
-  const all = document.querySelectorAll('#s-tbody input[type=checkbox]');
-  const allRows = curSellers().filter(s => {
-    const sf = (document.getElementById('s-src-f')||{value:''}).value;
-    if (SF!=='all' && !(s.status||'').toUpperCase().includes(SF.toUpperCase())) return false;
-    if (sf && !(s.sources||[]).some(x=>x.toLowerCase().includes(sf.toLowerCase()))) return false;
-    return true;
-  });
-  allRows.forEach(s => SELECTED_SELLERS.add(s.id));
-  all.forEach(cb => cb.checked = true);
-  buildSellersTable();
-}
-
-function clearSelection() {
-  SELECTED_SELLERS.clear();
-  buildSellersTable();
-}
-
-function bulkEmail() {
-  const ids = [...SELECTED_SELLERS];
-  if (!ids.length) return;
-  const sellers = SELLERS.filter(s => ids.includes(s.id) && s.email && !s.email.includes('@update'));
-  if (!sellers.length) { toast('No valid emails in selection', true); return; }
-  // Dominant status for template
-  const statusGroups = {};
-  sellers.forEach(s => { statusGroups[s.status] = (statusGroups[s.status]||0)+1; });
-  const domStatus = Object.entries(statusGroups).sort((a,b)=>b[1]-a[1])[0][0];
-  const t = getTpl(domStatus);
-  const bcc = sellers.map(s=>s.email).join(',');
-  const sub = encodeURIComponent(t.sub.replace(/\[STORE\]/g,'').replace(/\[NAME\]/g,''));
-  const body = encodeURIComponent(t.body.replace(/\[STORE\]/g,'').replace(/\[NAME\]/g,'there'));
-  window.open('https://mail.google.com/mail/?view=cm&to=hsrivastava@threecolts.com&bcc=' + encodeURIComponent(bcc) + '&su=' + sub + '&body=' + body, '_blank');
-  // Show bulk status update prompt
-  document.getElementById('bulk-status-bar').style.display = 'flex';
-}
-
-async function applyBulkStatus() {
-  const newStatus = document.getElementById('bulk-status-sel').value;
-  if (!newStatus) return;
-  const ids = [...SELECTED_SELLERS];
-  const ts = new Date().toISOString();
-  for (const id of ids) {
-    const s = SELLERS.find(x=>x.id===id);
-    if (!s) continue;
-    await DB.from('sellers').update(id, {status:newStatus, updated_at:ts});
-    await logActivity(id, 'Bulk Email + Status Update', 'Status changed to ' + newStatus + ' via bulk email action', s.program_id);
-    s.status = newStatus; s.updated_at = ts;
-  }
-  toast('Updated ' + ids.length + ' sellers to: ' + newStatus);
-  SELECTED_SELLERS.clear();
-  document.getElementById('bulk-status-bar').style.display = 'none';
-  buildSellersTable();
-}
-
-// ============================================================
-// ADD / EDIT SELLER
-// ============================================================
-function populateForms() {
-  const ss = document.getElementById('f-status');
-  if (ss) ss.innerHTML = STATUSES.map(s => '<option value="' + s + '">' + s + '</option>').join('');
-  ['f-assoc','q-bda'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = '<option value="">— Unassigned —</option>' + ASSOCIATES.map(a => '<option>' + a + '</option>').join('');
-  });
-  const tp = document.getElementById('tag-picker');
-  if (tp) tp.innerHTML = ALL_TAGS.map(t =>
-    '<span class="tag-opt' + (SEL_TAGS.includes(t)?' sel':'') + '" onclick="toggleTag(\'' + t + '\')">' + t + '</span>'
-  ).join('');
-  const fp = document.getElementById('f-prog');
-  if (fp) fp.innerHTML = PROGRAMS.map(p => '<option value="' + p.id + '">' + p.name + '</option>').join('');
-  const qbda = document.getElementById('q-bda');
-  if (qbda) qbda.innerHTML = '<option value="">—</option>' + ASSOCIATES.map(a => '<option>' + a + '</option>').join('');
-  const qa = document.getElementById('q-amt');
-  if (qa && !qa.value) qa.value = curProg().incentive_amount || 800;
-  populateQualifiedEmail();
-}
-
-function toggleTag(t) {
-  SEL_TAGS.includes(t) ? SEL_TAGS.splice(SEL_TAGS.indexOf(t),1) : SEL_TAGS.push(t);
-  document.querySelectorAll('.tag-opt').forEach(el => el.classList.toggle('sel', SEL_TAGS.includes(el.textContent)));
-}
-
-function openAddSeller() {
-  EDIT_ID=null; SEL_TAGS=[];
-  populateForms();
-  document.getElementById('m-seller-title').textContent = 'Add seller';
-  ['f-email','f-company','f-storeid','f-phone','f-website','f-remarks'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
-  document.getElementById('f-status').value = 'EMAIL FOLLOW UP IN PROGRESS';
-  document.getElementById('f-assoc').value = '';
-  if (CUR_PROG) document.getElementById('f-prog').value = CUR_PROG;
-  document.getElementById('qual-sec').style.display = 'none';
-  openModal('m-seller');
-}
-
-function editSeller(id) {
-  const s = SELLERS.find(x => x.id===id);
-  if (!s) return;
-  EDIT_ID=id; SEL_TAGS=[...(s.tags||[])];
-  populateForms();
-  document.getElementById('m-seller-title').textContent = 'Update: ' + (s.company||s.email||'seller');
-  document.getElementById('f-email').value = s.email||'';
-  document.getElementById('f-company').value = s.company||'';
-  document.getElementById('f-storeid').value = s.store_id||'';
-  document.getElementById('f-phone').value = s.phone||'';
-  document.getElementById('f-website').value = s.website||'';
-  document.getElementById('f-remarks').value = s.remarks||'';
-  document.getElementById('f-status').value = s.status||'EMAIL FOLLOW UP IN PROGRESS';
-  document.getElementById('f-assoc').value = s.associate||'';
-  document.getElementById('f-prog').value = s.program_id||CUR_PROG;
-  document.getElementById('f-src').value = (s.sources||['BD'])[0]||'BD';
-  toggleQualSec();
-  openModal('m-seller');
-}
-
-function toggleQualSec() {
-  document.getElementById('qual-sec').style.display = (document.getElementById('f-status').value||'').toUpperCase().includes('ONBOARD')?'block':'none';
-}
-
-async function saveSeller() {
-  const email = document.getElementById('f-email').value.trim();
-  const storeId = document.getElementById('f-storeid').value.trim();
-  if (!email && !storeId) { alert('Enter at least an email or Mall ID'); return; }
-  const srcVal = document.getElementById('f-src').value;
-  let sources = [srcVal];
-  if (EDIT_ID) {
-    const prev = SELLERS.find(s => s.id===EDIT_ID);
-    sources = prev ? [...new Set([...(prev.sources||[]), srcVal])] : [srcVal];
-  }
-  const data = {
-    email: email || null,
-    company: document.getElementById('f-company').value,
-    store_id: storeId || null,
-    phone: document.getElementById('f-phone').value,
-    website: document.getElementById('f-website').value,
-    remarks: document.getElementById('f-remarks').value,
-    status: document.getElementById('f-status').value,
-    associate: document.getElementById('f-assoc').value,
-    program_id: document.getElementById('f-prog').value,
-    tags: SEL_TAGS,
-    sources,
-    qualified: (document.getElementById('f-status').value||'').toUpperCase().includes('ONBOARD'),
-    updated_at: new Date().toISOString()
-  };
-  document.getElementById('save-seller-btn').disabled = true;
-  try {
-    if (EDIT_ID) {
-      const prev = SELLERS.find(s=>s.id===EDIT_ID);
-      const statusChanged = prev && prev.status !== data.status;
-      await DB.from('sellers').update(EDIT_ID, data);
-      const idx = SELLERS.findIndex(s=>s.id===EDIT_ID);
-      if (idx>=0) SELLERS[idx] = {...SELLERS[idx], ...data};
-      if (statusChanged) {
-        await logActivity(EDIT_ID, 'Status Update', 'Status changed from "' + (prev.status||'') + '" to "' + data.status + '"', data.program_id);
-      } else {
-        await logActivity(EDIT_ID, 'Seller Updated', 'Record updated for ' + (data.company||data.email||'seller'), data.program_id);
-      }
-    } else {
-      data.id = uid();
-      const res = await DB.from('sellers').insert(data);
-      SELLERS.unshift(res ? res[0] : {...data});
-      await logActivity(data.id, 'Seller Added', 'New seller added: ' + (data.company||data.email||'seller') + ' (' + (data.sources||[]).join(', ') + ')', data.program_id);
-    }
-    closeModal('m-seller');
-    renderView();
-    toast(EDIT_ID ? 'Seller updated' : 'Seller added');
-  } catch(e) { toast('Error: ' + e.message, true); }
-  finally { document.getElementById('save-seller-btn').disabled = false; }
-}
-
-// ============================================================
-// REVENUE
-// ============================================================
-function renderRevenue() {
-  const prog = curProg();
-  const qual = curQualified();
-  const curr = progCurr();
-  const inc = prog.incentive_amount || 800;
-  const paidC = qual.filter(q=>q.temu_paid_ced==='paid').length;
-  const bdInc = prog.currency==='USD' ? 100 : 100;
-
-  document.getElementById('rev-title').textContent = qual.length + ' qualified sellers — ' + (prog.name||'');
-  document.getElementById('rev-metrics').innerHTML = `
-    <div class="mcard green"><div class="ml">${prog.market||'Marketplace'} paid CED</div><div class="mv">${curr}${paidC*inc}</div><div class="ms">${paidC} sellers</div></div>
-    <div class="mcard amber"><div class="ml">Outstanding</div><div class="mv">${curr}${(qual.length-paidC)*inc}</div><div class="ms">${qual.length-paidC} sellers</div></div>
-    <div class="mcard teal"><div class="ml">Total qualified</div><div class="mv">${qual.length}</div><div class="ms">${curr}${inc} per seller</div></div>
-    <div class="mcard blue"><div class="ml">Full potential</div><div class="mv">${curr}${qual.length*inc}</div><div class="ms">If all paid</div></div>
-    <div class="mcard purple"><div class="ml">BD incentives due</div><div class="mv">$${qual.filter(q=>q.bd_incentive==='pending').length*bdInc}</div><div class="ms">$${bdInc} per BD completion</div></div>
-  `;
-
-  let total = 0;
-  document.getElementById('rev-tbody').innerHTML = qual.map((q,i) => {
-    total += q.amount || inc;
-    const noEmail = !q.email || q.email.includes('update');
-    return '<tr>' +
-      '<td style="color:var(--t3);font-size:11px">' + (i+1) + '</td>' +
-      '<td style="font-weight:500">' + q.store_name + '</td>' +
-      '<td style="font-size:11px;color:var(--t3);font-family:var(--mono)">' + (q.store_id||'—') + '</td>' +
-      '<td style="font-size:11px;font-family:var(--mono);color:' + (noEmail?'var(--amber)':'inherit') + '">' + (noEmail?'Mall ID only':q.email) + '</td>' +
-      '<td style="font-size:12px">' + (q.bda||'—') + '</td>' +
-      '<td>' + fmtM(q.first_sale_month) + '</td>' +
-      '<td style="font-weight:700;color:var(--green)">' + curr + (q.amount||inc) + '</td>' +
-      '<td>' + (q.temu_paid_ced==='paid'?'<span class="paid">Paid</span>':'<span class="pend">Pending</span>') + '</td>' +
-      '<td>' + (q.ced_paid_csa==='paid'?'<span class="paid">Paid</span>':'<span class="pend">Pending</span>') + '</td>' +
-      '<td>' + (q.bd_incentive==='paid'?'<span class="paid">$'+bdInc+'</span>':'<span class="pend">Pending</span>') + '</td>' +
-      '<td style="font-size:11px;color:var(--t3)">' + (q.notes||'') + '</td></tr>';
-  }).join('') || '<tr><td colspan="11" style="text-align:center;padding:22px;color:var(--t3)">No qualified sellers yet</td></tr>';
-
-  document.getElementById('rev-total').textContent = curr + total;
-  document.getElementById('rev-paid-c').textContent = paidC + ' paid';
-
-  const pays = curPayments();
-  document.getElementById('pay-tl').innerHTML = pays.length ? pays.map(p =>
-    '<div class="rev-row">' +
-    '<div><strong style="font-size:13px">' + p.period + '</strong>' +
-    (p.stores_note?'<div style="font-size:11px;color:var(--t3);margin-top:2px">'+p.stores_note+'</div>':'') + '</div>' +
-    '<div style="font-size:15px;font-weight:700;color:' + (p.received?'var(--green)':p.amount==='TBC'?'var(--amber)':'var(--t3)') + '">' + p.amount + '</div>' +
-    (p.received?'<span class="paid">'+p.seller_count+' seller'+(p.seller_count!==1?'s':'')+'</span>':p.amount==='TBC'?'<span class="pend">TBC</span>':'<span class="pill p-gray" style="font-size:10px">No payment</span>') +
-    '</div>'
-  ).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px 0">No payment records. You can add them here once confirmed by accounts.</div>';
-}
-
-function populateQualifiedEmail() {
-  const sel = document.getElementById('q-email-sel');
-  if (!sel) return;
-  const sellers = curSellers().filter(s => s.email && !s.email.includes('@update'));
-  sel.innerHTML = '<option value="">— Select from existing sellers —</option>' +
-    sellers.map(s => '<option value="' + s.email + '" data-company="' + (s.company||'') + '" data-sid="' + (s.store_id||'') + '" data-bda="' + (s.associate||'') + '">' + s.email + (s.company?' — '+s.company:'') + '</option>').join('');
-}
-
-function onQualEmailSelect() {
-  const sel = document.getElementById('q-email-sel');
-  const opt = sel.options[sel.selectedIndex];
-  if (!opt || !opt.value) return;
-  document.getElementById('q-email').value = opt.value;
-  if (opt.dataset.company) document.getElementById('q-store').value = opt.dataset.company;
-  if (opt.dataset.sid) document.getElementById('q-sid').value = opt.dataset.sid;
-  if (opt.dataset.bda) document.getElementById('q-bda').value = opt.dataset.bda;
-}
-
-async function saveQualified() {
-  populateForms();
-  const store = document.getElementById('q-store').value.trim();
-  if (!store) { alert('Store name required'); return; }
-  const prog = curProg();
-  const data = {
-    id: uid(),
-    program_id: CUR_PROG,
-    store_name: store,
-    email: document.getElementById('q-email').value.trim()||null,
-    store_id: document.getElementById('q-sid').value.trim()||null,
-    bda: document.getElementById('q-bda').value,
-    first_sale_month: document.getElementById('q-month').value,
-    amount: parseInt(document.getElementById('q-amt').value)||prog.incentive_amount||800,
-    currency: prog.currency||'EUR',
-    temu_paid_ced: document.getElementById('q-cedpaid').value,
-    ced_paid_csa: document.getElementById('q-csapaid').value,
-    bd_incentive: 'pending',
-    notes: document.getElementById('q-notes').value
-  };
-  try {
-    const res = await DB.from('qualified_sellers').insert(data);
-    QUALIFIED.push(res ? res[0] : data);
-    // Also update seller status if found
-    const email = data.email;
-    const sid = data.store_id;
-    const seller = SELLERS.find(s => (email && s.email&&s.email.toLowerCase()===email.toLowerCase()) || (sid && s.store_id===sid));
-    if (seller) {
-      await DB.from('sellers').update(seller.id, {status:'ONBOARDING COMPLETE', qualified:true, updated_at:new Date().toISOString()});
-      seller.status = 'ONBOARDING COMPLETE'; seller.qualified = true;
-    }
-    await logActivity(seller ? seller.id : null, 'Qualified', store + ' marked as qualified — ' + (CURRENCIES[prog.currency]||'€') + data.amount, CUR_PROG);
-    closeModal('m-qual');
-    renderView();
-    toast('Seller qualified — ' + (CURRENCIES[prog.currency]||'€') + data.amount + ' added');
-  } catch(e) { toast('Error: ' + e.message, true); }
-}
-
-// ============================================================
-// CAMPAIGNS
-// ============================================================
-function renderCampaigns() {
-  const prog = curProg();
-  const isUK = prog.region==='UK';
-  document.getElementById('camp-metrics').innerHTML = isUK ? `
-    <div class="mcard blue"><div class="ml">MQL clicks 2026</div><div class="mv">29</div><div class="ms">Active pipeline</div></div>
-    <div class="mcard"><div class="ml">MQL opens 2026</div><div class="mv">1,547</div><div class="ms">Warm audience</div></div>
-    <div class="mcard green"><div class="ml">Newsletter clicks</div><div class="mv">110</div><div class="ms">from 4,324 opens</div></div>
-    <div class="mcard amber"><div class="ml">Quality audit list</div><div class="mv">78</div><div class="ms">Interested leads</div></div>
-  ` : '<div class="mcard teal"><div class="ml">Program started</div><div class="mv">Feb 2026</div><div class="ms">US campaign data coming</div></div>';
-
-  const camps = curCampaigns();
-  document.getElementById('camp-cards').innerHTML = camps.length ? camps.map(c =>
-    '<div class="ccard"><div class="ccard-title">' + c.name + ' <span style="font-size:10px;color:var(--t3);font-weight:400">' + (c.campaign_date||'') + '</span></div>' +
-    '<div class="cstat"><span class="l">Sent</span><span class="v">' + (c.sent||0).toLocaleString() + '</span></div>' +
-    '<div class="cstat"><span class="l">Opens</span><span class="v">' + (c.opens||0).toLocaleString() + (c.sent?' ('+Math.round(c.opens/c.sent*100)+'%)':'') + '</span></div>' +
-    '<div class="cstat"><span class="l">Clicks</span><span class="v">' + (c.clicks||0) + '</span></div>' +
-    '<div class="cstat"><span class="l">Replies</span><span class="v">' + (c.replies||0) + '</span></div>' +
-    (c.segment?'<div style="font-size:10px;color:var(--t3);margin-top:7px;padding-top:6px;border-top:1px solid var(--bdr)">'+c.segment+'</div>':'') + '</div>'
-  ).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px">No campaigns yet. Add one above.</div>';
-
-  // Campaign effectiveness — sellers near onboarding
-  document.getElementById('camp-effective').innerHTML =
-    '<div style="font-weight:600;font-size:13px;margin-bottom:10px">Campaign effectiveness — ' + nearOnboard.length + ' leads converting</div>' +
-    (nearOnboard.length ? nearOnboard.map(s =>
-      '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr)">' +
-      '<div><div style="font-size:13px;font-weight:500">' + (s.company||s.email||'—') + '</div>' +
-      '<div style="font-size:11px;color:var(--t3)">' + (s.email||'Mall: '+s.store_id) + '</div></div>' +
-      sPill(s.status) + '</div>'
-    ).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px">No campaign sellers near onboarding yet</div>');
-
-  // All campaign-sourced sellers
-  document.getElementById('mql-tbody').innerHTML = campSellers.length ? campSellers.map(s => {
-    return '<tr>' +
-      '<td style="font-size:12px;font-family:var(--mono)">' + (s.email||'Mall: '+(s.store_id||'—')) + '</td>' +
-      '<td style="font-size:12px">' + (s.company||'—') + '</td>' +
-      '<td>' + sPill(s.status) + '</td>' +
-      '<td>' + tagChips(s.tags||[]) + '</td>' +
-      '<td style="font-size:11px;color:var(--t3)">' + (s.updated_at?new Date(s.updated_at).toLocaleDateString('en-GB'):'—') + '</td>' +
-      '<td><button class="btn btn-sm" onclick="editSeller(\''+s.id+'\')">Update</button></td></tr>';
-  }).join('') : '<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--t3)">No campaign-sourced sellers yet. Import leads via Import tab.</td></tr>';
-}
-
-function quickMQL(email) {
-  EDIT_ID=null; SEL_TAGS=[];
-  populateForms();
-  document.getElementById('m-seller-title').textContent = 'Add MQL lead';
-  document.getElementById('f-email').value = email;
-  document.getElementById('f-src').value = 'MQL';
-  document.getElementById('qual-sec').style.display = 'none';
-  openModal('m-seller');
-}
-
-async function saveCampaign() {
-  const name = document.getElementById('c-name').value.trim();
-  if (!name) { alert('Name required'); return; }
-  const data = { id:uid(), program_id:CUR_PROG, name, campaign_date:document.getElementById('c-date').value, sent:parseInt(document.getElementById('c-sent').value)||0, opens:parseInt(document.getElementById('c-opens').value)||0, clicks:parseInt(document.getElementById('c-clicks').value)||0, replies:parseInt(document.getElementById('c-replies').value)||0, segment:document.getElementById('c-seg').value };
-  try {
-    await DB.from('campaigns').insert(data);
-    CAMPAIGNS.push(data);
-    closeModal('m-campaign');
-    renderCampaigns();
-    toast('Campaign added');
-  } catch(e) { toast('Error: '+e.message, true); }
-}
-
-// ============================================================
-// BD
-// ============================================================
-function renderBD() {
-  const prog = curProg();
-  const bdInc = 100;
-  const bdMap = {};
-  curSellers().forEach(s => {
-    if (!s.associate) return;
-    const a = s.associate.trim();
-    if (!bdMap[a]) bdMap[a] = {r:0,c:0};
-    bdMap[a].r++;
-    if ((s.status||'').toUpperCase().includes('ONBOARD')) bdMap[a].c++;
-  });
-  const rows = Object.entries(bdMap).sort((a,b)=>b[1].c-a[1].c);
-  const totalC = rows.reduce((a,r)=>a+r[1].c,0);
-
-  document.getElementById('bd-metrics').innerHTML = `
-    <div class="mcard"><div class="ml">Active associates</div><div class="mv">${rows.length}</div></div>
-    <div class="mcard teal"><div class="ml">Total referrals</div><div class="mv">${rows.reduce((a,r)=>a+r[1].r,0)}</div></div>
-    <div class="mcard green"><div class="ml">Completions</div><div class="mv">${totalC}</div></div>
-    <div class="mcard amber"><div class="ml">Incentives due</div><div class="mv">$${totalC*bdInc}</div><div class="ms">$${bdInc} per completion</div></div>
-  `;
-  document.getElementById('bd-inc-sub').textContent = '$' + bdInc + ' per BD-referred seller who goes live';
-  document.getElementById('bd-tbody').innerHTML = rows.map(([n,d]) =>
-    '<tr><td><strong>'+n+'</strong></td><td>'+d.r+'</td><td>'+d.c+'</td><td>'+(d.r?Math.round(d.c/d.r*100)+'%':'—')+'</td><td style="font-weight:600;color:var(--green)">'+(d.c?'$'+(d.c*bdInc):'—')+'</td>' +
-    '<td><button class="btn btn-sm" style="color:var(--red)" onclick="removeBDMember(this.dataset.n)" data-n="'+n+'">Remove</button></td></tr>'
-  ).join('') || '<tr><td colspan="6" style="text-align:center;padding:18px;color:var(--t3)">No associates yet</td></tr>';
-
-  document.getElementById('bd-inc-list').innerHTML = curQualified().map(q =>
-    '<div class="rev-row"><div><div style="font-size:13px;font-weight:500">'+q.store_name+'</div><div style="font-size:11px;color:var(--t3)">'+(q.bda||'—')+' · '+fmtM(q.first_sale_month)+'</div></div>' +
-    '<span class="'+(q.bd_incentive==='paid'?'paid':'pend')+'">'+(q.bd_incentive==='paid'?'$'+bdInc+' paid':'Pending')+'</span></div>'
-  ).join('') || '<div style="color:var(--t3);font-size:13px;padding:8px">No qualified sellers yet</div>';
-}
-
-function addBDMember() {
-  const name = document.getElementById('bd-new-name').value.trim();
-  if (!name) return;
-  if (!ASSOCIATES.includes(name)) ASSOCIATES.push(name);
-  document.getElementById('bd-new-name').value = '';
-  renderBD();
-  toast('BD member added: ' + name);
-}
-
-function removeBDMember(name) {
-  if (!confirm('Remove ' + name + ' from BD team list?')) return;
-  const idx = ASSOCIATES.indexOf(name);
-  if (idx >= 0) ASSOCIATES.splice(idx, 1);
-  renderBD();
-  toast('Removed: ' + name);
-}
-
-function exportBDList() {
-  const rows = ASSOCIATES.map(a => {
-    const sellers = curSellers().filter(s => s.associate === a);
-    const completed = sellers.filter(s => (s.status||'').toUpperCase().includes('ONBOARD')).length;
-    return '"' + a + '",' + sellers.length + ',' + completed + ',' + (sellers.length ? Math.round(completed/sellers.length*100) : 0) + '%';
-  });
-  const csv = 'Name,Referrals,Completed,Conversion\n' + rows.join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,﻿' + encodeURIComponent(csv);
-  a.download = 'bd_team_' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click(); toast('BD list exported');
-}
-
-function importBDList() {
-  const raw = document.getElementById('bd-import-txt').value.trim();
-  if (!raw) return;
-  const names = raw.split('\n').map(n=>n.trim()).filter(Boolean);
-  let added = 0;
-  names.forEach(n => { if (!ASSOCIATES.includes(n)) { ASSOCIATES.push(n); added++; } });
-  document.getElementById('bd-import-txt').value = '';
-  renderBD();
-  toast(added + ' BD members imported');
-}
-
-// ============================================================
-// IMPORT
-// ============================================================
-async function runImport() {
-  const raw = document.getElementById('imp-emails').value;
-  const src = document.getElementById('imp-src').value;
-  const progId = document.getElementById('imp-prog').value;
-  const label = document.getElementById('imp-label').value.trim();
-  const emails = raw.split('\n').map(e=>e.trim().toLowerCase()).filter(e=>e&&e.includes('@')&&e.includes('.'));
-  if (!emails.length) { alert('No valid emails found'); return; }
-  let added=0, updated=0, skipped=0;
-  const toInsert=[], toUpdate=[];
-  emails.forEach(email => {
-    const ex = SELLERS.find(s=>(s.email||'').toLowerCase()===email && s.program_id===progId);
-    if (ex) { if (!(ex.sources||[]).includes(src)) { toUpdate.push({id:ex.id, sources:[...new Set([...(ex.sources||[]),src])]}); updated++; } else skipped++; }
-    else { toInsert.push({id:uid(),email,program_id:progId,status:'EMAIL FOLLOW UP IN PROGRESS',sources:[src],tags:[],campaign:label||undefined}); added++; }
-  });
-  try {
-    if (toInsert.length) { await DB.from('sellers').insert(toInsert); SELLERS.unshift(...toInsert); }
-    for (const u of toUpdate) { await DB.from('sellers').update(u.id, {sources:u.sources}); const s=SELLERS.find(x=>x.id===u.id); if(s) s.sources=u.sources; }
-    document.getElementById('imp-emails').value='';
-    document.getElementById('imp-result').innerHTML='<div class="info-box green">Done: '+added+' new · '+updated+' updated · '+skipped+' already had source</div>';
-    if (MQL_EMAILS.length===0 && src==='MQL') { MQL_EMAILS=[...emails]; localStorage.setItem('ced_mql_emails',JSON.stringify(MQL_EMAILS)); }
-    toast('Imported '+emails.length+' emails');
-  } catch(e) { toast('Error: '+e.message, true); }
-}
-
-async function runCSVImport() {
-  const raw = document.getElementById('imp-csv').value.trim();
-  if (!raw) { alert('Paste CSV data first'); return; }
-  const lines = raw.split('\n');
-  const hdr = lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/[^a-z]/g,''));
-  const eI=hdr.findIndex(h=>h.includes('email'));
-  const coI=hdr.findIndex(h=>h.includes('store')||h.includes('company'));
-  const stI=hdr.findIndex(h=>h.includes('status'));
-  const srI=hdr.findIndex(h=>h.includes('source'));
-  const asI=hdr.findIndex(h=>h.includes('associate'));
-  const tgI=hdr.findIndex(h=>h.includes('tag'));
-  const sdI=hdr.findIndex(h=>h.includes('storeid')||h.includes('mallid'));
-  if (eI<0&&sdI<0) { alert('Need at least Email or StoreID column'); return; }
-  const progId = document.getElementById('imp-prog').value;
-  let added=0, updated=0;
-  const toInsert=[];
-  lines.slice(1).forEach(line => {
-    if (!line.trim()) return;
-    const cols = line.split(',').map(c=>c.trim().replace(/^"|"$/g,''));
-    const email = eI>=0?(cols[eI]||'').toLowerCase().trim():'';
-    const storeId = sdI>=0?cols[sdI]:'';
-    if (!email&&!storeId) return;
-    const src = srI>=0?cols[srI]:'BD';
-    const data = {id:uid(),email:email||null,company:coI>=0?cols[coI]:'',status:stI>=0?cols[stI]:'EMAIL FOLLOW UP IN PROGRESS',sources:[src],associate:asI>=0?cols[asI]:'',tags:tgI>=0&&cols[tgI]?cols[tgI].split(';').map(t=>t.trim()).filter(Boolean):[],store_id:storeId||null,program_id:progId,qualified:false,updated_at:new Date().toISOString()};
-    if (data.status.toUpperCase().includes('ONBOARD')) data.qualified=true;
-    toInsert.push(data); added++;
-  });
-  try {
-    if (toInsert.length) { await DB.from('sellers').insert(toInsert); SELLERS.unshift(...toInsert); }
-    document.getElementById('imp-csv').value='';
-    document.getElementById('csv-result').innerHTML='<div class="info-box green">CSV import: '+added+' new sellers</div>';
-    toast('CSV imported');
-  } catch(e) { toast('Error: '+e.message, true); }
-}
-
-function handleDrop(e) {
-  e.preventDefault(); e.currentTarget.classList.remove('drag');
-  handleFileImport(e.dataTransfer.files[0]);
-}
-
-function handleFilePick(e) {
-  handleFileImport(e.target.files[0]);
-}
-
-function handleFileImport(file) {
-  if (!file) return;
-  if (file.name.endsWith('.csv') || file.type==='text/csv' || file.type==='text/plain') {
-    const r = new FileReader();
-    r.onload = ev => { document.getElementById('imp-csv').value = ev.target.result; toast('CSV loaded — click Import'); };
-    r.readAsText(file);
-  } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-    const r = new FileReader();
-    r.onload = ev => {
-      try {
-        if (typeof XLSX === 'undefined') { toast('Loading Excel parser...', true); return; }
-        const wb = XLSX.read(ev.target.result, {type:'binary'});
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const csv = XLSX.utils.sheet_to_csv(ws);
-        document.getElementById('imp-csv').value = csv;
-        toast('Excel loaded — click Import');
-      } catch(err) { toast('Excel parse error: ' + err.message, true); }
-    };
-    r.readAsBinaryString(file);
-  } else {
-    toast('Supported formats: CSV, XLSX', true);
-  }
-}
-
-function exportCSV() {
-  const sellers = curSellers();
-  const h = ['Email','Store','Status','Tags','Sources','Associate','Mall ID','Phone','Website','Program','Updated','Remarks'];
-  const rows = sellers.map(s=>[s.email||'',s.company||'',s.status||'',(s.tags||[]).join(';'),(s.sources||[]).join(';'),s.associate||'',s.store_id||'',s.phone||'',s.website||'',PROGRAMS.find(p=>p.id===s.program_id)?.name||'',s.updated_at?new Date(s.updated_at).toLocaleDateString('en-GB'):'',s.remarks||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
-  const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent([h.join(','),...rows].join('\n'));
-  a.download='ced_sellers_'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click(); toast('CSV exported');
-}
-
-// ============================================================
-// MODAL HELPERS
-// ============================================================
-function openModal(id) { populateForms(); document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
-
-// ============================================================
-// BOOT
-// ============================================================
-// Load XLSX parser for Excel import support
-(function loadXLSX() {
-  if (typeof XLSX !== 'undefined') return;
-  const s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-  document.head.appendChild(s);
-})();
-initApp();
-</script>
-</body>
-</html>
+-- ============================================================
+-- CedCommerce Seller Acquisition Framework — Supabase Schema v4
+-- Run this ONCE in your Supabase project → SQL Editor
+-- If upgrading from v3: only the ALTER TABLE and activity_log
+-- sections are new — you can run just those parts safely.
+-- ============================================================
+
+-- PROGRAMS
+CREATE TABLE IF NOT EXISTS programs (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  market TEXT,
+  region TEXT,
+  incentive_amount INTEGER DEFAULT 800,
+  currency TEXT DEFAULT 'EUR',
+  color TEXT DEFAULT 'teal',
+  affiliate_link TEXT,
+  started_date DATE,
+  active BOOLEAN DEFAULT true,
+  notes TEXT,
+  manager_name TEXT,
+  manager_email TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- SELLERS
+CREATE TABLE IF NOT EXISTS sellers (
+  id TEXT PRIMARY KEY,
+  program_id TEXT REFERENCES programs(id),
+  email TEXT,
+  company TEXT,
+  website TEXT,
+  store_id TEXT,
+  phone TEXT,
+  status TEXT DEFAULT 'EMAIL FOLLOW UP IN PROGRESS',
+  sources TEXT[] DEFAULT '{}',
+  associate TEXT,
+  tags TEXT[] DEFAULT '{}',
+  remarks TEXT,
+  qualified BOOLEAN DEFAULT false,
+  last_contact DATE,
+  campaign TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- QUALIFIED SELLERS / REVENUE LOG
+CREATE TABLE IF NOT EXISTS qualified_sellers (
+  id TEXT PRIMARY KEY,
+  program_id TEXT REFERENCES programs(id),
+  store_name TEXT NOT NULL,
+  email TEXT,
+  store_id TEXT,
+  bda TEXT,
+  first_sale_month TEXT,
+  amount INTEGER,
+  currency TEXT DEFAULT 'EUR',
+  temu_paid_ced TEXT DEFAULT 'pending',
+  ced_paid_csa TEXT DEFAULT 'pending',
+  bd_incentive TEXT DEFAULT 'pending',
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- CAMPAIGNS
+CREATE TABLE IF NOT EXISTS campaigns (
+  id TEXT PRIMARY KEY,
+  program_id TEXT REFERENCES programs(id),
+  name TEXT NOT NULL,
+  campaign_date DATE,
+  segment TEXT,
+  sent INTEGER DEFAULT 0,
+  opens INTEGER DEFAULT 0,
+  clicks INTEGER DEFAULT 0,
+  replies INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- PAYMENT LOG
+CREATE TABLE IF NOT EXISTS payments (
+  id TEXT PRIMARY KEY,
+  program_id TEXT REFERENCES programs(id),
+  period TEXT,
+  amount TEXT,
+  seller_count INTEGER DEFAULT 0,
+  received BOOLEAN DEFAULT false,
+  stores_note TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ACTIVITY LOG (NEW in v4)
+-- Automatically records every status change, email sent, WA message,
+-- seller added/updated, and qualified event.
+CREATE TABLE IF NOT EXISTS activity_log (
+  id TEXT PRIMARY KEY,
+  seller_id TEXT,
+  program_id TEXT REFERENCES programs(id),
+  action_type TEXT NOT NULL,
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ── ADD MANAGER FIELDS TO EXISTING PROGRAMS TABLE (safe if already exists) ──
+ALTER TABLE programs ADD COLUMN IF NOT EXISTS manager_name TEXT;
+ALTER TABLE programs ADD COLUMN IF NOT EXISTS manager_email TEXT;
+
+-- ── ROW LEVEL SECURITY ──────────────────────────────────────
+ALTER TABLE programs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sellers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE qualified_sellers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE activity_log ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if re-running (safe)
+DROP POLICY IF EXISTS "public_all" ON programs;
+DROP POLICY IF EXISTS "public_all" ON sellers;
+DROP POLICY IF EXISTS "public_all" ON qualified_sellers;
+DROP POLICY IF EXISTS "public_all" ON campaigns;
+DROP POLICY IF EXISTS "public_all" ON payments;
+DROP POLICY IF EXISTS "public_all" ON activity_log;
+
+CREATE POLICY "public_all" ON programs FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "public_all" ON sellers FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "public_all" ON qualified_sellers FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "public_all" ON campaigns FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "public_all" ON payments FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "public_all" ON activity_log FOR ALL USING (true) WITH CHECK (true);
+
+-- ── REALTIME (enables live sync across all team members) ────
+-- Run these 6 lines to enable real-time subscriptions:
+ALTER TABLE sellers REPLICA IDENTITY FULL;
+ALTER TABLE qualified_sellers REPLICA IDENTITY FULL;
+ALTER TABLE payments REPLICA IDENTITY FULL;
+ALTER TABLE campaigns REPLICA IDENTITY FULL;
+ALTER TABLE activity_log REPLICA IDENTITY FULL;
+ALTER TABLE programs REPLICA IDENTITY FULL;
+
+-- Add tables to the realtime publication
+ALTER PUBLICATION supabase_realtime ADD TABLE sellers;
+ALTER PUBLICATION supabase_realtime ADD TABLE qualified_sellers;
+ALTER PUBLICATION supabase_realtime ADD TABLE payments;
+ALTER PUBLICATION supabase_realtime ADD TABLE campaigns;
+ALTER PUBLICATION supabase_realtime ADD TABLE activity_log;
+ALTER PUBLICATION supabase_realtime ADD TABLE programs;
+
+-- ── INDEX for activity log performance ──────────────────────
+CREATE INDEX IF NOT EXISTS idx_activity_program ON activity_log(program_id);
+CREATE INDEX IF NOT EXISTS idx_activity_seller ON activity_log(seller_id);
+CREATE INDEX IF NOT EXISTS idx_activity_created ON activity_log(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sellers_program ON sellers(program_id);
+CREATE INDEX IF NOT EXISTS idx_sellers_email ON sellers(email);
+
+-- ============================================================
+-- SEED DATA — Programs
+-- ============================================================
+INSERT INTO programs (id, name, market, region, incentive_amount, currency, color, affiliate_link, started_date, active, notes, manager_name, manager_email)
+VALUES
+  ('temu-uk', 'Temu UK', 'Temu', 'UK', 800, 'EUR', 'teal',
+   'https://seller-eu.temu.com/registration.html?merchant_exclusive_invitation_code=u5bef3f12a06e8fbZu101ce05315b519a',
+   '2024-07-01', true,
+   'First organic order = €800 to CED. BD incentive = $100 per completion.',
+   'Program Manager', 'hsrivastava@threecolts.com'),
+  ('temu-us', 'Temu US', 'Temu', 'US', 1000, 'USD', 'blue',
+   'https://seller.temu.com/registration.html?merchant_exclusive_invitation_code=715e21c7edd2c00cZ4db7feba940ca84d',
+   '2026-02-16', true,
+   'First sale = $1000 to CED. BD incentive = $100. 30 days free app sub. 0% commission at base price.',
+   'Program Manager', 'hsrivastava@threecolts.com')
+ON CONFLICT (id) DO UPDATE SET
+  manager_name = EXCLUDED.manager_name,
+  manager_email = EXCLUDED.manager_email,
+  affiliate_link = EXCLUDED.affiliate_link;
+
+
+-- ============================================================
+-- SEED DATA — UK Qualified Sellers (13 total)
+-- ============================================================
+INSERT INTO qualified_sellers (id, program_id, store_name, email, store_id, bda, first_sale_month, amount, currency, temu_paid_ced, ced_paid_csa, bd_incentive, notes)
+VALUES
+  ('q-uk-01','temu-uk','ENER-J','info@ener-j.co.uk','670702093440029','Shaim kumar','2025-07',800,'EUR','paid','paid','paid',''),
+  ('q-uk-02','temu-uk','Continental Food Store','aziz@continentalfoodstore.co.uk','670702093442715','Suryansh Chauhan','2025-07',800,'EUR','paid','paid','paid',''),
+  ('q-uk-03','temu-uk','Aromantic Natural Skincare','info@aromantic.co.uk','670702093593042','Nadeem Khan','2025-08',800,'EUR','paid','paid','paid',''),
+  ('q-uk-04','temu-uk','Sneaker-Finder','Info@sneaker-finder.com','670702093662242','Rishu Agarwal','2025-08',800,'EUR','paid','paid','paid',''),
+  ('q-uk-05','temu-uk','THE SKINNY FOOD CO','Hello@theskinnyfoodco.com','670702093742816','Aditi Sinha','2025-08',800,'EUR','paid','paid','paid',''),
+  ('q-uk-06','temu-uk','Supreme CBD','customersupport@supremecbd.uk','670702093717289','Aditi Sinha','2025-09',800,'EUR','pending','pending','pending',''),
+  ('q-uk-07','temu-uk','THAI FOOD DIRECT','sales@thaifoodstore.co.uk','670702093967708','Divyam Gupta','2025-09',800,'EUR','pending','paid','paid',''),
+  ('q-uk-08','temu-uk','Modamint','modamintuk@gmail.com','670702094065289','Yashwita','2025-10',800,'EUR','pending','pending','pending',''),
+  ('q-uk-09','temu-uk','MissGlamorous','sean.thurley@fatherandsonwholesale.com','670702094058838','Sarina Sufiyan','2025-12',800,'EUR','paid','pending','paid',''),
+  ('q-uk-10','temu-uk','VISHCHIT',NULL,'670702094080283','Yashwita','2026-01',800,'EUR','pending','pending','pending','No email - Mall ID only'),
+  ('q-uk-11','temu-uk','IFESONS ETOILE','ifesons1@gmail.com','670702093893577','Akshay Singh','2026-01',800,'EUR','paid','pending','pending',''),
+  ('q-uk-12','temu-uk','TropicoPlants',NULL,'670702093999789','Yashwita','2026-01',800,'EUR','pending','pending','pending','No email - Mall ID only'),
+  ('q-uk-13','temu-uk','T9 Fabrics',NULL,'670702094172365','Yashi Rastogi','2026-01',800,'EUR','pending','pending','pending','No email - Mall ID only')
+ON CONFLICT (id) DO NOTHING;
+
+
+-- ============================================================
+-- SEED DATA — UK Sellers (40: 13 onboarded + 27 pipeline)
+-- ============================================================
+INSERT INTO sellers (id, program_id, email, company, status, sources, associate, store_id, tags, remarks, qualified)
+VALUES
+  -- ONBOARDING COMPLETE (13)
+  ('s-uk-01','temu-uk','info@ener-j.co.uk','ENER-J','ONBOARDING COMPLETE',ARRAY['BD Team Referred','Marketplace Recognised'],'Shaim kumar','670702093440029',ARRAY[]::TEXT[],'',true),
+  ('s-uk-02','temu-uk','aziz@continentalfoodstore.co.uk','Continental Food Store','ONBOARDING COMPLETE',ARRAY['BD Team Referred','Marketplace Recognised'],'Suryansh Chauhan','670702093442715',ARRAY[]::TEXT[],'',true),
+  ('s-uk-03','temu-uk','info@aromantic.co.uk','Aromantic Natural Skincare','ONBOARDING COMPLETE',ARRAY['BD Team Referred','Marketplace Recognised'],'Nadeem Khan','670702093593042',ARRAY[]::TEXT[],'',true),
+  ('s-uk-04','temu-uk','Info@sneaker-finder.com','Sneaker-Finder','ONBOARDING COMPLETE',ARRAY['BD Team Referred'],'Rishu Agarwal','670702093662242',ARRAY[]::TEXT[],'',true),
+  ('s-uk-05','temu-uk','Hello@theskinnyfoodco.com','THE SKINNY FOOD CO','ONBOARDING COMPLETE',ARRAY['BD Team Referred'],'Aditi Sinha','670702093742816',ARRAY[]::TEXT[],'',true),
+  ('s-uk-06','temu-uk','customersupport@supremecbd.uk','Supreme CBD','ONBOARDING COMPLETE',ARRAY['BD Team Referred','Marketplace Recognised'],'Aditi Sinha','670702093717289',ARRAY[]::TEXT[],'',true),
+  ('s-uk-07','temu-uk','sales@thaifoodstore.co.uk','THAI FOOD DIRECT','ONBOARDING COMPLETE',ARRAY['BD Team Referred','Marketplace Recognised'],'Divyam Gupta','670702093967708',ARRAY[]::TEXT[],'',true),
+  ('s-uk-08','temu-uk','modamintuk@gmail.com','Modamint','ONBOARDING COMPLETE',ARRAY['Marketplace Recognised','BD Team Referred'],'Yashwita','670702094065289',ARRAY[]::TEXT[],'',true),
+  ('s-uk-09','temu-uk','sean.thurley@fatherandsonwholesale.com','MissGlamorous','ONBOARDING COMPLETE',ARRAY['Marketplace Recognised'],'Sarina Sufiyan','670702094058838',ARRAY[]::TEXT[],'',true),
+  ('s-uk-10','temu-uk',NULL,'VISHCHIT','ONBOARDING COMPLETE',ARRAY['Marketplace Recognised'],'Yashwita','670702094080283',ARRAY[]::TEXT[],'No email - Mall ID only',true),
+  ('s-uk-11','temu-uk','ifesons1@gmail.com','IFESONS ETOILE','ONBOARDING COMPLETE',ARRAY['BD Team Referred','Marketplace Recognised'],'Akshay Singh','670702093893577',ARRAY[]::TEXT[],'',true),
+  ('s-uk-12','temu-uk',NULL,'TropicoPlants','ONBOARDING COMPLETE',ARRAY['Marketplace Recognised'],'Yashwita','670702093999789',ARRAY[]::TEXT[],'No email - Mall ID only',true),
+  ('s-uk-13','temu-uk',NULL,'T9 Fabrics','ONBOARDING COMPLETE',ARRAY['Marketplace Recognised'],'Yashi Rastogi','670702094172365',ARRAY[]::TEXT[],'No email - Mall ID only',true),
+  -- ACTIVE PIPELINE (27)
+  ('s-uk-14','temu-uk','will@camoprotect.com','CAMO INSECT REPELLENT','WHATSAPP FOLLOW UP IN PROGRESS',ARRAY['BD Team Referred','Marketplace Recognised'],'Shaim kumar',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-15','temu-uk','homeloveinterior@gmail.com','Home Love Interior','WHATSAPP FOLLOW UP IN PROGRESS',ARRAY['BD Team Referred','Marketplace Recognised'],'Shaim kumar',NULL,ARRAY['Listing help needed'],'Seller has not started listing',false),
+  ('s-uk-16','temu-uk','info@pe-electronics.com','PE Electronics','EMAIL FOLLOW UP IN PROGRESS',ARRAY['Marketplace Recognised'],'',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-17','temu-uk','scott@thefishingoutlet.co.uk','The Fishing Outlet','Product Setup',ARRAY['BD Team Referred','Marketplace Recognised'],'Divyam Gupta',NULL,ARRAY['Listing help needed'],'Listing products on Temu',false),
+  ('s-uk-18','temu-uk','support@aloewings.com','Aloe Wings Store','Document Verification',ARRAY['BD Team Referred','Marketplace Recognised'],'Rishu Agarwal',NULL,ARRAY['Document pending','VAT issue'],'VAT issue',false),
+  ('s-uk-19','temu-uk','info@centralpaints.co.uk','Central Paints','Document Verification',ARRAY['BD Team Referred','Marketplace Recognised'],'Nadeem Khan',NULL,ARRAY['Document pending'],'Document verification issue',false),
+  ('s-uk-20','temu-uk','admin@areebas.co.uk','Areeba''s Couture','Document Verification',ARRAY['BD Team Referred'],'Shivangi Tiwari',NULL,ARRAY['Document pending'],'',false),
+  ('s-uk-21','temu-uk','uniquekidswearltd@gmail.com','Unique Kids Wear','Engagement',ARRAY['BD Team Referred'],'Mohd Fahad Khan',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-22','temu-uk','uzisports.co.uk@gmail.com','UZI Sports','LISTING VIA APP IN PROGRESS',ARRAY['Marketplace Recognised'],'',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-23','temu-uk','katie@blackbison.co.uk','Black Bison','REGISTRATION DONE',ARRAY['Marketplace Recognised'],'',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-24','temu-uk','iewarehouse2015@gmail.com','IE Warehouse','INCOMMUNICATION',ARRAY['Marketplace Recognised'],'',NULL,ARRAY['No reply'],'',false),
+  ('s-uk-25','temu-uk','webstores@totshirts.co.uk','TotShirts','INCOMMUNICATION',ARRAY['Campaign Prospect'],'',NULL,ARRAY['No reply'],'',false),
+  ('s-uk-26','temu-uk','usman@maximo-moto.com','Maximo Moto','EMAIL FOLLOW UP IN PROGRESS',ARRAY['BD Team Referred'],'Divyam Gupta',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-27','temu-uk','luke@coolhog.co.uk','CoolHog','EMAIL FOLLOW UP IN PROGRESS',ARRAY['BD Team Referred'],'Raju Sah',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-28','temu-uk','sarah@megk9.com','Meg K9','INCOMMUNICATION',ARRAY['BD Team Referred','Marketplace Recognised'],'Kartikey Mishra',NULL,ARRAY['VAT issue'],'VAT issue',false),
+  ('s-uk-29','temu-uk','info@houseofsheeba.com','House of Sheeba','REGISTRATION DONE',ARRAY['BD Team Referred','Marketplace Recognised'],'Nadeem Khan',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-30','temu-uk','littlenesthub@littlenesthub.com','Little Nest Hub','REGISTRATION DONE',ARRAY['Marketplace Recognised'],'',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-31','temu-uk','info@marcled.com','MARC LED','EMAIL FOLLOW UP IN PROGRESS',ARRAY['Marketplace Recognised'],'',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-32','temu-uk','jorda@live.co.uk','Jorda','EMAIL FOLLOW UP IN PROGRESS',ARRAY['Marketplace Recognised'],'',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-33','temu-uk','selda.braho@hotmail.com','Selda Braho','REGISTRATION DONE',ARRAY['Marketplace Recognised'],'',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-34','temu-uk','imgliving@gmail.com','IMG Living','Engagement',ARRAY['BD Team Referred'],'Mohd Fahad Khan',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-35','temu-uk','b.oates68@outlook.com','Dream Consoles','Product Setup',ARRAY['BD Team Referred'],'Raju Sah',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-36','temu-uk','dannyebay1981@gmail.com','Galaxy Food Flavours','Engagement',ARRAY['BD Team Referred'],'Sarina Sufiyan',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-37','temu-uk','tienda@exma.es','EXMA','NOT INTERESTED',ARRAY['BD Team Referred'],'Sarina Sufiyan',NULL,ARRAY[]::TEXT[],'Not interested',false),
+  ('s-uk-38','temu-uk','davalowltd@gmail.com','Davalo Ltd','EMAIL FOLLOW UP IN PROGRESS',ARRAY['BD Team Referred','Marketplace Recognised'],'Nadeem Khan',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-39','temu-uk','parkdais@outlook.com','Park Dais','EMAIL FOLLOW UP IN PROGRESS',ARRAY['BD Team Referred'],'Nadeem Khan',NULL,ARRAY[]::TEXT[],'',false),
+  ('s-uk-40','temu-uk','trunksnboxers@gmail.com','Trunks N Boxers','NOT INTERESTED',ARRAY['BD Team Referred','Marketplace Recognised'],'Rishu Agarwal',NULL,ARRAY[]::TEXT[],'',false)
+ON CONFLICT (id) DO NOTHING;
+
+
+-- ============================================================
+-- SEED DATA — US Sellers (7)
+-- ============================================================
+INSERT INTO sellers (id, program_id, email, company, status, sources, associate, store_id, tags, remarks, qualified)
+VALUES
+  ('s-us-01','temu-us','Stefan.t@stshop.us','ST Shop US','1st Sign Up Done',ARRAY['BD Team Referred'],'Gaurav Mishra',NULL,ARRAY[]::TEXT[],'No driving licence for US',false),
+  ('s-us-02','temu-us','naa.globaltrading4@gmail.com','Eden Business Services LLC','SALES AWAITING',ARRAY['BD Team Referred'],'Prashant Srivastava',NULL,ARRAY[]::TEXT[],'1 product listed directly on Temu panel, not using app',false),
+  ('s-us-03','temu-us','Steven@knickknacktoyshack.com','Knick Knack Toy Shack','Product Setup',ARRAY['BD Team Referred'],'Gaurav Mishra',NULL,ARRAY[]::TEXT[],'App connected, listing currently delisted',false),
+  ('s-us-04','temu-us','kkollmer88@gmail.com','Nectar And Hive Candle Company','Document Verification',ARRAY['BD Team Referred'],'Rishu Agarwal',NULL,ARRAY['Document pending'],'Identity verification rejected - name/EIN mismatch',false),
+  ('s-us-05','temu-us','naleavallc@gmail.com','Nale Ava LLC','SALES AWAITING',ARRAY['BD Team Referred'],'Yashwita',NULL,ARRAY[]::TEXT[],'Onboarded',false),
+  ('s-us-06','temu-us','motybibih@gmail.com','IdealsUSA','Engagement',ARRAY['BD Team Referred'],'Yashwita',NULL,ARRAY[]::TEXT[],'Interest shown, followup sent 24 Mar 2026',false),
+  ('s-us-07','temu-us','acardi@sapphirepoolsny.com','Sapphire Pools NY','NOT INTERESTED',ARRAY['BD Team Referred'],'Sahil Pandey',NULL,ARRAY[]::TEXT[],'Not eligible per Temu price logic',false)
+ON CONFLICT (id) DO NOTHING;
+
+
+-- ============================================================
+-- SEED DATA — UK Payment log
+-- ============================================================
+INSERT INTO payments (id, program_id, period, amount, seller_count, received, stores_note)
+VALUES
+  ('pay-uk-01','temu-uk','Jul 2025','£800',1,true,'Payment received'),
+  ('pay-uk-02','temu-uk','Aug 2025','£1,600',2,true,'Payment received — 2 sellers'),
+  ('pay-uk-03','temu-uk','Sep 2025','£800',1,true,'Payment received'),
+  ('pay-uk-04','temu-uk','Oct 2025','£800',1,true,'Payment received'),
+  ('pay-uk-05','temu-uk','Nov 2025','£800',1,true,'Payment received'),
+  ('pay-uk-06','temu-uk','Dec 2025','N/A',0,false,'No payment this month'),
+  ('pay-uk-07','temu-uk','Jan 2026','N/A',0,false,'No payment this month'),
+  ('pay-uk-08','temu-uk','Feb 2026','£800',1,true,'Payment received'),
+  ('pay-uk-09','temu-uk','Mar 2026','TBC',0,false,'No information yet')
+ON CONFLICT (id) DO NOTHING;
+
+
+-- ============================================================
+-- SEED DATA — UK Campaigns
+-- ============================================================
+INSERT INTO campaigns (id, program_id, name, campaign_date, segment, sent, opens, clicks, replies)
+VALUES
+  ('c-uk-01','temu-uk','Sept 24 — Set A','2025-09-24','Amazon, Etsy & Shopify Database',3038,565,52,1),
+  ('c-uk-02','temu-uk','Sept 25 — Set A Remaining','2025-09-25','Remaining Amazon, Etsy & WooCommerce',7429,750,23,0),
+  ('c-uk-03','temu-uk','Oct 4 — Set B','2025-10-04','SHEIN, TTS, eBay, MCF, Miravia, Fruugo, Onbuy',0,0,0,3),
+  ('c-uk-04','temu-uk','MQL 2026 — Active','2026-01-01','MQL Opens 2026 list',1547,1547,29,0)
+ON CONFLICT (id) DO NOTHING;
+
+
+-- ============================================================
+-- DONE.
+-- ============================================================

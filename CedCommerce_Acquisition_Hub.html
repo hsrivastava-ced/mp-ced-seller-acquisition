@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seller Acquisition — CedCommerce</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#0f1b2d; --navy2:#162236; --navy3:#1d2e47;
+  --line:rgba(255,255,255,0.07); --line2:rgba(255,255,255,0.13);
+  --twht:#e8e2d8; --twht2:#a8b4c4;
+  --bg:#f0ede8; --surf:#f7f4f0; --surf2:#ebe7e1; --surf3:#e2ddd6;
+  --bdr:rgba(0,0,0,0.09); --bdr2:rgba(0,0,0,0.15);
+  --t1:#1a1610; --t2:#5a5448; --t3:#8a8278;
+  --teal:#0d9488; --teal2:#0f766e; --teal-l:#ccfbf1; --teal-t:rgba(13,148,136,0.12);
+  --green:#16a34a; --green-l:#dcfce7;
+  --amber:#d97706; --amber-l:#fef3c7;
+  --red:#dc2626; --red-l:#fee2e2;
+  --blue:#2563eb; --blue-l:#dbeafe;
+  --purple:#7c3aed; --purple-l:#ede9fe;
+  --r:10px; --rs:6px;
+  --font:'DM Sans',sans-serif; --mono:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--bg);color:var(--t1);font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.shell{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:230px;background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.slogo{padding:20px 18px 14px;border-bottom:1px solid var(--line);}
+.slogo-mark{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--teal);border-radius:8px;margin-bottom:10px;}
+.slogo-mark svg{width:18px;height:18px;color:#fff;}
+.brand{font-size:15px;font-weight:600;color:#fff;letter-spacing:-.01em;}
+.sub{font-size:11px;color:var(--twht2);margin-top:2px;}
+.nsec{padding:8px 0;}
+.nlabel{font-size:10px;font-weight:500;color:rgba(168,180,196,0.5);letter-spacing:.1em;text-transform:uppercase;padding:8px 18px 5px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;color:var(--twht2);font-size:13px;border-left:2px solid transparent;transition:all .13s;}
+.ni:hover{background:var(--navy3);color:var(--twht);}
+.ni.active{background:var(--teal-t);color:#5eead4;border-left-color:var(--teal);font-weight:500;}
+.ni svg{width:15px;height:15px;flex-shrink:0;opacity:.8;}
+.ni.active svg{opacity:1;}
+.psw{padding:6px 12px;}
+.pbtn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 10px;margin-bottom:3px;border-radius:var(--rs);border:1px solid var(--line);cursor:pointer;font-size:12px;font-family:var(--font);background:transparent;color:var(--twht2);text-align:left;transition:all .13s;}
+.pbtn:hover{background:var(--navy3);color:var(--twht);border-color:var(--line2);}
+.pbtn.active{background:var(--teal-t);color:#5eead4;border-color:rgba(13,148,136,.3);font-weight:500;}
+.pdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.addprog{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:7px;border-radius:var(--rs);border:1px dashed rgba(255,255,255,.18);cursor:pointer;font-size:12px;font-family:var(--font);color:var(--twht2);background:transparent;margin-top:4px;transition:all .13s;}
+.addprog:hover{color:#5eead4;border-color:var(--teal);}
+.sb-footer{margin-top:auto;padding:14px 18px;border-top:1px solid var(--line);}
+.db-status{font-size:11px;color:var(--twht2);opacity:.6;display:flex;align-items:center;gap:5px;}
+.db-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;}
+.db-dot.offline{background:#ef4444;}
+.db-dot.loading{background:var(--amber);}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;min-width:0;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:13px 26px;background:var(--surf);border-bottom:1px solid var(--bdr);gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:40;}
+.topbar-title{font-size:17px;font-weight:600;letter-spacing:-.02em;}
+.topbar-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.topbar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.content{padding:22px 26px;}
+
+/* BUTTONS */
+.btn{padding:7px 14px;border-radius:var(--rs);border:1px solid var(--bdr2);cursor:pointer;font-size:13px;font-family:var(--font);background:var(--surf);color:var(--t2);transition:all .13s;white-space:nowrap;}
+.btn:hover{background:var(--surf3);color:var(--t1);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-teal{background:var(--teal);color:#fff;border-color:var(--teal);font-weight:500;}
+.btn-teal:hover{background:var(--teal2);color:#fff;}
+.btn-green{background:var(--green);color:#fff;border-color:var(--green);}
+.btn-green:hover{background:#15803d;color:#fff;}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.btn-icon{display:inline-flex;align-items:center;gap:5px;}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:12px;margin-bottom:20px;}
+.mcard{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:15px 17px;position:relative;overflow:hidden;}
+.mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--bdr2);border-radius:var(--r) var(--r) 0 0;}
+.mcard.teal::before{background:var(--teal);}
+.mcard.green::before{background:var(--green);}
+.mcard.amber::before{background:var(--amber);}
+.mcard.blue::before{background:var(--blue);}
+.mcard.purple::before{background:var(--purple);}
+.mcard .ml{font-size:11px;color:var(--t3);letter-spacing:.03em;margin-bottom:7px;margin-top:2px;}
+.mcard .mv{font-size:26px;font-weight:600;color:var(--t1);line-height:1;font-variant-numeric:tabular-nums;}
+.mcard .ms{font-size:11px;color:var(--t3);margin-top:4px;}
+.mcard.teal .mv{color:var(--teal2);}
+.mcard.green .mv{color:var(--green);}
+.mcard.amber .mv{color:var(--amber);}
+.mcard.blue .mv{color:var(--blue);}
+.mcard.purple .mv{color:var(--purple);}
+
+/* CARDS */
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:18px;margin-bottom:16px;}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:10px;flex-wrap:wrap;}
+.card-title{font-size:14px;font-weight:600;letter-spacing:-.01em;}
+.card-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+
+/* AFFILIATE LINK BOX */
+.aff-box{background:var(--navy);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.aff-label{font-size:11px;color:var(--twht2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.aff-link{font-size:11px;font-family:var(--mono);color:#5eead4;word-break:break-all;max-width:500px;}
+.aff-actions{display:flex;gap:8px;flex-shrink:0;}
+.aff-btn{padding:5px 12px;border-radius:var(--rs);border:1px solid var(--line2);cursor:pointer;font-size:11px;font-family:var(--font);background:transparent;color:var(--twht);transition:all .13s;white-space:nowrap;}
+.aff-btn:hover{background:var(--navy3);}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.g3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:11px;font-weight:500;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;padding:9px 11px;text-align:left;border-bottom:1px solid var(--bdr);background:var(--surf2);white-space:nowrap;}
+td{padding:9px 11px;border-bottom:1px solid var(--bdr);font-size:13px;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--surf2);}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:3px 9px;border-radius:100px;white-space:nowrap;}
+.p-green{background:var(--green-l);color:#15803d;}
+.p-blue{background:var(--blue-l);color:#1d4ed8;}
+.p-teal{background:var(--teal-l);color:var(--teal2);}
+.p-amber{background:var(--amber-l);color:#92400e;}
+.p-red{background:var(--red-l);color:#991b1b;}
+.p-purple{background:var(--purple-l);color:#5b21b6;}
+.p-gray{background:var(--surf3);color:var(--t2);}
+
+/* SOURCE / TAG CHIPS */
+.stag{display:inline-block;font-size:10px;font-family:var(--mono);padding:2px 6px;border-radius:4px;margin:1px;border:1px solid var(--bdr);}
+.stag-temu{background:#dbeafe;color:#1d4ed8;border-color:#bfdbfe;}
+.stag-bd{background:#fef3c7;color:#92400e;border-color:#fde68a;}
+.stag-camp{background:var(--green-l);color:#166534;border-color:#bbf7d0;}
+.stag-mql{background:var(--purple-l);color:#5b21b6;border-color:#ddd6fe;}
+.stag-nl{background:var(--teal-l);color:var(--teal2);border-color:#99f6e4;}
+.stag-def{background:var(--surf2);color:var(--t2);border-color:var(--bdr);}
+.tchip{display:inline-flex;align-items:center;font-size:10px;font-weight:500;padding:2px 7px;border-radius:100px;margin:1px;}
+.t-hot{background:#fee2e2;color:#991b1b;}
+.t-vat{background:#fef3c7;color:#92400e;}
+.t-noreply{background:var(--surf3);color:var(--t2);}
+.t-doc{background:var(--purple-l);color:#5b21b6;}
+.t-price{background:var(--blue-l);color:#1d4ed8;}
+.t-list{background:var(--teal-l);color:var(--teal2);}
+.t-tech{background:#fee2e2;color:#991b1b;}
+.t-follow{background:var(--blue-l);color:var(--blue);}
+.t-def{background:var(--surf3);color:var(--t2);}
+
+/* OUTREACH BTNS */
+.ob{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:var(--rs);border:1px solid var(--bdr2);cursor:pointer;font-size:11px;font-family:var(--font);background:var(--surf2);color:var(--blue);transition:all .12s;margin-right:3px;}
+.ob:hover{background:var(--blue-l);}
+.ob-wa{color:var(--teal2);}
+.ob-wa:hover{background:var(--teal-l);}
+
+/* PAYMENT */
+.paid{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:100px;background:var(--green-l);color:#15803d;}
+.pend{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:100px;background:var(--amber-l);color:#92400e;}
+.rev-row{display:flex;align-items:flex-start;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bdr);gap:8px;flex-wrap:wrap;}
+.rev-row:last-child{border-bottom:none;}
+
+/* SEARCH / FILTER */
+.sbar{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+.sbar input,.sbar select{padding:8px 12px;border:1px solid var(--bdr2);border-radius:var(--rs);font-size:13px;font-family:var(--font);background:var(--surf);color:var(--t1);}
+.sbar input{flex:1;min-width:200px;}
+.sbar input:focus,.sbar select:focus{outline:none;border-color:var(--teal);}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.chip{padding:4px 13px;border-radius:100px;border:1px solid var(--bdr2);font-size:12px;font-family:var(--font);cursor:pointer;color:var(--t2);background:transparent;transition:all .13s;}
+.chip:hover{background:var(--surf3);color:var(--t1);}
+.chip.active{background:var(--teal-t);color:var(--teal);border-color:rgba(13,148,136,.35);font-weight:500;}
+
+/* FUNNEL */
+.funnel-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.funnel-label{font-size:12px;color:var(--t2);min-width:195px;}
+.funnel-track{flex:1;background:var(--surf2);border-radius:4px;height:20px;overflow:hidden;}
+.funnel-fill{height:100%;border-radius:4px;}
+.funnel-n{font-size:12px;font-weight:600;min-width:28px;text-align:right;font-variant-numeric:tabular-nums;}
+
+/* CAMP CARDS */
+.camp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;}
+.ccard{background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--rs);padding:13px;}
+.ccard-title{font-size:12px;font-weight:600;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--bdr);}
+.cstat{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;}
+.cstat .l{color:var(--t3);}
+.cstat .v{font-weight:600;font-variant-numeric:tabular-nums;}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,27,45,.55);z-index:200;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--surf);border-radius:var(--r);border:1px solid var(--bdr);width:90%;max-width:560px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2);}
+.modal-lg{max-width:700px;}
+.mhead{padding:16px 20px 13px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;background:var(--surf2);border-radius:var(--r) var(--r) 0 0;}
+.mhead h3{font-size:15px;font-weight:600;}
+.mclose{background:none;border:none;font-size:20px;cursor:pointer;color:var(--t3);line-height:1;}
+.mclose:hover{color:var(--t1);}
+.mbody{padding:18px 20px;}
+.mfoot{padding:13px 20px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px;}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--t2);margin-bottom:4px;}
+.field input,.field select,.field textarea{width:100%;padding:8px 11px;border:1px solid var(--bdr2);border-radius:var(--rs);font-size:13px;font-family:var(--font);background:var(--surf);color:var(--t1);}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--teal);}
+.field textarea{resize:vertical;min-height:68px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.info-box{background:var(--surf2);border-left:3px solid var(--bdr2);border-radius:0 var(--rs) var(--rs) 0;padding:10px 13px;font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.6;}
+.info-box.green{border-left-color:var(--green);background:var(--green-l);color:#15803d;}
+.info-box.amber{border-left-color:var(--amber);background:var(--amber-l);color:#92400e;}
+.info-box.teal{border-left-color:var(--teal);background:var(--teal-l);color:var(--teal2);}
+.tag-picker{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--surf2);border-radius:var(--rs);border:1px solid var(--bdr);}
+.tag-opt{padding:3px 10px;border-radius:100px;font-size:11px;cursor:pointer;border:1px solid var(--bdr2);background:var(--surf);color:var(--t2);font-family:var(--font);transition:all .12s;}
+.tag-opt.sel{border-color:var(--teal);background:var(--teal-t);color:var(--teal);}
+
+/* IMPORT */
+.imp-drop{border:2px dashed var(--bdr2);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:all .18s;background:var(--surf2);}
+.imp-drop:hover,.imp-drop.drag{border-color:var(--teal);background:var(--teal-l);}
+
+/* VIEWS */
+.view{display:none;}
+.view.active{display:block;}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(15,27,45,.7);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+.loading-overlay.hidden{display:none;}
+.spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,.15);border-top-color:#5eead4;border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{color:var(--twht);font-size:13px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:var(--twht);padding:11px 17px;border-radius:var(--rs);font-size:13px;z-index:999;opacity:0;transform:translateY(8px);transition:all .18s;pointer-events:none;border:1px solid var(--navy3);}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.error{border-color:var(--red);color:#fca5a5;}
+
+/* SETUP SCREEN */
+.setup-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.setup-card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:32px;max-width:560px;width:100%;}
+.setup-card h2{font-size:20px;font-weight:600;margin-bottom:6px;}
+.setup-card p{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:20px;}
+.setup-step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--bdr);}
+.setup-step:last-child{border:none;}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--teal);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.step-body{font-size:13px;color:var(--t2);line-height:1.6;}
+.step-body strong{color:var(--t1);}
+.step-body code{font-family:var(--mono);background:var(--surf2);padding:1px 5px;border-radius:3px;font-size:12px;}
+
+/* OVERLAP DOT */
+.ovr{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amber);margin-right:4px;}
+
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px;}
+@media(max-width:960px){.g2,.g3{grid-template-columns:1fr;}}
+@media print{.sidebar,.topbar-actions,.overlay{display:none!important;}}
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Connecting to database...</div>
+</div>
+
+<!-- SETUP SCREEN (shown if no Supabase keys configured) -->
+<div class="setup-screen" id="setup-screen" style="display:none;">
+  <div class="setup-card">
+    <div style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:var(--teal);border-radius:10px;margin-bottom:16px;">
+      <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.8"><path d="M10 2L2 6v8l8 4 8-4V6L10 2z"/><path d="M10 2v18M2 6l8 4 8-4"/></svg>
+    </div>
+    <h2>CedCommerce Acquisition Hub</h2>
+    <p>This app stores all data in a shared Supabase database so your whole team works from the same live data. One-time setup takes 5 minutes.</p>
+    <div class="setup-step">
+      <div class="step-num">1</div>
+      <div class="step-body"><strong>Create free Supabase account</strong><br>Go to <a href="https://supabase.com" target="_blank" style="color:var(--teal)">supabase.com</a> → New project → name it <code>ced-acquisition</code></div>
+    </div>
+    <div class="setup-step">
+      <div class="step-num">2</div>
+      <div class="step-body"><strong>Run the SQL schema</strong><br>In your project → SQL Editor → paste and run the schema from the <code>setup_schema.sql</code> file provided with this app</div>
+    </div>
+    <div class="setup-step">
+      <div class="step-num">3</div>
+      <div class="step-body"><strong>Enter your project credentials</strong><br>Settings → API → copy Project URL and anon/public key below</div>
+    </div>
+    <div class="field" style="margin-top:16px;"><label>Supabase Project URL</label><input id="setup-url" placeholder="https://xxxxx.supabase.co"></div>
+    <div class="field"><label>Supabase Anon (public) Key</label><input id="setup-key" placeholder="eyJhbGc..."></div>
+    <button class="btn btn-teal" style="width:100%;padding:11px;margin-top:4px;" onclick="saveSetup()">Connect & initialise database</button>
+    <div id="setup-msg" style="margin-top:12px;"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="shell" id="app" style="display:none;">
+<aside class="sidebar">
+  <div class="slogo">
+    <div class="slogo-mark"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2L2 6v8l8 4 8-4V6L10 2z"/><path d="M10 2v18M2 6l8 4 8-4"/></svg></div>
+    <div class="brand">CedCommerce</div>
+    <div class="sub">Acquisition Hub</div>
+  </div>
+  <div class="nsec">
+    <div class="nlabel">Programs</div>
+    <div class="psw" id="prog-sw"></div>
+    <div style="padding:0 12px"><button class="addprog" onclick="openModal('m-new-prog')">+ New program</button></div>
+  </div>
+  <div class="nsec" style="border-top:1px solid var(--line);margin-top:8px;">
+    <div class="nlabel">Views</div>
+    <div class="ni active" onclick="sv('overview',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg><span>Overview</span></div>
+    <div class="ni" onclick="sv('sellers',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg><span>All sellers</span></div>
+    <div class="ni" onclick="sv('revenue',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v14M4 5h6a2 2 0 010 4H6a2 2 0 000 4h6"/></svg><span>Revenue & incentives</span></div>
+    <div class="ni" onclick="sv('campaigns',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 4l7 5 7-5"/><rect x="1" y="3" width="14" height="10" rx="1.5"/></svg><span>Campaigns & MQLs</span></div>
+    <div class="ni" onclick="sv('bd',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/><path d="M1 13c0-2.2 1.8-4 4-4s4 1.8 4 4M11 9c2.2 0 4 1.8 4 4"/></svg><span>BD team</span></div>
+    <div class="ni" onclick="sv('import',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v9m-3-3l3 3 3-3"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg><span>Import leads</span></div>
+  </div>
+  <div class="sb-footer">
+    <div class="db-status"><div class="db-dot loading" id="db-dot"></div><span id="db-label">Connecting...</span></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div><div class="topbar-title" id="page-title">Overview</div><div class="topbar-sub" id="page-sub">Loading...</div></div>
+    <div class="topbar-actions">
+      <button class="btn btn-icon" onclick="sv('import',document.querySelector('[onclick*=import]'))"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1v9m-3-3l3 3 3-3"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg>Import leads</button>
+      <button class="btn" onclick="exportCSV()">Export CSV</button>
+      <button class="btn btn-teal" onclick="openAddSeller()">+ Add seller</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div class="view active" id="view-overview">
+      <div id="ov-aff"></div>
+      <div class="metrics-grid" id="ov-metrics"></div>
+      <div class="g2">
+        <div class="card"><div class="card-header"><div><div class="card-title">Pipeline funnel</div></div></div><div id="ov-funnel"></div></div>
+        <div class="card"><div class="card-header"><div><div class="card-title">Payment receipts</div><div class="card-sub">As confirmed by accounts — not tied to onboard month</div></div></div><div id="ov-paylog"></div></div>
+      </div>
+      <div class="g3">
+        <div class="card">
+          <div class="card-header"><div><div class="card-title" id="ov-q-title">Qualified sellers</div></div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Store</th><th>BDA</th><th>1st Sale</th><th>Temu paid CED</th></tr></thead><tbody id="ov-q-tbl"></tbody></table></div>
+        </div>
+        <div class="card"><div class="card-header"><div><div class="card-title">Lead sources</div></div></div><div id="ov-sources"></div></div>
+      </div>
+    </div>
+
+    <!-- SELLERS -->
+    <div class="view" id="view-sellers">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <button class="btn btn-teal btn-icon" onclick="openAddSeller()">+ Add seller</button>
+        <span style="font-size:12px;color:var(--t3)" id="sellers-count"></span>
+      </div>
+      <div class="sbar">
+        <input type="text" id="s-search" placeholder="Search email, store, associate, tag..." oninput="buildSellersTable()">
+        <select id="s-src-f" onchange="buildSellersTable()">
+          <option value="">All sources</option><option value="BD">BD</option><option value="Temu">Temu</option>
+          <option value="Campaign">Campaign</option><option value="MQL">MQL</option><option value="Newsletter">Newsletter</option>
+        </select>
+        <select id="s-tag-f" onchange="buildSellersTable()">
+          <option value="">All tags</option><option value="Hot lead">Hot lead</option><option value="VAT issue">VAT issue</option>
+          <option value="No reply">No reply</option><option value="Document pending">Doc pending</option>
+          <option value="Follow up scheduled">Follow up</option>
+        </select>
+      </div>
+      <div class="chips" id="s-chips"></div>
+      <div class="card" style="padding:0;">
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Email</th><th>Store</th><th>Status</th><th>Tags</th><th>Source(s)</th><th>Associate</th><th>Updated</th><th>Outreach</th><th></th></tr></thead>
+          <tbody id="s-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- REVENUE -->
+    <div class="view" id="view-revenue">
+      <div class="metrics-grid" id="rev-metrics"></div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title" id="rev-title">Qualified sellers — payment log</div><div class="card-sub">Payments received from Temu on their schedule, not tied to onboarding month</div></div><button class="btn btn-green" onclick="openModal('m-qual')">+ Mark qualified</button></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>#</th><th>Store</th><th>Mall ID</th><th>Email</th><th>BDA</th><th>1st Sale</th><th>Amount</th><th>Temu paid CED</th><th>CED paid CSA</th><th>BD incentive</th><th>Notes</th></tr></thead>
+          <tbody id="rev-tbody"></tbody>
+          <tfoot><tr style="background:var(--surf2)"><td colspan="6" style="padding:10px 12px;font-weight:600">Total</td><td style="padding:10px 12px;font-weight:700;color:var(--green)" id="rev-total"></td><td style="padding:10px 12px;font-weight:600;color:var(--green);font-size:12px" id="rev-paid-c"></td><td colspan="3"></td></tr></tfoot>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px">Payment timeline — confirmed by accounts team</div>
+        <div id="pay-tl"></div>
+      </div>
+    </div>
+
+    <!-- CAMPAIGNS -->
+    <div class="view" id="view-campaigns">
+      <div class="metrics-grid" id="camp-metrics"></div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">Campaign performance</div></div><button class="btn btn-teal" onclick="openModal('m-campaign')">+ Add campaign</button></div>
+        <div class="camp-grid" id="camp-cards"></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div><div class="card-title">MQL 2026 — active click leads</div><div class="card-sub">One-click Gmail outreach with pre-written templates</div></div></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Email</th><th>Status</th><th>Tags</th><th>Updated</th><th>Email</th><th></th></tr></thead>
+          <tbody id="mql-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- BD -->
+    <div class="view" id="view-bd">
+      <div class="metrics-grid" id="bd-metrics"></div>
+      <div class="g2">
+        <div class="card"><div class="card-header"><div><div class="card-title">Associate performance</div></div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Associate</th><th>Referred</th><th>Completed</th><th>Rate</th><th>Incentive</th></tr></thead><tbody id="bd-tbody"></tbody></table></div>
+        </div>
+        <div class="card"><div class="card-header"><div><div class="card-title">BD incentive log</div><div class="card-sub" id="bd-inc-sub"></div></div></div><div id="bd-inc-list"></div></div>
+      </div>
+    </div>
+
+    <!-- IMPORT -->
+    <div class="view" id="view-import">
+      <div class="g2">
+        <div>
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">Import leads</div><div class="card-sub">Paste emails one per line — duplicates detected automatically</div></div></div>
+            <div class="imp-drop" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--t3);margin-bottom:6px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <div style="font-size:13px;color:var(--t2)">Drop CSV here or paste below</div>
+            </div>
+            <div class="field" style="margin-top:12px"><label>Paste emails (one per line)</label><textarea id="imp-emails" rows="8" placeholder="seller@example.co.uk&#10;store@business.com"></textarea></div>
+            <div class="frow">
+              <div class="field"><label>Program</label><select id="imp-prog"></select></div>
+              <div class="field"><label>Source type</label><select id="imp-src"><option value="MQL">MQL</option><option value="Temu">Temu confirmed</option><option value="BD">BD referral</option><option value="Campaign">Campaign</option><option value="Newsletter">Newsletter</option><option value="CRM">CRM cadence</option></select></div>
+            </div>
+            <div class="field"><label>Batch label (optional)</label><input type="text" id="imp-label" placeholder="April 2026 campaign..."></div>
+            <button class="btn btn-teal" style="width:100%;padding:10px" onclick="runImport()">Import & match</button>
+            <div id="imp-result" style="margin-top:12px"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">Full CSV import</div><div class="card-sub">Paste from the Excel import template</div></div></div>
+            <div class="field"><label>CSV data (with header row)</label><textarea id="imp-csv" rows="5" placeholder="Email,Store,Status,Source,Associate,Tags,StoreID&#10;seller@example.co.uk,Store Name,..."></textarea></div>
+            <button class="btn btn-teal" style="width:100%;padding:9px" onclick="runCSVImport()">Parse & import CSV</button>
+            <div id="csv-result" style="margin-top:10px"></div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">Database</div></div></div>
+            <div class="info-box teal">All data is stored in your Supabase database. Changes by any team member are visible to everyone instantly.</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-teal" onclick="exportCSV()">Export sellers CSV</button>
+              <button class="btn" onclick="refreshAll()">Refresh data</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">Add new program</div></div></div>
+            <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Each program has its own seller list, revenue tracking, and affiliate link. Data never overlaps between programs.</p>
+            <button class="btn btn-teal" style="width:100%" onclick="openModal('m-new-prog')">+ Create new program</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- MODALS -->
+<!-- Add/Edit Seller -->
+<div class="overlay" id="m-seller"><div class="modal modal-lg">
+  <div class="mhead"><h3 id="m-seller-title">Add seller</h3><button class="mclose" onclick="closeModal('m-seller')">x</button></div>
+  <div class="mbody">
+    <div class="frow">
+      <div class="field"><label>Email</label><input id="f-email" type="email" placeholder="seller@store.co.uk"></div>
+      <div class="field"><label>Store / Company</label><input id="f-company" placeholder="Store name"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Mall ID / Store ID</label><input id="f-storeid" placeholder="670702093... (if no email available)"></div>
+      <div class="field"><label>Phone / WhatsApp</label><input id="f-phone" placeholder="+44 7..."></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Program</label><select id="f-prog"></select></div>
+      <div class="field"><label>Lead source</label><select id="f-src"><option value="BD">BD Referral</option><option value="Temu">Temu confirmed</option><option value="Campaign">Campaign</option><option value="MQL">MQL</option><option value="Newsletter">Newsletter</option><option value="CRM">CRM cadence</option></select></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Status</label><select id="f-status" onchange="toggleQualSec()"></select></div>
+      <div class="field"><label>BD associate</label><select id="f-assoc"></select></div>
+    </div>
+    <div class="field"><label>Website</label><input id="f-website" placeholder="https://store.myshopify.com"></div>
+    <div class="field"><label>Tags</label><div class="tag-picker" id="tag-picker"></div></div>
+    <div class="field"><label>Remarks</label><textarea id="f-remarks" placeholder="Notes, blockers, WhatsApp updates..."></textarea></div>
+    <div id="qual-sec" style="display:none;">
+      <div class="info-box green">Marking as Onboarding Complete — log this in Revenue tab for payment tracking.</div>
+    </div>
+  </div>
+  <div class="mfoot"><button class="btn" onclick="closeModal('m-seller')">Cancel</button><button class="btn btn-teal" id="save-seller-btn" onclick="saveSeller()">Save</button></div>
+</div></div>
+
+<!-- Mark Qualified -->
+<div class="overlay" id="m-qual"><div class="modal">
+  <div class="mhead"><h3>Mark seller as qualified</h3><button class="mclose" onclick="closeModal('m-qual')">x</button></div>
+  <div class="mbody">
+    <div class="info-box teal">First organic order achieved. Status → Onboarding Complete. Added to revenue tracker.</div>
+    <div class="frow">
+      <div class="field"><label>Store name *</label><input id="q-store" placeholder="Store name"></div>
+      <div class="field"><label>Email (if known)</label><input id="q-email" placeholder="seller@store.co.uk"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Mall ID / Store ID</label><input id="q-sid" placeholder="670702..."></div>
+      <div class="field"><label>BDA *</label><select id="q-bda"></select></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Month of 1st sale</label><input id="q-month" type="month"></div>
+      <div class="field"><label>Amount</label><input id="q-amt" type="number"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Temu paid CED?</label><select id="q-cedpaid"><option value="pending">Pending</option><option value="paid">Paid</option></select></div>
+      <div class="field"><label>CED paid CSA?</label><select id="q-csapaid"><option value="pending">Pending</option><option value="paid">Paid</option></select></div>
+    </div>
+    <div class="field"><label>Notes</label><textarea id="q-notes" rows="2"></textarea></div>
+  </div>
+  <div class="mfoot"><button class="btn" onclick="closeModal('m-qual')">Cancel</button><button class="btn btn-green" onclick="saveQualified()">Mark qualified</button></div>
+</div></div>
+
+<!-- New Program -->
+<div class="overlay" id="m-new-prog"><div class="modal">
+  <div class="mhead"><h3>New program</h3><button class="mclose" onclick="closeModal('m-new-prog')">x</button></div>
+  <div class="mbody">
+    <div class="frow">
+      <div class="field"><label>Program name *</label><input id="pn-name" placeholder="Temu US, Walmart UK..."></div>
+      <div class="field"><label>Marketplace</label><select id="pn-mkt"><option>Temu</option><option>Walmart</option><option>AliExpress</option><option>eBay</option><option>Amazon</option><option>Other</option></select></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Region</label><input id="pn-region" placeholder="UK, US, EU..."></div>
+      <div class="field"><label>Incentive per seller</label><input id="pn-inc" type="number" value="800" placeholder="800"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Currency</label><select id="pn-cur"><option value="EUR">EUR (€)</option><option value="USD">USD ($)</option><option value="GBP">GBP (£)</option></select></div>
+      <div class="field"><label>Color</label><select id="pn-col"><option value="teal">Teal</option><option value="blue">Blue</option><option value="green">Green</option><option value="purple">Purple</option><option value="amber">Amber</option></select></div>
+    </div>
+    <div class="field"><label>Affiliate / tracking link</label><input id="pn-link" placeholder="https://seller.temu.com/..."></div>
+    <div class="field"><label>Notes / eligibility criteria</label><textarea id="pn-notes" rows="3"></textarea></div>
+  </div>
+  <div class="mfoot"><button class="btn" onclick="closeModal('m-new-prog')">Cancel</button><button class="btn btn-teal" onclick="saveProgram()">Create</button></div>
+</div></div>
+
+<!-- Add Campaign -->
+<div class="overlay" id="m-campaign"><div class="modal">
+  <div class="mhead"><h3>Add campaign</h3><button class="mclose" onclick="closeModal('m-campaign')">x</button></div>
+  <div class="mbody">
+    <div class="frow">
+      <div class="field"><label>Campaign name *</label><input id="c-name" placeholder="April 2026 Set A"></div>
+      <div class="field"><label>Date</label><input id="c-date" type="date"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Sent</label><input id="c-sent" type="number"></div>
+      <div class="field"><label>Opens</label><input id="c-opens" type="number"></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Clicks</label><input id="c-clicks" type="number"></div>
+      <div class="field"><label>Replies</label><input id="c-replies" type="number"></div>
+    </div>
+    <div class="field"><label>Segment</label><input id="c-seg" placeholder="Amazon, Etsy & Shopify database"></div>
+  </div>
+  <div class="mfoot"><button class="btn" onclick="closeModal('m-campaign')">Cancel</button><button class="btn btn-teal" onclick="saveCampaign()">Save</button></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG — filled in after setup
+// ============================================================
+const CFG_KEY = 'ced_supabase_cfg';
+let SB_URL = '';
+let SB_KEY = '';
+
+// ============================================================
+// SUPABASE API WRAPPER
+// ============================================================
+async function sbFetch(path, method='GET', body=null) {
+  const opts = {
+    method,
+    headers: { 'Content-Type':'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': method==='POST'?'return=representation':'return=minimal' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(SB_URL + '/rest/v1/' + path, opts);
+  if (!r.ok) {
+    const err = await r.text();
+    throw new Error(err);
+  }
+  const txt = await r.text();
+  return txt ? JSON.parse(txt) : null;
+}
+
+const DB = {
+  from: (table) => ({
+    select: (cols='*') => sbFetch(`${table}?select=${cols}`),
+    selectEq: (cols, col, val) => sbFetch(`${table}?select=${cols}&${col}=eq.${encodeURIComponent(val)}`),
+    insert: (data) => sbFetch(table, 'POST', Array.isArray(data) ? data : [data]),
+    update: (id, data) => sbFetch(`${table}?id=eq.${id}`, 'PATCH', data),
+    delete: (id) => sbFetch(`${table}?id=eq.${id}`, 'DELETE'),
+    upsert: (data) => sbFetch(table + '?on_conflict=id', 'POST', Array.isArray(data) ? data : [data])
+  })
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let PROGRAMS = [];
+let SELLERS = [];
+let QUALIFIED = [];
+let CAMPAIGNS = [];
+let PAYMENTS = [];
+let MQL_EMAILS = [];
+let CUR_PROG = '';
+let CUR_VIEW = 'overview';
+let SF = 'all';
+let EDIT_ID = null;
+let SEL_TAGS = [];
+let SAVING = false;
+
+// ============================================================
+// CONSTANTS
+// ============================================================
+const STATUSES = [
+  'EMAIL FOLLOW UP IN PROGRESS','WHATSAPP FOLLOW UP IN PROGRESS','REGISTRATION DONE',
+  'INCOMMUNICATION','NOT INTERESTED','STUCK','Document Verification','1st Sign Up Done',
+  'Engagement','Product Setup','MANUAL LISTING IN PROGRESS','LISTING VIA APP IN PROGRESS',
+  'SALES AWAITING','ONBOARDING COMPLETE','APP CONNECTED','FRAMEWORK NOT SUPPORTED','Not eligible'
+];
+const ASSOCIATES = [
+  'Sarina Sufiyan','Suryansh Chauhan','Nadeem Khan','Shaim kumar','Divyam Gupta',
+  'Rishu Agarwal','Shivangi Tiwari','Aditi Sinha','Mohd Fahad Khan','Kartikey Mishra',
+  'Raju Sah','Yashi Rastogi','Mohd Shadab','Gaurav Mishra','Abhijeet Srivastava',
+  'Siddhartha Raj','Yashwita','Yogesh','Akshay Singh','Mobin Rana','Sahil Pandey',
+  'Khushi Bhasin','Mannu Pratap Singh','Dhruv Prashant','Prashant Srivastava'
+];
+const ALL_TAGS = ['Hot lead','VAT issue','No reply','Document pending','Price concern','Listing help needed','Technical issue','Follow up scheduled','Closed - won'];
+const TAG_CLS = {'Hot lead':'t-hot','VAT issue':'t-vat','No reply':'t-noreply','Document pending':'t-doc','Price concern':'t-price','Listing help needed':'t-list','Technical issue':'t-tech','Follow up scheduled':'t-follow','Closed - won':'t-def'};
+const PROG_COLORS = {teal:'#0d9488',blue:'#2563eb',green:'#16a34a',purple:'#7c3aed',amber:'#d97706'};
+const CURRENCIES = {EUR:'€',USD:'$',GBP:'£'};
+
+// Email templates
+const ETPL = {
+  'EMAIL FOLLOW UP IN PROGRESS': {
+    sub: 'Grow your sales on Temu — exclusive programme via CedCommerce',
+    body: `Hi [NAME],\n\nI am reaching out from CedCommerce regarding a funded seller programme on Temu that we are running.\n\nWe help sellers list their products on Temu with free onboarding, product listing support, and a dedicated account manager throughout.\n\nCould we have a quick 15-minute call this week to walk you through the details?\n\nBest,\n[YOUR NAME]\nCedCommerce`
+  },
+  'INCOMMUNICATION': {
+    sub: 'Checking in — Temu programme still open for [STORE]',
+    body: `Hi [NAME],\n\nI wanted to check in as we have not connected in a while regarding your Temu onboarding.\n\nThe programme is still active and we would love to help you get started.\n\nIf the timing is not right, just let me know and I can follow up at a better time.\n\nBest,\n[YOUR NAME]\nCedCommerce`
+  },
+  'REGISTRATION DONE': {
+    sub: 'Next steps — your Temu store registration is confirmed',
+    body: `Hi [NAME],\n\nYour Temu store registration is complete. Your next steps are:\n1. Complete document verification\n2. Set up your store profile\n3. Upload your first products\n\nWe can help with all of this. Shall we schedule a session this week?\n\nBest,\n[YOUR NAME]\nCedCommerce`
+  },
+  'Document Verification': {
+    sub: 'Document verification — how we can help [STORE]',
+    body: `Hi [NAME],\n\nI am following up on the document verification step for your Temu store.\n\nCommon documents needed: business registration, VAT certificate (if applicable), ID verification.\n\nI can guide you through each step. Would a quick call help?\n\nBest,\n[YOUR NAME]\nCedCommerce`
+  },
+  'STUCK': {
+    sub: 'Let us get your Temu store unblocked — [STORE]',
+    body: `Hi [NAME],\n\nI want to help resolve the challenge you are facing with your Temu onboarding.\n\nCommon blockers we help with: VAT, document issues, portal access, product listings.\n\nPlease reply or call and we will sort it together.\n\nBest,\n[YOUR NAME]\nCedCommerce`
+  },
+  'DEFAULT': {
+    sub: 'Following up — your Temu onboarding',
+    body: `Hi [NAME],\n\nI am following up from CedCommerce regarding your Temu onboarding. Please let me know if there is anything I can help with.\n\nBest,\n[YOUR NAME]\nCedCommerce`
+  }
+};
+
+function getTpl(status) { return ETPL[status] || ETPL['DEFAULT']; }
+
+function openEmail(email, company, status) {
+  if (!email || email.includes('@update')) { toast('No email available for this seller', true); return; }
+  const t = getTpl(status);
+  const nm = (company || 'there').split(' ')[0];
+  const sub = encodeURIComponent(t.sub.replace(/\[STORE\]/g, company||'').replace(/\[NAME\]/g, nm));
+  const body = encodeURIComponent(t.body.replace(/\[STORE\]/g, company||'').replace(/\[NAME\]/g, nm));
+  window.open('https://mail.google.com/mail/?view=cm&to=' + encodeURIComponent(email) + '&su=' + sub + '&body=' + body, '_blank');
+}
+
+function openWA(phone, company) {
+  const nm = (company || 'there').split(' ')[0];
+  const msg = encodeURIComponent('Hi ' + nm + ', following up from CedCommerce about your Temu onboarding. Do you have 10 minutes for a quick call?');
+  window.open('https://wa.me/' + (phone||'').replace(/\D/g,'') + '?text=' + msg, '_blank');
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+const uid = () => crypto.randomUUID ? crypto.randomUUID() : 'x' + Math.random().toString(36).slice(2,11);
+const now = () => new Date().toLocaleDateString('en-GB');
+function fmtM(m) {
+  if (!m) return '—';
+  const [y, mo] = m.split('-');
+  const mths = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return mths[parseInt(mo)-1] + ' ' + (y > '2025' ? "'" + y.slice(2) : y);
+}
+function toast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function loading(show, text='Saving...') {
+  document.getElementById('loading').classList.toggle('hidden', !show);
+  if (text) document.getElementById('loading-text').textContent = text;
+}
+function setDBStatus(state) {
+  const dot = document.getElementById('db-dot');
+  const lbl = document.getElementById('db-label');
+  dot.className = 'db-dot ' + (state==='ok'?'':'loading' );
+  if (state==='ok') { dot.style.background='#22c55e'; lbl.textContent='Database connected'; }
+  else if (state==='err') { dot.style.background='#ef4444'; lbl.textContent='Database error'; }
+  else { dot.style.background=PROG_COLORS.amber; lbl.textContent='Connecting...'; }
+}
+
+function sPill(s) {
+  if (!s) return '<span class="pill p-gray">—</span>';
+  const u = s.toUpperCase();
+  let c = 'p-gray';
+  if (u.includes('ONBOARD')) c='p-green';
+  else if (u.includes('EMAIL FOLLOW')) c='p-blue';
+  else if (u.includes('WHATSAPP')) c='p-teal';
+  else if (u.includes('REGISTRATION')||u.includes('SIGN UP')) c='p-purple';
+  else if (u.includes('NOT INTEREST')||u.includes('STUCK')||u.includes('NOT ELIG')) c='p-red';
+  else if (u.includes('DOCUMENT')||u.includes('INCOMMUNICATION')) c='p-amber';
+  else if (u.includes('PRODUCT')||u.includes('LISTING')||u.includes('SALES')) c='p-blue';
+  const lbl = s.length > 24 ? s.slice(0,24)+'...' : s;
+  return '<span class="pill ' + c + '">' + lbl + '</span>';
+}
+
+function srcTags(sources) {
+  return (sources||[]).map(s => {
+    const sl = s.toLowerCase();
+    const c = sl.includes('temu')?'stag-temu':sl.includes('bd')?'stag-bd':sl.includes('mql')||sl.includes('quality')||sl.includes('crm')?'stag-mql':sl.includes('newsletter')?'stag-nl':'stag-camp';
+    return '<span class="stag ' + c + '">' + s + '</span>';
+  }).join('');
+}
+
+function tagChips(tags) {
+  return (tags||[]).map(t => '<span class="tchip ' + (TAG_CLS[t]||'t-def') + '">' + t + '</span>').join('');
+}
+
+function curProg() { return PROGRAMS.find(p => p.id === CUR_PROG) || {}; }
+function progCurr() { return CURRENCIES[curProg().currency] || '€'; }
+function curSellers() { return SELLERS.filter(s => s.program_id === CUR_PROG); }
+function curQualified() { return QUALIFIED.filter(q => q.program_id === CUR_PROG); }
+function curPayments() { return PAYMENTS.filter(p => p.program_id === CUR_PROG); }
+function curCampaigns() { return CAMPAIGNS.filter(c => c.program_id === CUR_PROG); }
+
+// ============================================================
+// SETUP
+// ============================================================
+function saveSetup() {
+  const url = document.getElementById('setup-url').value.trim().replace(/\/$/, '');
+  const key = document.getElementById('setup-key').value.trim();
+  if (!url || !key) { document.getElementById('setup-msg').innerHTML = '<div class="info-box amber">Please enter both URL and key.</div>'; return; }
+  localStorage.setItem(CFG_KEY, JSON.stringify({url, key}));
+  SB_URL = url; SB_KEY = key;
+  document.getElementById('setup-msg').innerHTML = '<div class="info-box teal">Connecting...</div>';
+  initApp();
+}
+
+// ============================================================
+// INIT & DATA LOAD
+// ============================================================
+async function initApp() {
+  const cfg = JSON.parse(localStorage.getItem(CFG_KEY)||'null');
+  if (!cfg || !cfg.url || !cfg.key) {
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('setup-screen').style.display = 'flex';
+    return;
+  }
+  SB_URL = cfg.url; SB_KEY = cfg.key;
+  document.getElementById('loading').classList.remove('hidden');
+  document.getElementById('loading-text').textContent = 'Connecting to database...';
+  try {
+    await refreshAll(true);
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    setDBStatus('ok');
+    renderProgs();
+    if (PROGRAMS.length > 0) { CUR_PROG = PROGRAMS[0].id; }
+    renderView();
+  } catch(e) {
+    document.getElementById('loading').classList.add('hidden');
+    // Check if it's a fresh DB (no programs) or a real error
+    if (e.message && e.message.includes('relation') && e.message.includes('does not exist')) {
+      document.getElementById('setup-screen').style.display = 'flex';
+      document.getElementById('setup-msg').innerHTML = '<div class="info-box amber">Tables not found. Please run the SQL schema first, then try again.</div>';
+    } else {
+      document.getElementById('setup-screen').style.display = 'flex';
+      document.getElementById('setup-msg').innerHTML = '<div class="info-box amber">Connection failed: ' + e.message + '</div>';
+    }
+  }
+}
+
+async function refreshAll(init=false) {
+  if (init) document.getElementById('loading-text').textContent = 'Loading programs...';
+  PROGRAMS   = await sbFetch('programs?select=*&order=name');
+  SELLERS    = await sbFetch('sellers?select=*&order=created_at.desc');
+  QUALIFIED  = await sbFetch('qualified_sellers?select=*&order=created_at.asc');
+  CAMPAIGNS  = await sbFetch('campaigns?select=*&order=campaign_date.desc');
+  PAYMENTS   = await sbFetch('payments?select=*&order=created_at.asc');
+  MQL_EMAILS = JSON.parse(localStorage.getItem('ced_mql_emails')||'[]');
+  if (!init) { renderProgs(); renderView(); toast('Data refreshed'); }
+}
+
+// ============================================================
+// PROGRAMS
+// ============================================================
+function renderProgs() {
+  document.getElementById('prog-sw').innerHTML = PROGRAMS.map(p =>
+    '<button class="pbtn' + (p.id===CUR_PROG?' active':'') + '" onclick="switchProg(\'' + p.id + '\')">' +
+    '<span class="pdot" style="background:' + (PROG_COLORS[p.color]||'#888') + '"></span><span>' + p.name + '</span></button>'
+  ).join('');
+  // Populate program selects in modals
+  const opts = PROGRAMS.map(p => '<option value="' + p.id + '">' + p.name + '</option>').join('');
+  ['f-prog','imp-prog'].forEach(id => { const el=document.getElementById(id); if(el) el.innerHTML=opts; });
+}
+
+function switchProg(id) { CUR_PROG=id; renderProgs(); renderView(); }
+
+async function saveProgram() {
+  const name = document.getElementById('pn-name').value.trim();
+  if (!name) { alert('Program name required'); return; }
+  const data = { id: uid(), name, market:document.getElementById('pn-mkt').value, region:document.getElementById('pn-region').value, incentive_amount:parseInt(document.getElementById('pn-inc').value)||800, currency:document.getElementById('pn-cur').value, color:document.getElementById('pn-col').value, affiliate_link:document.getElementById('pn-link').value, notes:document.getElementById('pn-notes').value, active:true };
+  try {
+    await DB.from('programs').insert(data);
+    PROGRAMS.push(data);
+    renderProgs();
+    closeModal('m-new-prog');
+    toast('Program created');
+  } catch(e) { toast('Error: ' + e.message, true); }
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function sv(name, el) {
+  CUR_VIEW = name;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  const p = curProg();
+  document.getElementById('page-title').textContent = (p.name||'') + ' — ' + name.charAt(0).toUpperCase() + name.slice(1);
+  document.getElementById('page-sub').textContent = 'Program: ' + (p.region||'') + ' · ' + (p.market||'');
+  renderView();
+}
+
+function renderView() {
+  if (CUR_VIEW==='overview') renderOverview();
+  else if (CUR_VIEW==='sellers') renderSellerView();
+  else if (CUR_VIEW==='revenue') renderRevenue();
+  else if (CUR_VIEW==='campaigns') renderCampaigns();
+  else if (CUR_VIEW==='bd') renderBD();
+}
+
+// ============================================================
+// OVERVIEW
+// ============================================================
+function renderOverview() {
+  const prog = curProg();
+  const sellers = curSellers();
+  const qual = curQualified();
+  const paid = qual.filter(q => q.temu_paid_ced==='paid').length;
+  const pend = qual.length - paid;
+  const curr = progCurr();
+  const inc = prog.incentive_amount || 800;
+
+  // Affiliate link box
+  document.getElementById('ov-aff').innerHTML = prog.affiliate_link ? `
+    <div class="aff-box">
+      <div style="flex:1;min-width:0">
+        <div class="aff-label">${prog.name} affiliate link</div>
+        <div class="aff-link" id="aff-link-text">${prog.affiliate_link}</div>
+      </div>
+      <div class="aff-actions">
+        <button class="aff-btn" onclick="copyAff()">Copy link</button>
+        <a href="${prog.affiliate_link}" target="_blank"><button class="aff-btn">Open</button></a>
+      </div>
+    </div>` : '';
+
+  document.getElementById('ov-metrics').innerHTML = `
+    <div class="mcard teal"><div class="ml">Sellers tracked</div><div class="mv">${sellers.length}</div><div class="ms">${prog.name}</div></div>
+    <div class="mcard green"><div class="ml">Onboarding complete</div><div class="mv">${sellers.filter(s=>(s.status||'').toUpperCase().includes('ONBOARD')).length}</div><div class="ms">Qualified for ${curr}${inc}</div></div>
+    <div class="mcard amber"><div class="ml">Pending payment</div><div class="mv">${pend}</div><div class="ms">${curr}${pend*inc} outstanding</div></div>
+    <div class="mcard blue"><div class="ml">Temu paid CED</div><div class="mv">${paid}</div><div class="ms">${curr}${paid*inc} received</div></div>
+    <div class="mcard"><div class="ml">Multi-source leads</div><div class="mv">${sellers.filter(s=>(s.sources||[]).length>1).length}</div><div class="ms">In 2+ sources</div></div>
+    <div class="mcard"><div class="ml">Active in pipeline</div><div class="mv">${sellers.filter(s=>!['ONBOARD','NOT INTEREST','STUCK','NOT ELIG','FRAMEWORK'].some(x=>(s.status||'').toUpperCase().includes(x))).length}</div><div class="ms">Need outreach</div></div>
+  `;
+
+  // Funnel
+  const stages = [
+    {l:'Email follow-up',k:'EMAIL FOLLOW',c:'#2563eb'},{l:'WhatsApp follow-up',k:'WHATSAPP',c:'#0d9488'},
+    {l:'Registration done',k:'REGISTRATION DONE',c:'#7c3aed'},{l:'1st sign up done',k:'SIGN UP',c:'#7c3aed'},
+    {l:'Document verification',k:'DOCUMENT',c:'#d97706'},{l:'Engagement',k:'ENGAG',c:'#9ca3af'},
+    {l:'Product setup',k:'PRODUCT SETUP',c:'#2563eb'},{l:'Manual listing',k:'MANUAL LISTING',c:'#d97706'},
+    {l:'Listing via app',k:'LISTING VIA APP',c:'#0d9488'},{l:'Sales awaiting',k:'SALES AW',c:'#7c3aed'},
+    {l:'Incommunication',k:'INCOMMUNICATION',c:'#9ca3af'},{l:'Onboarding complete',k:'ONBOARD',c:'#16a34a'},
+    {l:'Not interested / not eligible',k:'NOT INTEREST',c:'#dc2626'},
+  ];
+  const counts = stages.map(s=>({...s,n:sellers.filter(x=>(x.status||'').toUpperCase().includes(s.k)).length})).filter(c=>c.n>0);
+  const mx = Math.max(...counts.map(c=>c.n),1);
+  document.getElementById('ov-funnel').innerHTML = counts.map(c =>
+    '<div class="funnel-row"><div class="funnel-label">' + c.l + '</div><div class="funnel-track"><div class="funnel-fill" style="width:' + Math.max(6,Math.round(c.n/mx*100)) + '%;background:' + c.c + '22;border-left:3px solid ' + c.c + '"></div></div><div class="funnel-n">' + c.n + '</div></div>'
+  ).join('');
+
+  // Payment log
+  const pays = curPayments();
+  document.getElementById('ov-paylog').innerHTML = pays.length ? pays.map(p =>
+    '<div class="rev-row"><div><strong style="font-size:13px">' + p.period + '</strong>' +
+    (p.stores_note ? '<div style="font-size:11px;color:var(--t3);margin-top:2px">' + p.stores_note + '</div>' : '') + '</div>' +
+    '<div style="font-size:14px;font-weight:700;color:' + (p.received?'var(--green)':'var(--t3)') + '">' + p.amount + '</div>' +
+    (p.received ? '<span class="paid">' + p.seller_count + ' seller' + (p.seller_count!==1?'s':'') + '</span>' : '<span class="pill p-gray" style="font-size:10px">No payment</span>') + '</div>'
+  ).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px 0">No payment records yet. Add in Revenue tab.</div>';
+
+  // Qualified table
+  document.getElementById('ov-q-title').textContent = qual.length + ' qualified sellers — ' + prog.name;
+  document.getElementById('ov-q-tbl').innerHTML = qual.map((q,i) =>
+    '<tr><td style="color:var(--t3);font-size:11px">' + (i+1) + '</td>' +
+    '<td><strong style="font-size:12px">' + q.store_name + '</strong></td>' +
+    '<td style="font-size:12px">' + (q.bda||'—') + '</td>' +
+    '<td>' + fmtM(q.first_sale_month) + '</td>' +
+    '<td>' + (q.temu_paid_ced==='paid'?'<span class="paid">Paid</span>':'<span class="pend">Pending</span>') + '</td></tr>'
+  ).join('') || '<tr><td colspan="5" style="color:var(--t3);padding:16px;text-align:center">No qualified sellers yet</td></tr>';
+
+  // Sources (static for now — these are campaign/marketing numbers)
+  const srcData = prog.region==='UK' ? [
+    {n:'MQLs 2026 opens',c:1547,t:'mql'},{n:'Newsletter clicks',c:110,t:'nl'},{n:'MQL click leads',c:29,t:'mql'},
+    {n:'Temu confirmed sellers',c:52,t:'temu'},{n:'BD workflow / bot',c:41,t:'bd'},{n:'Campaign clicks (Sept)',c:116,t:'camp'},
+  ] : [{n:'BD referrals',c:sellers.filter(s=>s.sources&&s.sources.includes('BD')).length,t:'bd'},{n:'Total sellers',c:sellers.length,t:'def'}];
+  document.getElementById('ov-sources').innerHTML = srcData.map(s =>
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr)">' +
+    '<span style="font-size:13px">' + s.n + '</span><div style="display:flex;align-items:center;gap:8px">' +
+    '<span class="stag stag-' + s.t + '">' + s.t + '</span><span style="font-size:13px;font-weight:600">' + s.c.toLocaleString() + '</span></div></div>'
+  ).join('');
+}
+
+function copyAff() {
+  const link = curProg().affiliate_link;
+  if (!link) return;
+  navigator.clipboard.writeText(link).then(() => toast('Affiliate link copied'));
+}
+
+// ============================================================
+// SELLERS VIEW
+// ============================================================
+const S_CHIPS = [
+  {k:'all',l:'All'},{k:'ONBOARD',l:'Onboarded'},{k:'EMAIL FOLLOW',l:'Email f/u'},
+  {k:'WHATSAPP',l:'WhatsApp f/u'},{k:'REGISTRATION DONE',l:'Registered'},
+  {k:'INCOMMUNICATION',l:'Incommunication'},{k:'DOCUMENT',l:'Doc verify'},
+  {k:'NOT INTEREST',l:'Not interested'},{k:'STUCK',l:'Stuck'},{k:'PRODUCT SETUP',l:'Product setup'},
+  {k:'SALES AW',l:'Sales awaiting'},
+];
+
+function renderSellerView() {
+  document.getElementById('s-chips').innerHTML = S_CHIPS.map(c =>
+    '<button class="chip' + (SF===c.k?' active':'') + '" onclick="setSF(\'' + c.k + '\')">' + c.l + '</button>'
+  ).join('');
+  buildSellersTable();
+}
+
+function setSF(k) { SF=k; renderSellerView(); }
+
+function buildSellersTable() {
+  const q = (document.getElementById('s-search')||{value:''}).value.toLowerCase();
+  const sf = (document.getElementById('s-src-f')||{value:''}).value;
+  const tf = (document.getElementById('s-tag-f')||{value:''}).value;
+  let rows = curSellers().filter(s => {
+    if (q && !((s.email||'').toLowerCase().includes(q)||(s.company||'').toLowerCase().includes(q)||(s.associate||'').toLowerCase().includes(q)||(s.tags||[]).join(' ').toLowerCase().includes(q)||(s.store_id||'').includes(q))) return false;
+    if (SF!=='all' && !(s.status||'').toUpperCase().includes(SF.toUpperCase())) return false;
+    if (sf && !(s.sources||[]).some(x=>x.toLowerCase().includes(sf.toLowerCase()))) return false;
+    if (tf && !(s.tags||[]).includes(tf)) return false;
+    return true;
+  });
+  document.getElementById('sellers-count').textContent = rows.length + ' sellers';
+  document.getElementById('s-tbody').innerHTML = rows.length ? rows.map(s => {
+    const dup = (s.sources||[]).length > 1;
+    const noEmail = !s.email || s.email.includes('@update');
+    return '<tr>' +
+      '<td><div style="display:flex;align-items:center;font-size:12px;font-family:var(--mono)">' + (dup?'<span class="ovr"></span>':'') + '<span title="' + (s.email||'') + '">' + (noEmail && s.store_id ? 'Mall: '+s.store_id : (s.email||'').length>28?(s.email||'').slice(0,28)+'...':(s.email||'—')) + '</span></div></td>' +
+      '<td style="font-size:12px;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">' + (s.company||'—') + '</td>' +
+      '<td>' + sPill(s.status) + '</td>' +
+      '<td>' + tagChips(s.tags) + '</td>' +
+      '<td>' + srcTags(s.sources) + '</td>' +
+      '<td style="font-size:12px">' + (s.associate||'—') + '</td>' +
+      '<td style="font-size:11px;color:var(--t3)">' + (s.updated_at ? new Date(s.updated_at).toLocaleDateString('en-GB') : '—') + '</td>' +
+      '<td style="white-space:nowrap">' +
+        (!noEmail ? '<button class="ob" onclick="openEmail(\'' + (s.email||'') + '\',\'' + (s.company||'').replace(/'/g,"\\'") + '\',\'' + (s.status||'').replace(/'/g,"\\'") + '\')">Email</button>' : '') +
+        (s.phone ? '<button class="ob ob-wa" onclick="openWA(\'' + s.phone + '\',\'' + (s.company||'').replace(/'/g,"\\'") + '\')">WA</button>' : '') +
+      '</td>' +
+      '<td><button class="btn btn-sm" onclick="editSeller(\'' + s.id + '\')">Update</button></td></tr>';
+  }).join('') : '<tr><td colspan="9" style="text-align:center;padding:22px;color:var(--t3)">No sellers match</td></tr>';
+}
+
+// ============================================================
+// ADD / EDIT SELLER
+// ============================================================
+function populateForms() {
+  const ss = document.getElementById('f-status');
+  if (ss) ss.innerHTML = STATUSES.map(s => '<option value="' + s + '">' + s + '</option>').join('');
+  ['f-assoc','q-bda'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<option value="">— Unassigned —</option>' + ASSOCIATES.map(a => '<option>' + a + '</option>').join('');
+  });
+  const tp = document.getElementById('tag-picker');
+  if (tp) tp.innerHTML = ALL_TAGS.map(t =>
+    '<span class="tag-opt' + (SEL_TAGS.includes(t)?' sel':'') + '" onclick="toggleTag(\'' + t + '\')">' + t + '</span>'
+  ).join('');
+  const fp = document.getElementById('f-prog');
+  if (fp) fp.innerHTML = PROGRAMS.map(p => '<option value="' + p.id + '">' + p.name + '</option>').join('');
+  const qbda = document.getElementById('q-bda');
+  if (qbda) qbda.innerHTML = '<option value="">—</option>' + ASSOCIATES.map(a => '<option>' + a + '</option>').join('');
+  const qa = document.getElementById('q-amt');
+  if (qa && !qa.value) qa.value = curProg().incentive_amount || 800;
+}
+
+function toggleTag(t) {
+  SEL_TAGS.includes(t) ? SEL_TAGS.splice(SEL_TAGS.indexOf(t),1) : SEL_TAGS.push(t);
+  document.querySelectorAll('.tag-opt').forEach(el => el.classList.toggle('sel', SEL_TAGS.includes(el.textContent)));
+}
+
+function openAddSeller() {
+  EDIT_ID=null; SEL_TAGS=[];
+  populateForms();
+  document.getElementById('m-seller-title').textContent = 'Add seller';
+  ['f-email','f-company','f-storeid','f-phone','f-website','f-remarks'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('f-status').value = 'EMAIL FOLLOW UP IN PROGRESS';
+  document.getElementById('f-assoc').value = '';
+  if (CUR_PROG) document.getElementById('f-prog').value = CUR_PROG;
+  document.getElementById('qual-sec').style.display = 'none';
+  openModal('m-seller');
+}
+
+function editSeller(id) {
+  const s = SELLERS.find(x => x.id===id);
+  if (!s) return;
+  EDIT_ID=id; SEL_TAGS=[...(s.tags||[])];
+  populateForms();
+  document.getElementById('m-seller-title').textContent = 'Update: ' + (s.company||s.email||'seller');
+  document.getElementById('f-email').value = s.email||'';
+  document.getElementById('f-company').value = s.company||'';
+  document.getElementById('f-storeid').value = s.store_id||'';
+  document.getElementById('f-phone').value = s.phone||'';
+  document.getElementById('f-website').value = s.website||'';
+  document.getElementById('f-remarks').value = s.remarks||'';
+  document.getElementById('f-status').value = s.status||'EMAIL FOLLOW UP IN PROGRESS';
+  document.getElementById('f-assoc').value = s.associate||'';
+  document.getElementById('f-prog').value = s.program_id||CUR_PROG;
+  document.getElementById('f-src').value = (s.sources||['BD'])[0]||'BD';
+  toggleQualSec();
+  openModal('m-seller');
+}
+
+function toggleQualSec() {
+  document.getElementById('qual-sec').style.display = (document.getElementById('f-status').value||'').toUpperCase().includes('ONBOARD')?'block':'none';
+}
+
+async function saveSeller() {
+  const email = document.getElementById('f-email').value.trim();
+  const storeId = document.getElementById('f-storeid').value.trim();
+  if (!email && !storeId) { alert('Enter at least an email or Mall ID'); return; }
+  const srcVal = document.getElementById('f-src').value;
+  let sources = [srcVal];
+  if (EDIT_ID) {
+    const prev = SELLERS.find(s => s.id===EDIT_ID);
+    sources = prev ? [...new Set([...(prev.sources||[]), srcVal])] : [srcVal];
+  }
+  const data = {
+    email: email || null,
+    company: document.getElementById('f-company').value,
+    store_id: storeId || null,
+    phone: document.getElementById('f-phone').value,
+    website: document.getElementById('f-website').value,
+    remarks: document.getElementById('f-remarks').value,
+    status: document.getElementById('f-status').value,
+    associate: document.getElementById('f-assoc').value,
+    program_id: document.getElementById('f-prog').value,
+    tags: SEL_TAGS,
+    sources,
+    qualified: (document.getElementById('f-status').value||'').toUpperCase().includes('ONBOARD'),
+    updated_at: new Date().toISOString()
+  };
+  document.getElementById('save-seller-btn').disabled = true;
+  try {
+    if (EDIT_ID) {
+      await DB.from('sellers').update(EDIT_ID, data);
+      const idx = SELLERS.findIndex(s=>s.id===EDIT_ID);
+      if (idx>=0) SELLERS[idx] = {...SELLERS[idx], ...data};
+    } else {
+      data.id = uid();
+      const res = await DB.from('sellers').insert(data);
+      SELLERS.unshift(res ? res[0] : {...data});
+    }
+    closeModal('m-seller');
+    renderView();
+    toast(EDIT_ID ? 'Seller updated' : 'Seller added');
+  } catch(e) { toast('Error: ' + e.message, true); }
+  finally { document.getElementById('save-seller-btn').disabled = false; }
+}
+
+// ============================================================
+// REVENUE
+// ============================================================
+function renderRevenue() {
+  const prog = curProg();
+  const qual = curQualified();
+  const curr = progCurr();
+  const inc = prog.incentive_amount || 800;
+  const paidC = qual.filter(q=>q.temu_paid_ced==='paid').length;
+  const bdInc = prog.currency==='USD' ? 100 : 100;
+
+  document.getElementById('rev-title').textContent = qual.length + ' qualified sellers — ' + (prog.name||'');
+  document.getElementById('rev-metrics').innerHTML = `
+    <div class="mcard green"><div class="ml">Temu paid CED</div><div class="mv">${curr}${paidC*inc}</div><div class="ms">${paidC} sellers</div></div>
+    <div class="mcard amber"><div class="ml">Outstanding</div><div class="mv">${curr}${(qual.length-paidC)*inc}</div><div class="ms">${qual.length-paidC} sellers</div></div>
+    <div class="mcard teal"><div class="ml">Total qualified</div><div class="mv">${qual.length}</div><div class="ms">${curr}${inc} per seller</div></div>
+    <div class="mcard blue"><div class="ml">Full potential</div><div class="mv">${curr}${qual.length*inc}</div><div class="ms">If all paid</div></div>
+    <div class="mcard purple"><div class="ml">BD incentives due</div><div class="mv">$${qual.filter(q=>q.bd_incentive==='pending').length*bdInc}</div><div class="ms">$${bdInc} per BD completion</div></div>
+  `;
+
+  let total = 0;
+  document.getElementById('rev-tbody').innerHTML = qual.map((q,i) => {
+    total += q.amount || inc;
+    const noEmail = !q.email || q.email.includes('update');
+    return '<tr>' +
+      '<td style="color:var(--t3);font-size:11px">' + (i+1) + '</td>' +
+      '<td style="font-weight:500">' + q.store_name + '</td>' +
+      '<td style="font-size:11px;color:var(--t3);font-family:var(--mono)">' + (q.store_id||'—') + '</td>' +
+      '<td style="font-size:11px;font-family:var(--mono);color:' + (noEmail?'var(--amber)':'inherit') + '">' + (noEmail?'Mall ID only':q.email) + '</td>' +
+      '<td style="font-size:12px">' + (q.bda||'—') + '</td>' +
+      '<td>' + fmtM(q.first_sale_month) + '</td>' +
+      '<td style="font-weight:700;color:var(--green)">' + curr + (q.amount||inc) + '</td>' +
+      '<td>' + (q.temu_paid_ced==='paid'?'<span class="paid">Paid</span>':'<span class="pend">Pending</span>') + '</td>' +
+      '<td>' + (q.ced_paid_csa==='paid'?'<span class="paid">Paid</span>':'<span class="pend">Pending</span>') + '</td>' +
+      '<td>' + (q.bd_incentive==='paid'?'<span class="paid">$'+bdInc+'</span>':'<span class="pend">Pending</span>') + '</td>' +
+      '<td style="font-size:11px;color:var(--t3)">' + (q.notes||'') + '</td></tr>';
+  }).join('') || '<tr><td colspan="11" style="text-align:center;padding:22px;color:var(--t3)">No qualified sellers yet</td></tr>';
+
+  document.getElementById('rev-total').textContent = curr + total;
+  document.getElementById('rev-paid-c').textContent = paidC + ' paid';
+
+  const pays = curPayments();
+  document.getElementById('pay-tl').innerHTML = pays.length ? pays.map(p =>
+    '<div class="rev-row">' +
+    '<div><strong style="font-size:13px">' + p.period + '</strong>' +
+    (p.stores_note?'<div style="font-size:11px;color:var(--t3);margin-top:2px">'+p.stores_note+'</div>':'') + '</div>' +
+    '<div style="font-size:15px;font-weight:700;color:' + (p.received?'var(--green)':p.amount==='TBC'?'var(--amber)':'var(--t3)') + '">' + p.amount + '</div>' +
+    (p.received?'<span class="paid">'+p.seller_count+' seller'+(p.seller_count!==1?'s':'')+'</span>':p.amount==='TBC'?'<span class="pend">TBC</span>':'<span class="pill p-gray" style="font-size:10px">No payment</span>') +
+    '</div>'
+  ).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px 0">No payment records. You can add them here once confirmed by accounts.</div>';
+}
+
+async function saveQualified() {
+  populateForms();
+  const store = document.getElementById('q-store').value.trim();
+  if (!store) { alert('Store name required'); return; }
+  const prog = curProg();
+  const data = {
+    id: uid(),
+    program_id: CUR_PROG,
+    store_name: store,
+    email: document.getElementById('q-email').value.trim()||null,
+    store_id: document.getElementById('q-sid').value.trim()||null,
+    bda: document.getElementById('q-bda').value,
+    first_sale_month: document.getElementById('q-month').value,
+    amount: parseInt(document.getElementById('q-amt').value)||prog.incentive_amount||800,
+    currency: prog.currency||'EUR',
+    temu_paid_ced: document.getElementById('q-cedpaid').value,
+    ced_paid_csa: document.getElementById('q-csapaid').value,
+    bd_incentive: 'pending',
+    notes: document.getElementById('q-notes').value
+  };
+  try {
+    const res = await DB.from('qualified_sellers').insert(data);
+    QUALIFIED.push(res ? res[0] : data);
+    // Also update seller status if found
+    const email = data.email;
+    const sid = data.store_id;
+    const seller = SELLERS.find(s => (email && s.email&&s.email.toLowerCase()===email.toLowerCase()) || (sid && s.store_id===sid));
+    if (seller) {
+      await DB.from('sellers').update(seller.id, {status:'ONBOARDING COMPLETE', qualified:true, updated_at:new Date().toISOString()});
+      seller.status = 'ONBOARDING COMPLETE'; seller.qualified = true;
+    }
+    closeModal('m-qual');
+    renderView();
+    toast('Seller qualified — ' + (CURRENCIES[prog.currency]||'€') + data.amount + ' added');
+  } catch(e) { toast('Error: ' + e.message, true); }
+}
+
+// ============================================================
+// CAMPAIGNS
+// ============================================================
+function renderCampaigns() {
+  const prog = curProg();
+  const isUK = prog.region==='UK';
+  document.getElementById('camp-metrics').innerHTML = isUK ? `
+    <div class="mcard blue"><div class="ml">MQL clicks 2026</div><div class="mv">29</div><div class="ms">Active pipeline</div></div>
+    <div class="mcard"><div class="ml">MQL opens 2026</div><div class="mv">1,547</div><div class="ms">Warm audience</div></div>
+    <div class="mcard green"><div class="ml">Newsletter clicks</div><div class="mv">110</div><div class="ms">from 4,324 opens</div></div>
+    <div class="mcard amber"><div class="ml">Quality audit list</div><div class="mv">78</div><div class="ms">Interested leads</div></div>
+  ` : '<div class="mcard teal"><div class="ml">Program started</div><div class="mv">Feb 2026</div><div class="ms">US campaign data coming</div></div>';
+
+  const camps = curCampaigns();
+  document.getElementById('camp-cards').innerHTML = camps.length ? camps.map(c =>
+    '<div class="ccard"><div class="ccard-title">' + c.name + ' <span style="font-size:10px;color:var(--t3);font-weight:400">' + (c.campaign_date||'') + '</span></div>' +
+    '<div class="cstat"><span class="l">Sent</span><span class="v">' + (c.sent||0).toLocaleString() + '</span></div>' +
+    '<div class="cstat"><span class="l">Opens</span><span class="v">' + (c.opens||0).toLocaleString() + (c.sent?' ('+Math.round(c.opens/c.sent*100)+'%)':'') + '</span></div>' +
+    '<div class="cstat"><span class="l">Clicks</span><span class="v">' + (c.clicks||0) + '</span></div>' +
+    '<div class="cstat"><span class="l">Replies</span><span class="v">' + (c.replies||0) + '</span></div>' +
+    (c.segment?'<div style="font-size:10px;color:var(--t3);margin-top:7px;padding-top:6px;border-top:1px solid var(--bdr)">'+c.segment+'</div>':'') + '</div>'
+  ).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px">No campaigns yet. Add one above.</div>';
+
+  // MQL table - only UK for now
+  const mqlEmails = isUK ? MQL_EMAILS : [];
+  document.getElementById('mql-tbody').innerHTML = mqlEmails.map(email => {
+    const s = SELLERS.find(x => x.email&&x.email.toLowerCase()===email.toLowerCase()&&x.program_id===CUR_PROG);
+    const status = s ? s.status : 'EMAIL FOLLOW UP IN PROGRESS';
+    return '<tr><td style="font-size:12px;font-family:var(--mono)">' + email + '</td>' +
+      '<td>' + sPill(status) + '</td>' +
+      '<td>' + tagChips(s?s.tags:[]) + '</td>' +
+      '<td style="font-size:11px;color:var(--t3)">' + (s&&s.updated_at?new Date(s.updated_at).toLocaleDateString('en-GB'):'Not added') + '</td>' +
+      '<td><button class="ob" onclick="openEmail(\'' + email + '\',\'\',' + JSON.stringify(status) + ')">Email</button></td>' +
+      '<td>' + (s?'<button class="btn btn-sm" onclick="editSeller(\''+s.id+'\')">Update</button>':'<button class="btn btn-sm btn-teal" onclick="quickMQL(\''+email+'\')">Add</button>') + '</td></tr>';
+  }).join('') || '<tr><td colspan="6" style="text-align:center;padding:22px;color:var(--t3)">' + (isUK?'MQL emails not loaded yet. Add them via Import tab.':'No MQL data for US yet.') + '</td></tr>';
+}
+
+function quickMQL(email) {
+  EDIT_ID=null; SEL_TAGS=[];
+  populateForms();
+  document.getElementById('m-seller-title').textContent = 'Add MQL lead';
+  document.getElementById('f-email').value = email;
+  document.getElementById('f-src').value = 'MQL';
+  document.getElementById('qual-sec').style.display = 'none';
+  openModal('m-seller');
+}
+
+async function saveCampaign() {
+  const name = document.getElementById('c-name').value.trim();
+  if (!name) { alert('Name required'); return; }
+  const data = { id:uid(), program_id:CUR_PROG, name, campaign_date:document.getElementById('c-date').value, sent:parseInt(document.getElementById('c-sent').value)||0, opens:parseInt(document.getElementById('c-opens').value)||0, clicks:parseInt(document.getElementById('c-clicks').value)||0, replies:parseInt(document.getElementById('c-replies').value)||0, segment:document.getElementById('c-seg').value };
+  try {
+    await DB.from('campaigns').insert(data);
+    CAMPAIGNS.push(data);
+    closeModal('m-campaign');
+    renderCampaigns();
+    toast('Campaign added');
+  } catch(e) { toast('Error: '+e.message, true); }
+}
+
+// ============================================================
+// BD
+// ============================================================
+function renderBD() {
+  const prog = curProg();
+  const bdInc = 100;
+  const bdMap = {};
+  curSellers().forEach(s => {
+    if (!s.associate) return;
+    const a = s.associate.trim();
+    if (!bdMap[a]) bdMap[a] = {r:0,c:0};
+    bdMap[a].r++;
+    if ((s.status||'').toUpperCase().includes('ONBOARD')) bdMap[a].c++;
+  });
+  const rows = Object.entries(bdMap).sort((a,b)=>b[1].c-a[1].c);
+  const totalC = rows.reduce((a,r)=>a+r[1].c,0);
+
+  document.getElementById('bd-metrics').innerHTML = `
+    <div class="mcard"><div class="ml">Active associates</div><div class="mv">${rows.length}</div></div>
+    <div class="mcard teal"><div class="ml">Total referrals</div><div class="mv">${rows.reduce((a,r)=>a+r[1].r,0)}</div></div>
+    <div class="mcard green"><div class="ml">Completions</div><div class="mv">${totalC}</div></div>
+    <div class="mcard amber"><div class="ml">Incentives due</div><div class="mv">$${totalC*bdInc}</div><div class="ms">$${bdInc} per completion</div></div>
+  `;
+  document.getElementById('bd-inc-sub').textContent = '$' + bdInc + ' per BD-referred seller who goes live';
+  document.getElementById('bd-tbody').innerHTML = rows.map(([n,d]) =>
+    '<tr><td><strong>'+n+'</strong></td><td>'+d.r+'</td><td>'+d.c+'</td><td>'+(d.r?Math.round(d.c/d.r*100)+'%':'—')+'</td><td style="font-weight:600;color:var(--green)">'+(d.c?'$'+(d.c*bdInc):'—')+'</td></tr>'
+  ).join('') || '<tr><td colspan="5" style="text-align:center;padding:18px;color:var(--t3)">No associates yet</td></tr>';
+
+  document.getElementById('bd-inc-list').innerHTML = curQualified().map(q =>
+    '<div class="rev-row"><div><div style="font-size:13px;font-weight:500">'+q.store_name+'</div><div style="font-size:11px;color:var(--t3)">'+(q.bda||'—')+' · '+fmtM(q.first_sale_month)+'</div></div>' +
+    '<span class="'+(q.bd_incentive==='paid'?'paid':'pend')+'">'+(q.bd_incentive==='paid'?'$'+bdInc+' paid':'Pending')+'</span></div>'
+  ).join('') || '<div style="color:var(--t3);font-size:13px;padding:8px">No qualified sellers yet</div>';
+}
+
+// ============================================================
+// IMPORT
+// ============================================================
+async function runImport() {
+  const raw = document.getElementById('imp-emails').value;
+  const src = document.getElementById('imp-src').value;
+  const progId = document.getElementById('imp-prog').value;
+  const label = document.getElementById('imp-label').value.trim();
+  const emails = raw.split('\n').map(e=>e.trim().toLowerCase()).filter(e=>e&&e.includes('@')&&e.includes('.'));
+  if (!emails.length) { alert('No valid emails found'); return; }
+  let added=0, updated=0, skipped=0;
+  const toInsert=[], toUpdate=[];
+  emails.forEach(email => {
+    const ex = SELLERS.find(s=>(s.email||'').toLowerCase()===email && s.program_id===progId);
+    if (ex) { if (!(ex.sources||[]).includes(src)) { toUpdate.push({id:ex.id, sources:[...new Set([...(ex.sources||[]),src])]}); updated++; } else skipped++; }
+    else { toInsert.push({id:uid(),email,program_id:progId,status:'EMAIL FOLLOW UP IN PROGRESS',sources:[src],tags:[],campaign:label||undefined}); added++; }
+  });
+  try {
+    if (toInsert.length) { await DB.from('sellers').insert(toInsert); SELLERS.unshift(...toInsert); }
+    for (const u of toUpdate) { await DB.from('sellers').update(u.id, {sources:u.sources}); const s=SELLERS.find(x=>x.id===u.id); if(s) s.sources=u.sources; }
+    document.getElementById('imp-emails').value='';
+    document.getElementById('imp-result').innerHTML='<div class="info-box green">Done: '+added+' new · '+updated+' updated · '+skipped+' already had source</div>';
+    if (MQL_EMAILS.length===0 && src==='MQL') { MQL_EMAILS=[...emails]; localStorage.setItem('ced_mql_emails',JSON.stringify(MQL_EMAILS)); }
+    toast('Imported '+emails.length+' emails');
+  } catch(e) { toast('Error: '+e.message, true); }
+}
+
+async function runCSVImport() {
+  const raw = document.getElementById('imp-csv').value.trim();
+  if (!raw) { alert('Paste CSV data first'); return; }
+  const lines = raw.split('\n');
+  const hdr = lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/[^a-z]/g,''));
+  const eI=hdr.findIndex(h=>h.includes('email'));
+  const coI=hdr.findIndex(h=>h.includes('store')||h.includes('company'));
+  const stI=hdr.findIndex(h=>h.includes('status'));
+  const srI=hdr.findIndex(h=>h.includes('source'));
+  const asI=hdr.findIndex(h=>h.includes('associate'));
+  const tgI=hdr.findIndex(h=>h.includes('tag'));
+  const sdI=hdr.findIndex(h=>h.includes('storeid')||h.includes('mallid'));
+  if (eI<0&&sdI<0) { alert('Need at least Email or StoreID column'); return; }
+  const progId = document.getElementById('imp-prog').value;
+  let added=0, updated=0;
+  const toInsert=[];
+  lines.slice(1).forEach(line => {
+    if (!line.trim()) return;
+    const cols = line.split(',').map(c=>c.trim().replace(/^"|"$/g,''));
+    const email = eI>=0?(cols[eI]||'').toLowerCase().trim():'';
+    const storeId = sdI>=0?cols[sdI]:'';
+    if (!email&&!storeId) return;
+    const src = srI>=0?cols[srI]:'BD';
+    const data = {id:uid(),email:email||null,company:coI>=0?cols[coI]:'',status:stI>=0?cols[stI]:'EMAIL FOLLOW UP IN PROGRESS',sources:[src],associate:asI>=0?cols[asI]:'',tags:tgI>=0&&cols[tgI]?cols[tgI].split(';').map(t=>t.trim()).filter(Boolean):[],store_id:storeId||null,program_id:progId,qualified:false,updated_at:new Date().toISOString()};
+    if (data.status.toUpperCase().includes('ONBOARD')) data.qualified=true;
+    toInsert.push(data); added++;
+  });
+  try {
+    if (toInsert.length) { await DB.from('sellers').insert(toInsert); SELLERS.unshift(...toInsert); }
+    document.getElementById('imp-csv').value='';
+    document.getElementById('csv-result').innerHTML='<div class="info-box green">CSV import: '+added+' new sellers</div>';
+    toast('CSV imported');
+  } catch(e) { toast('Error: '+e.message, true); }
+}
+
+function handleDrop(e) {
+  e.preventDefault(); e.currentTarget.classList.remove('drag');
+  const file = e.dataTransfer.files[0]; if(!file) return;
+  if (file.name.endsWith('.csv')||file.type==='text/csv') {
+    const r=new FileReader(); r.onload=ev=>{document.getElementById('imp-csv').value=ev.target.result; toast('CSV loaded');};r.readAsText(file);
+  } else toast('Use CSV format');
+}
+
+function exportCSV() {
+  const sellers = curSellers();
+  const h = ['Email','Store','Status','Tags','Sources','Associate','Mall ID','Phone','Website','Program','Updated','Remarks'];
+  const rows = sellers.map(s=>[s.email||'',s.company||'',s.status||'',(s.tags||[]).join(';'),(s.sources||[]).join(';'),s.associate||'',s.store_id||'',s.phone||'',s.website||'',PROGRAMS.find(p=>p.id===s.program_id)?.name||'',s.updated_at?new Date(s.updated_at).toLocaleDateString('en-GB'):'',s.remarks||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent([h.join(','),...rows].join('\n'));
+  a.download='ced_sellers_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click(); toast('CSV exported');
+}
+
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+function openModal(id) { populateForms(); document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// ============================================================
+// BOOT
+// ============================================================
+initApp();
+</script>
+</body>
+</html>

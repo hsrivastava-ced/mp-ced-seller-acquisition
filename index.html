@@ -474,6 +474,12 @@ tr:hover td{background:var(--surf2);}
   <div class="mhead"><h3>Mark seller as qualified</h3><button class="mclose" onclick="closeModal('m-qual')">x</button></div>
   <div class="mbody">
     <div class="info-box teal">First organic order achieved. Status → Onboarding Complete. Added to revenue tracker.</div>
+    
+    <div class="field">
+      <label style="color:var(--teal2)">Select an Onboarded Seller (Auto-fills details below)</label>
+      <select id="q-seller-sel" onchange="autoFillQual()" style="border-color:var(--teal); background:var(--teal-l);"></select>
+    </div>
+
     <div class="frow">
       <div class="field"><label>Store name *</label><input id="q-store" placeholder="Store name"></div>
       <div class="field"><label>Email (if known)</label><input id="q-email" placeholder="seller@store.co.uk"></div>
@@ -955,7 +961,7 @@ function buildSellersTable() {
 }
 
 // ============================================================
-// ADD / EDIT SELLER
+// ADD / EDIT SELLER & AUTO-FILL
 // ============================================================
 function populateForms() {
   const ss = document.getElementById('f-status');
@@ -970,10 +976,29 @@ function populateForms() {
   ).join('');
   const fp = document.getElementById('f-prog');
   if (fp) fp.innerHTML = PROGRAMS.map(p => '<option value="' + p.id + '">' + p.name + '</option>').join('');
-  const qbda = document.getElementById('q-bda');
-  if (qbda) qbda.innerHTML = '<option value="">—</option>' + ASSOCIATES.map(a => '<option>' + a + '</option>').join('');
   const qa = document.getElementById('q-amt');
   if (qa && !qa.value) qa.value = curProg().incentive_amount || 800;
+
+  // Populate the Mark Qualified dropdown with onboarded sellers
+  const qSel = document.getElementById('q-seller-sel');
+  if (qSel) {
+    const onboardedSellers = curSellers().filter(s => (s.status||'').toUpperCase().includes('ONBOARD'));
+    qSel.innerHTML = '<option value="">-- Choose a seller to auto-fill --</option>' + 
+      onboardedSellers.map(s => `<option value="${s.id}">${s.company || s.email || s.store_id || 'Unknown Seller'}</option>`).join('');
+  }
+}
+
+// Auto-fill function for Mark Qualified modal
+function autoFillQual() {
+  const id = document.getElementById('q-seller-sel').value;
+  if (!id) return;
+  const s = SELLERS.find(x => x.id === id);
+  if (s) {
+    document.getElementById('q-store').value = s.company || '';
+    document.getElementById('q-email').value = s.email || '';
+    document.getElementById('q-sid').value = s.store_id || '';
+    document.getElementById('q-bda').value = s.associate || '';
+  }
 }
 
 function toggleTag(t) {

@@ -227,18 +227,6 @@ tr:hover td{background:var(--surf2);}
 .toast.show{opacity:1;transform:translateY(0);}
 .toast.error{border-color:var(--red);color:#fca5a5;}
 
-/* SETUP SCREEN */
-.setup-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
-.setup-card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:32px;max-width:560px;width:100%;}
-.setup-card h2{font-size:20px;font-weight:600;margin-bottom:6px;}
-.setup-card p{font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:20px;}
-.setup-step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--bdr);}
-.setup-step:last-child{border:none;}
-.step-num{width:24px;height:24px;border-radius:50%;background:var(--teal);color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
-.step-body{font-size:13px;color:var(--t2);line-height:1.6;}
-.step-body strong{color:var(--t1);}
-.step-body code{font-family:var(--mono);background:var(--surf2);padding:1px 5px;border-radius:3px;font-size:12px;}
-
 /* OVERLAP DOT */
 .ovr{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amber);margin-right:4px;}
 
@@ -250,40 +238,11 @@ tr:hover td{background:var(--surf2);}
 </head>
 <body>
 
-<!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
   <div class="loading-text" id="loading-text">Connecting to database...</div>
 </div>
 
-<!-- SETUP SCREEN (shown if no Supabase keys configured) -->
-<div class="setup-screen" id="setup-screen" style="display:none;">
-  <div class="setup-card">
-    <div style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:var(--teal);border-radius:10px;margin-bottom:16px;">
-      <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.8"><path d="M10 2L2 6v8l8 4 8-4V6L10 2z"/><path d="M10 2v18M2 6l8 4 8-4"/></svg>
-    </div>
-    <h2>CedCommerce Acquisition Hub</h2>
-    <p>This app stores all data in a shared Supabase database so your whole team works from the same live data. One-time setup takes 5 minutes.</p>
-    <div class="setup-step">
-      <div class="step-num">1</div>
-      <div class="step-body"><strong>Create free Supabase account</strong><br>Go to <a href="https://supabase.com" target="_blank" style="color:var(--teal)">supabase.com</a> → New project → name it <code>ced-acquisition</code></div>
-    </div>
-    <div class="setup-step">
-      <div class="step-num">2</div>
-      <div class="step-body"><strong>Run the SQL schema</strong><br>In your project → SQL Editor → paste and run the schema from the <code>setup_schema.sql</code> file provided with this app</div>
-    </div>
-    <div class="setup-step">
-      <div class="step-num">3</div>
-      <div class="step-body"><strong>Enter your project credentials</strong><br>Settings → API → copy Project URL and anon/public key below</div>
-    </div>
-    <div class="field" style="margin-top:16px;"><label>Supabase Project URL</label><input id="setup-url" placeholder="https://xxxxx.supabase.co"></div>
-    <div class="field"><label>Supabase Anon (public) Key</label><input id="setup-key" placeholder="eyJhbGc..."></div>
-    <button class="btn btn-teal" style="width:100%;padding:11px;margin-top:4px;" onclick="saveSetup()">Connect & initialise database</button>
-    <div id="setup-msg" style="margin-top:12px;"></div>
-  </div>
-</div>
-
-<!-- MAIN APP -->
 <div class="shell" id="app" style="display:none;">
 <aside class="sidebar">
   <div class="slogo">
@@ -301,7 +260,7 @@ tr:hover td{background:var(--surf2);}
     <div class="ni active" onclick="sv('overview',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg><span>Overview</span></div>
     <div class="ni" onclick="sv('sellers',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg><span>All sellers</span></div>
     <div class="ni" onclick="sv('revenue',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v14M4 5h6a2 2 0 010 4H6a2 2 0 000 4h6"/></svg><span>Revenue & incentives</span></div>
-    <div class="ni" onclick="sv('campaigns',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 4l7 5 7-5"/><rect x="1" y="3" width="14" height="10" rx="1.5"/></svg><span>Campaigns & MQLs</span></div>
+    <div class="ni" onclick="sv('campaigns',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 4l7 5 7-5"/><rect x="1" y="3" width="14" height="10" rx="1.5"/></svg><span>Campaigns</span></div>
     <div class="ni" onclick="sv('bd',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/><path d="M1 13c0-2.2 1.8-4 4-4s4 1.8 4 4M11 9c2.2 0 4 1.8 4 4"/></svg><span>BD team</span></div>
     <div class="ni" onclick="sv('import',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v9m-3-3l3 3 3-3"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg><span>Import leads</span></div>
   </div>
@@ -322,7 +281,6 @@ tr:hover td{background:var(--surf2);}
 
   <div class="content">
 
-    <!-- OVERVIEW -->
     <div class="view active" id="view-overview">
       <div id="ov-aff"></div>
       <div class="metrics-grid" id="ov-metrics"></div>
@@ -339,7 +297,6 @@ tr:hover td{background:var(--surf2);}
       </div>
     </div>
 
-    <!-- SELLERS -->
     <div class="view" id="view-sellers">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
         <button class="btn btn-teal btn-icon" onclick="openAddSeller()">+ Add seller</button>
@@ -348,8 +305,11 @@ tr:hover td{background:var(--surf2);}
       <div class="sbar">
         <input type="text" id="s-search" placeholder="Search email, store, associate, tag..." oninput="buildSellersTable()">
         <select id="s-src-f" onchange="buildSellersTable()">
-          <option value="">All sources</option><option value="BD">BD</option><option value="Temu">Temu</option>
-          <option value="Campaign">Campaign</option><option value="MQL">MQL</option><option value="Newsletter">Newsletter</option>
+          <option value="">All sources</option>
+          <option value="Marketing Campaigns">Marketing Campaigns</option>
+          <option value="BD referred">BD referred</option>
+          <option value="Cadences">Cadences</option>
+          <option value="Marketplace Confirmed">Marketplace Confirmed</option>
         </select>
         <select id="s-tag-f" onchange="buildSellersTable()">
           <option value="">All tags</option><option value="Hot lead">Hot lead</option><option value="VAT issue">VAT issue</option>
@@ -366,9 +326,17 @@ tr:hover td{background:var(--surf2);}
       </div>
     </div>
 
-    <!-- REVENUE -->
     <div class="view" id="view-revenue">
       <div class="metrics-grid" id="rev-metrics"></div>
+      
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Payment timeline — confirmed by accounts team</div></div>
+          <button class="btn btn-teal" onclick="openModal('m-payment')">+ Add Payment</button>
+        </div>
+        <div id="pay-tl"></div>
+      </div>
+
       <div class="card">
         <div class="card-header"><div><div class="card-title" id="rev-title">Qualified sellers — payment log</div><div class="card-sub">Payments received from Temu on their schedule, not tied to onboarding month</div></div><button class="btn btn-green" onclick="openModal('m-qual')">+ Mark qualified</button></div>
         <div class="tbl-wrap"><table>
@@ -377,29 +345,16 @@ tr:hover td{background:var(--surf2);}
           <tfoot><tr style="background:var(--surf2)"><td colspan="6" style="padding:10px 12px;font-weight:600">Total</td><td style="padding:10px 12px;font-weight:700;color:var(--green)" id="rev-total"></td><td style="padding:10px 12px;font-weight:600;color:var(--green);font-size:12px" id="rev-paid-c"></td><td colspan="3"></td></tr></tfoot>
         </table></div>
       </div>
-      <div class="card">
-        <div class="card-title" style="margin-bottom:12px">Payment timeline — confirmed by accounts team</div>
-        <div id="pay-tl"></div>
-      </div>
     </div>
 
-    <!-- CAMPAIGNS -->
     <div class="view" id="view-campaigns">
       <div class="metrics-grid" id="camp-metrics"></div>
       <div class="card">
         <div class="card-header"><div><div class="card-title">Campaign performance</div></div><button class="btn btn-teal" onclick="openModal('m-campaign')">+ Add campaign</button></div>
         <div class="camp-grid" id="camp-cards"></div>
       </div>
-      <div class="card">
-        <div class="card-header"><div><div class="card-title">MQL 2026 — active click leads</div><div class="card-sub">One-click Gmail outreach with pre-written templates</div></div></div>
-        <div class="tbl-wrap"><table>
-          <thead><tr><th>Email</th><th>Status</th><th>Tags</th><th>Updated</th><th>Email</th><th></th></tr></thead>
-          <tbody id="mql-tbody"></tbody>
-        </table></div>
-      </div>
     </div>
 
-    <!-- BD -->
     <div class="view" id="view-bd">
       <div class="metrics-grid" id="bd-metrics"></div>
       <div class="g2">
@@ -410,7 +365,6 @@ tr:hover td{background:var(--surf2);}
       </div>
     </div>
 
-    <!-- IMPORT -->
     <div class="view" id="view-import">
       <div class="g2">
         <div>
@@ -423,7 +377,14 @@ tr:hover td{background:var(--surf2);}
             <div class="field" style="margin-top:12px"><label>Paste emails (one per line)</label><textarea id="imp-emails" rows="8" placeholder="seller@example.co.uk&#10;store@business.com"></textarea></div>
             <div class="frow">
               <div class="field"><label>Program</label><select id="imp-prog"></select></div>
-              <div class="field"><label>Source type</label><select id="imp-src"><option value="MQL">MQL</option><option value="Temu">Temu confirmed</option><option value="BD">BD referral</option><option value="Campaign">Campaign</option><option value="Newsletter">Newsletter</option><option value="CRM">CRM cadence</option></select></div>
+              <div class="field"><label>Source type</label>
+                <select id="imp-src">
+                  <option value="Marketing Campaigns">Marketing Campaigns</option>
+                  <option value="BD referred">BD referred</option>
+                  <option value="Cadences">Cadences</option>
+                  <option value="Marketplace Confirmed">Marketplace Confirmed</option>
+                </select>
+              </div>
             </div>
             <div class="field"><label>Batch label (optional)</label><input type="text" id="imp-label" placeholder="April 2026 campaign..."></div>
             <button class="btn btn-teal" style="width:100%;padding:10px" onclick="runImport()">Import & match</button>
@@ -458,8 +419,22 @@ tr:hover td{background:var(--surf2);}
 </div>
 </div>
 
-<!-- MODALS -->
-<!-- Add/Edit Seller -->
+<div class="overlay" id="m-payment"><div class="modal">
+  <div class="mhead"><h3>Add payment record</h3><button class="mclose" onclick="closeModal('m-payment')">x</button></div>
+  <div class="mbody">
+    <div class="frow">
+      <div class="field"><label>Period *</label><input id="p-period" placeholder="e.g., April 2026"></div>
+      <div class="field"><label>Amount received</label><input id="p-amount" placeholder="e.g., $800, TBC, etc."></div>
+    </div>
+    <div class="frow">
+      <div class="field"><label>Number of sellers</label><input id="p-count" type="number" value="1"></div>
+      <div class="field"><label>Received by accounts?</label><select id="p-received"><option value="true">Yes, payment received</option><option value="false">No, pending/TBC</option></select></div>
+    </div>
+    <div class="field"><label>Stores / Notes</label><textarea id="p-notes" placeholder="Which sellers is this payment for?"></textarea></div>
+  </div>
+  <div class="mfoot"><button class="btn" onclick="closeModal('m-payment')">Cancel</button><button class="btn btn-teal" onclick="savePayment()">Add Payment</button></div>
+</div></div>
+
 <div class="overlay" id="m-seller"><div class="modal modal-lg">
   <div class="mhead"><h3 id="m-seller-title">Add seller</h3><button class="mclose" onclick="closeModal('m-seller')">x</button></div>
   <div class="mbody">
@@ -473,7 +448,14 @@ tr:hover td{background:var(--surf2);}
     </div>
     <div class="frow">
       <div class="field"><label>Program</label><select id="f-prog"></select></div>
-      <div class="field"><label>Lead source</label><select id="f-src"><option value="BD">BD Referral</option><option value="Temu">Temu confirmed</option><option value="Campaign">Campaign</option><option value="MQL">MQL</option><option value="Newsletter">Newsletter</option><option value="CRM">CRM cadence</option></select></div>
+      <div class="field"><label>Lead source</label>
+        <select id="f-src">
+          <option value="Marketing Campaigns">Marketing Campaigns</option>
+          <option value="BD referred">BD referred</option>
+          <option value="Cadences">Cadences</option>
+          <option value="Marketplace Confirmed">Marketplace Confirmed</option>
+        </select>
+      </div>
     </div>
     <div class="frow">
       <div class="field"><label>Status</label><select id="f-status" onchange="toggleQualSec()"></select></div>
@@ -489,7 +471,6 @@ tr:hover td{background:var(--surf2);}
   <div class="mfoot"><button class="btn" onclick="closeModal('m-seller')">Cancel</button><button class="btn btn-teal" id="save-seller-btn" onclick="saveSeller()">Save</button></div>
 </div></div>
 
-<!-- Mark Qualified -->
 <div class="overlay" id="m-qual"><div class="modal">
   <div class="mhead"><h3>Mark seller as qualified</h3><button class="mclose" onclick="closeModal('m-qual')">x</button></div>
   <div class="mbody">
@@ -515,7 +496,6 @@ tr:hover td{background:var(--surf2);}
   <div class="mfoot"><button class="btn" onclick="closeModal('m-qual')">Cancel</button><button class="btn btn-green" onclick="saveQualified()">Mark qualified</button></div>
 </div></div>
 
-<!-- New Program -->
 <div class="overlay" id="m-new-prog"><div class="modal">
   <div class="mhead"><h3>New program</h3><button class="mclose" onclick="closeModal('m-new-prog')">x</button></div>
   <div class="mbody">
@@ -537,7 +517,6 @@ tr:hover td{background:var(--surf2);}
   <div class="mfoot"><button class="btn" onclick="closeModal('m-new-prog')">Cancel</button><button class="btn btn-teal" onclick="saveProgram()">Create</button></div>
 </div></div>
 
-<!-- Add Campaign -->
 <div class="overlay" id="m-campaign"><div class="modal">
   <div class="mhead"><h3>Add campaign</h3><button class="mclose" onclick="closeModal('m-campaign')">x</button></div>
   <div class="mbody">
@@ -562,11 +541,10 @@ tr:hover td{background:var(--surf2);}
 
 <script>
 // ============================================================
-// CONFIG — filled in after setup
+// CONFIG — Hardcoded your provided keys for backend connection
 // ============================================================
-const CFG_KEY = 'ced_supabase_cfg';
-let SB_URL = '';
-let SB_KEY = '';
+let SB_URL = 'https://tynripltmerigzeyznmf.supabase.co';
+let SB_KEY = 'sb_publishable_PXqcVXQ5itgpxXiDo0Cq0w_DKl-R7II';
 
 // ============================================================
 // SUPABASE API WRAPPER
@@ -683,7 +661,6 @@ function openWA(phone, company) {
 // HELPERS
 // ============================================================
 const uid = () => crypto.randomUUID ? crypto.randomUUID() : 'x' + Math.random().toString(36).slice(2,11);
-const now = () => new Date().toLocaleDateString('en-GB');
 function fmtM(m) {
   if (!m) return '—';
   const [y, mo] = m.split('-');
@@ -696,10 +673,6 @@ function toast(msg, isError=false) {
   t.className = 'toast show' + (isError ? ' error' : '');
   clearTimeout(t._t);
   t._t = setTimeout(() => t.classList.remove('show'), 2800);
-}
-function loading(show, text='Saving...') {
-  document.getElementById('loading').classList.toggle('hidden', !show);
-  if (text) document.getElementById('loading-text').textContent = text;
 }
 function setDBStatus(state) {
   const dot = document.getElementById('db-dot');
@@ -728,7 +701,12 @@ function sPill(s) {
 function srcTags(sources) {
   return (sources||[]).map(s => {
     const sl = s.toLowerCase();
-    const c = sl.includes('temu')?'stag-temu':sl.includes('bd')?'stag-bd':sl.includes('mql')||sl.includes('quality')||sl.includes('crm')?'stag-mql':sl.includes('newsletter')?'stag-nl':'stag-camp';
+    let c = 'stag-def';
+    if (sl.includes('marketplace')) c = 'stag-temu';
+    else if (sl.includes('bd')) c = 'stag-bd';
+    else if (sl.includes('cadence')) c = 'stag-mql';
+    else if (sl.includes('marketing') || sl.includes('campaign')) c = 'stag-camp';
+    
     return '<span class="stag ' + c + '">' + s + '</span>';
   }).join('');
 }
@@ -745,35 +723,14 @@ function curPayments() { return PAYMENTS.filter(p => p.program_id === CUR_PROG);
 function curCampaigns() { return CAMPAIGNS.filter(c => c.program_id === CUR_PROG); }
 
 // ============================================================
-// SETUP
-// ============================================================
-function saveSetup() {
-  const url = document.getElementById('setup-url').value.trim().replace(/\/$/, '');
-  const key = document.getElementById('setup-key').value.trim();
-  if (!url || !key) { document.getElementById('setup-msg').innerHTML = '<div class="info-box amber">Please enter both URL and key.</div>'; return; }
-  localStorage.setItem(CFG_KEY, JSON.stringify({url, key}));
-  SB_URL = url; SB_KEY = key;
-  document.getElementById('setup-msg').innerHTML = '<div class="info-box teal">Connecting...</div>';
-  initApp();
-}
-
-// ============================================================
-// INIT & DATA LOAD
+// INIT & DATA LOAD (Automated using hardcoded keys)
 // ============================================================
 async function initApp() {
-  const cfg = JSON.parse(localStorage.getItem(CFG_KEY)||'null');
-  if (!cfg || !cfg.url || !cfg.key) {
-    document.getElementById('loading').classList.add('hidden');
-    document.getElementById('setup-screen').style.display = 'flex';
-    return;
-  }
-  SB_URL = cfg.url; SB_KEY = cfg.key;
   document.getElementById('loading').classList.remove('hidden');
   document.getElementById('loading-text').textContent = 'Connecting to database...';
   try {
     await refreshAll(true);
     document.getElementById('loading').classList.add('hidden');
-    document.getElementById('setup-screen').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
     setDBStatus('ok');
     renderProgs();
@@ -781,14 +738,8 @@ async function initApp() {
     renderView();
   } catch(e) {
     document.getElementById('loading').classList.add('hidden');
-    // Check if it's a fresh DB (no programs) or a real error
-    if (e.message && e.message.includes('relation') && e.message.includes('does not exist')) {
-      document.getElementById('setup-screen').style.display = 'flex';
-      document.getElementById('setup-msg').innerHTML = '<div class="info-box amber">Tables not found. Please run the SQL schema first, then try again.</div>';
-    } else {
-      document.getElementById('setup-screen').style.display = 'flex';
-      document.getElementById('setup-msg').innerHTML = '<div class="info-box amber">Connection failed: ' + e.message + '</div>';
-    }
+    setDBStatus('err');
+    alert("Database connection failed: " + e.message + "\n\nPlease ensure you have run your setup SQL schema in Supabase.");
   }
 }
 
@@ -923,11 +874,14 @@ function renderOverview() {
     '<td>' + (q.temu_paid_ced==='paid'?'<span class="paid">Paid</span>':'<span class="pend">Pending</span>') + '</td></tr>'
   ).join('') || '<tr><td colspan="5" style="color:var(--t3);padding:16px;text-align:center">No qualified sellers yet</td></tr>';
 
-  // Sources (static for now — these are campaign/marketing numbers)
-  const srcData = prog.region==='UK' ? [
-    {n:'MQLs 2026 opens',c:1547,t:'mql'},{n:'Newsletter clicks',c:110,t:'nl'},{n:'MQL click leads',c:29,t:'mql'},
-    {n:'Temu confirmed sellers',c:52,t:'temu'},{n:'BD workflow / bot',c:41,t:'bd'},{n:'Campaign clicks (Sept)',c:116,t:'camp'},
-  ] : [{n:'BD referrals',c:sellers.filter(s=>s.sources&&s.sources.includes('BD')).length,t:'bd'},{n:'Total sellers',c:sellers.length,t:'def'}];
+  // DYNAMIC Sources (based on DB data)
+  const srcData = [
+    { n: 'Marketing Campaigns', c: sellers.filter(s => (s.sources||[]).includes('Marketing Campaigns')).length, t: 'camp' },
+    { n: 'BD referred', c: sellers.filter(s => (s.sources||[]).includes('BD referred')).length, t: 'bd' },
+    { n: 'Cadences', c: sellers.filter(s => (s.sources||[]).includes('Cadences')).length, t: 'mql' },
+    { n: 'Marketplace Confirmed', c: sellers.filter(s => (s.sources||[]).includes('Marketplace Confirmed')).length, t: 'temu' },
+    { n: 'Total Sellers Tracked', c: sellers.length, t: 'def' }
+  ];
   document.getElementById('ov-sources').innerHTML = srcData.map(s =>
     '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr)">' +
     '<span style="font-size:13px">' + s.n + '</span><div style="display:flex;align-items:center;gap:8px">' +
@@ -1046,7 +1000,7 @@ function editSeller(id) {
   document.getElementById('f-status').value = s.status||'EMAIL FOLLOW UP IN PROGRESS';
   document.getElementById('f-assoc').value = s.associate||'';
   document.getElementById('f-prog').value = s.program_id||CUR_PROG;
-  document.getElementById('f-src').value = (s.sources||['BD'])[0]||'BD';
+  document.getElementById('f-src').value = (s.sources||['Marketing Campaigns'])[0]||'Marketing Campaigns';
   toggleQualSec();
   openModal('m-seller');
 }
@@ -1187,20 +1141,50 @@ async function saveQualified() {
   } catch(e) { toast('Error: ' + e.message, true); }
 }
 
+// SAVE PAYMENT
+async function savePayment() {
+  const period = document.getElementById('p-period').value.trim();
+  if (!period) { alert('Period is required (e.g., April 2026)'); return; }
+  
+  const data = {
+    id: uid(),
+    program_id: CUR_PROG,
+    period: period,
+    amount: document.getElementById('p-amount').value.trim() || 'TBC',
+    seller_count: parseInt(document.getElementById('p-count').value) || 0,
+    received: document.getElementById('p-received').value === 'true',
+    stores_note: document.getElementById('p-notes').value.trim(),
+    created_at: new Date().toISOString()
+  };
+
+  try {
+    const res = await DB.from('payments').insert(data);
+    PAYMENTS.push(res ? res[0] : data);
+    closeModal('m-payment');
+    renderView(); // Refreshes both Revenue and Overview tabs
+    toast('Payment record added');
+  } catch(e) { toast('Error: ' + e.message, true); }
+}
+
 // ============================================================
 // CAMPAIGNS
 // ============================================================
 function renderCampaigns() {
-  const prog = curProg();
-  const isUK = prog.region==='UK';
-  document.getElementById('camp-metrics').innerHTML = isUK ? `
-    <div class="mcard blue"><div class="ml">MQL clicks 2026</div><div class="mv">29</div><div class="ms">Active pipeline</div></div>
-    <div class="mcard"><div class="ml">MQL opens 2026</div><div class="mv">1,547</div><div class="ms">Warm audience</div></div>
-    <div class="mcard green"><div class="ml">Newsletter clicks</div><div class="mv">110</div><div class="ms">from 4,324 opens</div></div>
-    <div class="mcard amber"><div class="ml">Quality audit list</div><div class="mv">78</div><div class="ms">Interested leads</div></div>
-  ` : '<div class="mcard teal"><div class="ml">Program started</div><div class="mv">Feb 2026</div><div class="ms">US campaign data coming</div></div>';
-
   const camps = curCampaigns();
+  
+  // DYNAMIC Campaign Metrics (Calculated directly from the database)
+  const totalSent = camps.reduce((sum, c) => sum + (c.sent||0), 0);
+  const totalOpens = camps.reduce((sum, c) => sum + (c.opens||0), 0);
+  const totalClicks = camps.reduce((sum, c) => sum + (c.clicks||0), 0);
+  const totalReplies = camps.reduce((sum, c) => sum + (c.replies||0), 0);
+
+  document.getElementById('camp-metrics').innerHTML = `
+    <div class="mcard blue"><div class="ml">Total Sent</div><div class="mv">${totalSent.toLocaleString()}</div><div class="ms">All campaigns</div></div>
+    <div class="mcard green"><div class="ml">Total Opens</div><div class="mv">${totalOpens.toLocaleString()}</div><div class="ms">Across campaigns</div></div>
+    <div class="mcard teal"><div class="ml">Total Clicks</div><div class="mv">${totalClicks.toLocaleString()}</div><div class="ms">Engaged leads</div></div>
+    <div class="mcard purple"><div class="ml">Total Replies</div><div class="mv">${totalReplies.toLocaleString()}</div><div class="ms">Responses</div></div>
+  `;
+
   document.getElementById('camp-cards').innerHTML = camps.length ? camps.map(c =>
     '<div class="ccard"><div class="ccard-title">' + c.name + ' <span style="font-size:10px;color:var(--t3);font-weight:400">' + (c.campaign_date||'') + '</span></div>' +
     '<div class="cstat"><span class="l">Sent</span><span class="v">' + (c.sent||0).toLocaleString() + '</span></div>' +
@@ -1209,29 +1193,6 @@ function renderCampaigns() {
     '<div class="cstat"><span class="l">Replies</span><span class="v">' + (c.replies||0) + '</span></div>' +
     (c.segment?'<div style="font-size:10px;color:var(--t3);margin-top:7px;padding-top:6px;border-top:1px solid var(--bdr)">'+c.segment+'</div>':'') + '</div>'
   ).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px">No campaigns yet. Add one above.</div>';
-
-  // MQL table - only UK for now
-  const mqlEmails = isUK ? MQL_EMAILS : [];
-  document.getElementById('mql-tbody').innerHTML = mqlEmails.map(email => {
-    const s = SELLERS.find(x => x.email&&x.email.toLowerCase()===email.toLowerCase()&&x.program_id===CUR_PROG);
-    const status = s ? s.status : 'EMAIL FOLLOW UP IN PROGRESS';
-    return '<tr><td style="font-size:12px;font-family:var(--mono)">' + email + '</td>' +
-      '<td>' + sPill(status) + '</td>' +
-      '<td>' + tagChips(s?s.tags:[]) + '</td>' +
-      '<td style="font-size:11px;color:var(--t3)">' + (s&&s.updated_at?new Date(s.updated_at).toLocaleDateString('en-GB'):'Not added') + '</td>' +
-      '<td><button class="ob" onclick="openEmail(\'' + email + '\',\'\',' + JSON.stringify(status) + ')">Email</button></td>' +
-      '<td>' + (s?'<button class="btn btn-sm" onclick="editSeller(\''+s.id+'\')">Update</button>':'<button class="btn btn-sm btn-teal" onclick="quickMQL(\''+email+'\')">Add</button>') + '</td></tr>';
-  }).join('') || '<tr><td colspan="6" style="text-align:center;padding:22px;color:var(--t3)">' + (isUK?'MQL emails not loaded yet. Add them via Import tab.':'No MQL data for US yet.') + '</td></tr>';
-}
-
-function quickMQL(email) {
-  EDIT_ID=null; SEL_TAGS=[];
-  populateForms();
-  document.getElementById('m-seller-title').textContent = 'Add MQL lead';
-  document.getElementById('f-email').value = email;
-  document.getElementById('f-src').value = 'MQL';
-  document.getElementById('qual-sec').style.display = 'none';
-  openModal('m-seller');
 }
 
 async function saveCampaign() {
@@ -1240,7 +1201,7 @@ async function saveCampaign() {
   const data = { id:uid(), program_id:CUR_PROG, name, campaign_date:document.getElementById('c-date').value, sent:parseInt(document.getElementById('c-sent').value)||0, opens:parseInt(document.getElementById('c-opens').value)||0, clicks:parseInt(document.getElementById('c-clicks').value)||0, replies:parseInt(document.getElementById('c-replies').value)||0, segment:document.getElementById('c-seg').value };
   try {
     await DB.from('campaigns').insert(data);
-    CAMPAIGNS.push(data);
+    CAMPAIGNS.unshift(data);
     closeModal('m-campaign');
     renderCampaigns();
     toast('Campaign added');
@@ -1303,7 +1264,7 @@ async function runImport() {
     for (const u of toUpdate) { await DB.from('sellers').update(u.id, {sources:u.sources}); const s=SELLERS.find(x=>x.id===u.id); if(s) s.sources=u.sources; }
     document.getElementById('imp-emails').value='';
     document.getElementById('imp-result').innerHTML='<div class="info-box green">Done: '+added+' new · '+updated+' updated · '+skipped+' already had source</div>';
-    if (MQL_EMAILS.length===0 && src==='MQL') { MQL_EMAILS=[...emails]; localStorage.setItem('ced_mql_emails',JSON.stringify(MQL_EMAILS)); }
+    if (MQL_EMAILS.length===0 && src==='Cadences') { MQL_EMAILS=[...emails]; localStorage.setItem('ced_mql_emails',JSON.stringify(MQL_EMAILS)); }
     toast('Imported '+emails.length+' emails');
   } catch(e) { toast('Error: '+e.message, true); }
 }
@@ -1330,7 +1291,7 @@ async function runCSVImport() {
     const email = eI>=0?(cols[eI]||'').toLowerCase().trim():'';
     const storeId = sdI>=0?cols[sdI]:'';
     if (!email&&!storeId) return;
-    const src = srI>=0?cols[srI]:'BD';
+    const src = srI>=0?cols[srI]:'Marketing Campaigns';
     const data = {id:uid(),email:email||null,company:coI>=0?cols[coI]:'',status:stI>=0?cols[stI]:'EMAIL FOLLOW UP IN PROGRESS',sources:[src],associate:asI>=0?cols[asI]:'',tags:tgI>=0&&cols[tgI]?cols[tgI].split(';').map(t=>t.trim()).filter(Boolean):[],store_id:storeId||null,program_id:progId,qualified:false,updated_at:new Date().toISOString()};
     if (data.status.toUpperCase().includes('ONBOARD')) data.qualified=true;
     toInsert.push(data); added++;

@@ -338,11 +338,10 @@ tr:hover td{background:var(--surf2);}
       </div>
 
       <div class="card">
-        <div class="card-header"><div><div class="card-title" id="rev-title">Qualified sellers — payment log</div><div class="card-sub">Payments received from Temu on their schedule, not tied to onboarding month</div></div><button class="btn btn-green" onclick="openModal('m-qual')">+ Mark qualified</button></div>
+        <div class="card-header"><div><div class="card-title" id="rev-title">Qualified sellers — payment log</div><div class="card-sub">Detailed breakdown of onboarded stores</div></div><button class="btn btn-green" onclick="openModal('m-qual')">+ Mark qualified</button></div>
         <div class="tbl-wrap"><table>
           <thead><tr><th>#</th><th>Store</th><th>Mall ID</th><th>Email</th><th>BDA</th><th>1st Sale</th><th>Amount</th><th>Temu paid CED</th><th>CED paid CSA</th><th>BD incentive</th><th>Notes</th></tr></thead>
           <tbody id="rev-tbody"></tbody>
-          <tfoot><tr style="background:var(--surf2)"><td colspan="6" style="padding:10px 12px;font-weight:600">Total</td><td style="padding:10px 12px;font-weight:700;color:var(--green)" id="rev-total"></td><td style="padding:10px 12px;font-weight:600;color:var(--green);font-size:12px" id="rev-paid-c"></td><td colspan="3"></td></tr></tfoot>
         </table></div>
       </div>
     </div>
@@ -423,8 +422,8 @@ tr:hover td{background:var(--surf2);}
   <div class="mhead"><h3>Add payment record</h3><button class="mclose" onclick="closeModal('m-payment')">x</button></div>
   <div class="mbody">
     <div class="frow">
-      <div class="field"><label>Period *</label><input id="p-period" placeholder="e.g., April 2026"></div>
-      <div class="field"><label>Amount received</label><input id="p-amount" placeholder="e.g., $800, TBC, etc."></div>
+      <div class="field"><label>Month & Year *</label><input id="p-period" type="month"></div>
+      <div class="field"><label>Amount received (Number only)</label><input id="p-amount" type="number" placeholder="800"></div>
     </div>
     <div class="frow">
       <div class="field"><label>Number of sellers</label><input id="p-count" type="number" value="1"></div>
@@ -485,7 +484,7 @@ tr:hover td{background:var(--surf2);}
     </div>
     <div class="frow">
       <div class="field"><label>Month of 1st sale</label><input id="q-month" type="month"></div>
-      <div class="field"><label>Amount</label><input id="q-amt" type="number"></div>
+      <div class="field"><label>Amount (Number only)</label><input id="q-amt" type="number"></div>
     </div>
     <div class="frow">
       <div class="field"><label>Temu paid CED?</label><select id="q-cedpaid"><option value="pending">Pending</option><option value="paid">Paid</option></select></div>
@@ -812,10 +811,18 @@ function renderOverview() {
   const prog = curProg();
   const sellers = curSellers();
   const qual = curQualified();
-  const paid = qual.filter(q => q.temu_paid_ced==='paid').length;
-  const pend = qual.length - paid;
+  const pays = curPayments();
   const curr = progCurr();
   const inc = prog.incentive_amount || 800;
+  
+  // DYNAMIC PENDING/RECEIVED LOGIC based on total onboarded count vs total payments logged
+  const onboardedCount = sellers.filter(s => (s.status||'').toUpperCase().includes('ONBOARD')).length;
+  const totalPotential = onboardedCount * inc;
+  
+  const paymentsList = pays.filter(p => p.received === true);
+  const totalReceived = paymentsList.reduce((sum, p) => sum + (parseFloat(String(p.amount).replace(/[^0-9.-]+/g,"")) || 0), 0);
+  
+  const totalPending = Math.max(0, totalPotential - totalReceived);
 
   // Affiliate link box
   document.getElementById('ov-aff').innerHTML = prog.affiliate_link ? `
@@ -832,9 +839,9 @@ function renderOverview() {
 
   document.getElementById('ov-metrics').innerHTML = `
     <div class="mcard teal"><div class="ml">Sellers tracked</div><div class="mv">${sellers.length}</div><div class="ms">${prog.name}</div></div>
-    <div class="mcard green"><div class="ml">Onboarding complete</div><div class="mv">${sellers.filter(s=>(s.status||'').toUpperCase().includes('ONBOARD')).length}</div><div class="ms">Qualified for ${curr}${inc}</div></div>
-    <div class="mcard amber"><div class="ml">Pending payment</div><div class="mv">${pend}</div><div class="ms">${curr}${pend*inc} outstanding</div></div>
-    <div class="mcard blue"><div class="ml">Temu paid CED</div><div class="mv">${paid}</div><div class="ms">${curr}${paid*inc} received</div></div>
+    <div class="mcard green"><div class="ml">Onboarding complete</div><div class="mv">${onboardedCount}</div><div class="ms">Qualified for ${curr}${inc}</div></div>
+    <div class="mcard amber"><div class="ml">Pending payment</div><div class="mv">${curr}${totalPending.toLocaleString()}</div><div class="ms">Outstanding</div></div>
+    <div class="mcard blue"><div class="ml">Total received</div><div class="mv">${curr}${totalReceived.toLocaleString()}</div><div class="ms">Confirmed by accounts</div></div>
     <div class="mcard"><div class="ml">Multi-source leads</div><div class="mv">${sellers.filter(s=>(s.sources||[]).length>1).length}</div><div class="ms">In 2+ sources</div></div>
     <div class="mcard"><div class="ml">Active in pipeline</div><div class="mv">${sellers.filter(s=>!['ONBOARD','NOT INTEREST','STUCK','NOT ELIG','FRAMEWORK'].some(x=>(s.status||'').toUpperCase().includes(x))).length}</div><div class="ms">Need outreach</div></div>
   `;
@@ -856,13 +863,14 @@ function renderOverview() {
   ).join('');
 
   // Payment log
-  const pays = curPayments();
-  document.getElementById('ov-paylog').innerHTML = pays.length ? pays.map(p =>
-    '<div class="rev-row"><div><strong style="font-size:13px">' + p.period + '</strong>' +
+  document.getElementById('ov-paylog').innerHTML = pays.length ? pays.map(p => {
+    const pAmt = parseFloat(String(p.amount).replace(/[^0-9.-]+/g,"")) || 0;
+    const displayAmt = pAmt === 0 ? 'TBC' : curr + pAmt.toLocaleString();
+    return '<div class="rev-row"><div><strong style="font-size:13px">' + fmtM(p.period) + '</strong>' +
     (p.stores_note ? '<div style="font-size:11px;color:var(--t3);margin-top:2px">' + p.stores_note + '</div>' : '') + '</div>' +
-    '<div style="font-size:14px;font-weight:700;color:' + (p.received?'var(--green)':'var(--t3)') + '">' + p.amount + '</div>' +
-    (p.received ? '<span class="paid">' + p.seller_count + ' seller' + (p.seller_count!==1?'s':'') + '</span>' : '<span class="pill p-gray" style="font-size:10px">No payment</span>') + '</div>'
-  ).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px 0">No payment records yet. Add in Revenue tab.</div>';
+    '<div style="font-size:14px;font-weight:700;color:' + (p.received?'var(--green)':'var(--t3)') + '">' + displayAmt + '</div>' +
+    (p.received ? '<span class="paid">' + p.seller_count + ' seller' + (p.seller_count!==1?'s':'') + '</span>' : '<span class="pill p-gray" style="font-size:10px">No payment</span>') + '</div>';
+  }).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px 0">No payment records yet. Add in Revenue tab.</div>';
 
   // Qualified table
   document.getElementById('ov-q-title').textContent = qual.length + ' qualified sellers — ' + prog.name;
@@ -1058,23 +1066,31 @@ async function saveSeller() {
 function renderRevenue() {
   const prog = curProg();
   const qual = curQualified();
+  const sellers = curSellers();
   const curr = progCurr();
   const inc = prog.incentive_amount || 800;
-  const paidC = qual.filter(q=>q.temu_paid_ced==='paid').length;
   const bdInc = prog.currency==='USD' ? 100 : 100;
+  
+  // DYNAMIC PENDING/RECEIVED LOGIC
+  const onboardedCount = sellers.filter(s => (s.status||'').toUpperCase().includes('ONBOARD')).length;
+  const totalPotential = onboardedCount * inc;
+  
+  const pays = curPayments();
+  const paymentsList = pays.filter(p => p.received === true);
+  const totalReceived = paymentsList.reduce((sum, p) => sum + (parseFloat(String(p.amount).replace(/[^0-9.-]+/g,"")) || 0), 0);
+  
+  const totalPending = Math.max(0, totalPotential - totalReceived);
 
   document.getElementById('rev-title').textContent = qual.length + ' qualified sellers — ' + (prog.name||'');
   document.getElementById('rev-metrics').innerHTML = `
-    <div class="mcard green"><div class="ml">Temu paid CED</div><div class="mv">${curr}${paidC*inc}</div><div class="ms">${paidC} sellers</div></div>
-    <div class="mcard amber"><div class="ml">Outstanding</div><div class="mv">${curr}${(qual.length-paidC)*inc}</div><div class="ms">${qual.length-paidC} sellers</div></div>
-    <div class="mcard teal"><div class="ml">Total qualified</div><div class="mv">${qual.length}</div><div class="ms">${curr}${inc} per seller</div></div>
-    <div class="mcard blue"><div class="ml">Full potential</div><div class="mv">${curr}${qual.length*inc}</div><div class="ms">If all paid</div></div>
+    <div class="mcard green"><div class="ml">Total Received</div><div class="mv">${curr}${totalReceived.toLocaleString()}</div><div class="ms">From Payment Log</div></div>
+    <div class="mcard amber"><div class="ml">Outstanding</div><div class="mv">${curr}${totalPending.toLocaleString()}</div><div class="ms">Pending from Marketplace</div></div>
+    <div class="mcard teal"><div class="ml">Onboarded Sellers</div><div class="mv">${onboardedCount}</div><div class="ms">${curr}${inc} per seller</div></div>
+    <div class="mcard blue"><div class="ml">Pipeline Potential</div><div class="mv">${curr}${totalPotential.toLocaleString()}</div><div class="ms">If all paid</div></div>
     <div class="mcard purple"><div class="ml">BD incentives due</div><div class="mv">$${qual.filter(q=>q.bd_incentive==='pending').length*bdInc}</div><div class="ms">$${bdInc} per BD completion</div></div>
   `;
 
-  let total = 0;
   document.getElementById('rev-tbody').innerHTML = qual.map((q,i) => {
-    total += q.amount || inc;
     const noEmail = !q.email || q.email.includes('update');
     return '<tr>' +
       '<td style="color:var(--t3);font-size:11px">' + (i+1) + '</td>' +
@@ -1090,18 +1106,16 @@ function renderRevenue() {
       '<td style="font-size:11px;color:var(--t3)">' + (q.notes||'') + '</td></tr>';
   }).join('') || '<tr><td colspan="11" style="text-align:center;padding:22px;color:var(--t3)">No qualified sellers yet</td></tr>';
 
-  document.getElementById('rev-total').textContent = curr + total;
-  document.getElementById('rev-paid-c').textContent = paidC + ' paid';
-
-  const pays = curPayments();
-  document.getElementById('pay-tl').innerHTML = pays.length ? pays.map(p =>
-    '<div class="rev-row">' +
-    '<div><strong style="font-size:13px">' + p.period + '</strong>' +
+  document.getElementById('pay-tl').innerHTML = pays.length ? pays.map(p => {
+    const pAmt = parseFloat(String(p.amount).replace(/[^0-9.-]+/g,"")) || 0;
+    const displayAmt = pAmt === 0 ? 'TBC' : curr + pAmt.toLocaleString();
+    return '<div class="rev-row">' +
+    '<div><strong style="font-size:13px">' + fmtM(p.period) + '</strong>' +
     (p.stores_note?'<div style="font-size:11px;color:var(--t3);margin-top:2px">'+p.stores_note+'</div>':'') + '</div>' +
-    '<div style="font-size:15px;font-weight:700;color:' + (p.received?'var(--green)':p.amount==='TBC'?'var(--amber)':'var(--t3)') + '">' + p.amount + '</div>' +
-    (p.received?'<span class="paid">'+p.seller_count+' seller'+(p.seller_count!==1?'s':'')+'</span>':p.amount==='TBC'?'<span class="pend">TBC</span>':'<span class="pill p-gray" style="font-size:10px">No payment</span>') +
-    '</div>'
-  ).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px 0">No payment records. You can add them here once confirmed by accounts.</div>';
+    '<div style="font-size:15px;font-weight:700;color:' + (p.received?'var(--green)':(!p.amount || p.amount==='0'?'var(--amber)':'var(--t3)')) + '">' + displayAmt + '</div>' +
+    (p.received?'<span class="paid">'+p.seller_count+' seller'+(p.seller_count!==1?'s':'')+'</span>':(!p.amount || p.amount==='0'?'<span class="pend">TBC</span>':'<span class="pill p-gray" style="font-size:10px">No payment</span>')) +
+    '</div>';
+  }).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px 0">No payment records. You can add them here once confirmed by accounts.</div>';
 }
 
 async function saveQualified() {
@@ -1143,14 +1157,14 @@ async function saveQualified() {
 
 // SAVE PAYMENT
 async function savePayment() {
-  const period = document.getElementById('p-period').value.trim();
-  if (!period) { alert('Period is required (e.g., April 2026)'); return; }
+  const period = document.getElementById('p-period').value;
+  if (!period) { alert('Month & Year is required'); return; }
   
   const data = {
     id: uid(),
     program_id: CUR_PROG,
     period: period,
-    amount: document.getElementById('p-amount').value.trim() || 'TBC',
+    amount: document.getElementById('p-amount').value || '0',
     seller_count: parseInt(document.getElementById('p-count').value) || 0,
     received: document.getElementById('p-received').value === 'true',
     stores_note: document.getElementById('p-notes').value.trim(),

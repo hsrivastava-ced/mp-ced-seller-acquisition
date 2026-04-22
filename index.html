@@ -873,13 +873,17 @@ function renderOverview() {
   }).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px 0">No payment records yet. Add in Revenue tab.</div>';
 
   document.getElementById('ov-q-title').textContent = qual.length + ' qualified sellers — ' + prog.name;
-  document.getElementById('ov-q-tbl').innerHTML = qual.map((q,i) =>
-    '<tr><td style="color:var(--t3);font-size:11px">' + (i+1) + '</td>' +
+  
+  // FIXED BDA MAPPING BUG: Smart Fallback checking main sellers database
+  document.getElementById('ov-q-tbl').innerHTML = qual.map((q,i) => {
+    const matchedSeller = sellers.find(x => (q.email && x.email === q.email) || (q.store_id && x.store_id === q.store_id) || (x.company === q.store_name));
+    const displayBda = q.bda || (matchedSeller ? matchedSeller.associate : '') || '—';
+    return '<tr><td style="color:var(--t3);font-size:11px">' + (i+1) + '</td>' +
     '<td><strong style="font-size:12px">' + q.store_name + '</strong></td>' +
-    '<td style="font-size:12px">' + (q.bda||'—') + '</td>' +
+    '<td style="font-size:12px">' + displayBda + '</td>' +
     '<td>' + fmtM(q.first_sale_month) + '</td>' +
-    '<td>' + (q.temu_paid_ced==='paid'?'<span class="paid">Paid</span>':'<span class="pend">Pending</span>') + '</td></tr>'
-  ).join('') || '<tr><td colspan="5" style="color:var(--t3);padding:16px;text-align:center">No qualified sellers yet</td></tr>';
+    '<td>' + (q.temu_paid_ced==='paid'?'<span class="paid">Paid</span>':'<span class="pend">Pending</span>') + '</td></tr>';
+  }).join('') || '<tr><td colspan="5" style="color:var(--t3);padding:16px;text-align:center">No qualified sellers yet</td></tr>';
 
   const srcData = [
     { n: 'Marketing Campaigns', c: sellers.filter(s => (s.sources||[]).includes('Marketing Campaigns')).length, t: 'camp' },
@@ -936,7 +940,6 @@ function buildSellersTable() {
   document.getElementById('s-tbody').innerHTML = rows.length ? rows.map(s => {
     const dup = (s.sources||[]).length > 1;
     const noEmail = !s.email || s.email.includes('@update');
-    // Ensure "Mall: " only shows if there's actually a Store ID string, not just a blank
     const showMallStr = (noEmail && s.store_id && s.store_id.trim() !== '') ? 'Mall: '+s.store_id : (s.email||'').length>28?(s.email||'').slice(0,28)+'...':(s.email||'—');
     return '<tr>' +
       '<td><div style="display:flex;align-items:center;font-size:12px;font-family:var(--mono)">' + (dup?'<span class="ovr"></span>':'') + '<span title="' + (s.email||'') + '">' + showMallStr + '</span></div></td>' +
@@ -1104,14 +1107,17 @@ function renderRevenue() {
     <div class="mcard purple"><div class="ml">BD incentives due</div><div class="mv">$${qual.filter(q=>q.bd_incentive==='pending').length*bdInc}</div><div class="ms">$${bdInc} per BD completion</div></div>
   `;
 
+  // FIXED BDA MAPPING BUG: Smart Fallback checking main sellers database
   document.getElementById('rev-tbody').innerHTML = qual.map((q,i) => {
     const noEmail = !q.email || q.email.includes('update');
+    const matchedSeller = sellers.find(x => (q.email && x.email === q.email) || (q.store_id && x.store_id === q.store_id) || (x.company === q.store_name));
+    const displayBda = q.bda || (matchedSeller ? matchedSeller.associate : '') || '—';
     return '<tr>' +
       '<td style="color:var(--t3);font-size:11px">' + (i+1) + '</td>' +
       '<td style="font-weight:500">' + q.store_name + '</td>' +
       '<td style="font-size:11px;color:var(--t3);font-family:var(--mono)">' + (q.store_id||'—') + '</td>' +
       '<td style="font-size:11px;font-family:var(--mono);color:' + (noEmail?'var(--amber)':'inherit') + '">' + (noEmail?'Mall ID only':q.email) + '</td>' +
-      '<td style="font-size:12px">' + (q.bda||'—') + '</td>' +
+      '<td style="font-size:12px">' + displayBda + '</td>' +
       '<td>' + fmtM(q.first_sale_month) + '</td>' +
       '<td style="font-weight:700;color:var(--green)">' + curr + (q.amount||inc) + '</td>' +
       '<td>' + (q.temu_paid_ced==='paid'?'<span class="paid">Paid</span>':'<span class="pend">Pending</span>') + '</td>' +
@@ -1133,7 +1139,6 @@ function renderRevenue() {
 }
 
 async function saveQualified() {
-  populateForms();
   const store = document.getElementById('q-store').value.trim();
   if (!store) { alert('Store name required'); return; }
   const prog = curProg();
@@ -1258,10 +1263,13 @@ function renderBD() {
     '<tr><td><strong>'+n+'</strong></td><td>'+d.r+'</td><td>'+d.c+'</td><td>'+(d.r?Math.round(d.c/d.r*100)+'%':'—')+'</td><td style="font-weight:600;color:var(--green)">'+(d.c?'$'+(d.c*bdInc):'—')+'</td></tr>'
   ).join('') || '<tr><td colspan="5" style="text-align:center;padding:18px;color:var(--t3)">No associates yet</td></tr>';
 
-  document.getElementById('bd-inc-list').innerHTML = curQualified().map(q =>
-    '<div class="rev-row"><div><div style="font-size:13px;font-weight:500">'+q.store_name+'</div><div style="font-size:11px;color:var(--t3)">'+(q.bda||'—')+' · '+fmtM(q.first_sale_month)+'</div></div>' +
-    '<span class="'+(q.bd_incentive==='paid'?'paid':'pend')+'">'+(q.bd_incentive==='paid'?'$'+bdInc+' paid':'Pending')+'</span></div>'
-  ).join('') || '<div style="color:var(--t3);font-size:13px;padding:8px">No qualified sellers yet</div>';
+  // FIXED BDA MAPPING BUG for BD Team tab
+  document.getElementById('bd-inc-list').innerHTML = curQualified().map(q => {
+    const matchedSeller = curSellers().find(x => (q.email && x.email === q.email) || (q.store_id && x.store_id === q.store_id) || (x.company === q.store_name));
+    const displayBda = q.bda || (matchedSeller ? matchedSeller.associate : '') || '—';
+    return '<div class="rev-row"><div><div style="font-size:13px;font-weight:500">'+q.store_name+'</div><div style="font-size:11px;color:var(--t3)">'+displayBda+' · '+fmtM(q.first_sale_month)+'</div></div>' +
+    '<span class="'+(q.bd_incentive==='paid'?'paid':'pend')+'">'+(q.bd_incentive==='paid'?'$'+bdInc+' paid':'Pending')+'</span></div>';
+  }).join('') || '<div style="color:var(--t3);font-size:13px;padding:8px">No qualified sellers yet</div>';
 }
 
 // ============================================================
@@ -1297,9 +1305,31 @@ async function runCSVImport() {
 
   // Detect if pasted from Excel/Sheets (tabs) or actual CSV (commas)
   const separator = raw.includes('\t') ? '\t' : ',';
+  
+  function parseLine(line, delimiter) {
+    let cols = [];
+    let cur = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (inQuotes) {
+        if (char === '"') {
+          if (i + 1 < line.length && line[i + 1] === '"') { cur += '"'; i++; } // escaped quote
+          else { inQuotes = false; }
+        } else { cur += char; }
+      } else {
+        if (char === '"') { inQuotes = true; }
+        else if (char === delimiter) { cols.push(cur.trim()); cur = ''; }
+        else { cur += char; }
+      }
+    }
+    cols.push(cur.trim());
+    return cols;
+  }
+
   const lines = raw.split('\n');
 
-  const hdr = lines[0].split(separator).map(h=>h.trim().toLowerCase().replace(/[^a-z]/g,''));
+  const hdr = parseLine(lines[0], separator).map(h=>h.toLowerCase().replace(/[^a-z]/g,''));
   const eI = hdr.findIndex(h=>h.includes('email'));
   const coI = hdr.findIndex(h=>h.includes('storename')||h.includes('company')||(h.includes('store') && !h.includes('id')));
   const stI = hdr.findIndex(h=>h.includes('status'));
@@ -1309,56 +1339,107 @@ async function runCSVImport() {
   const sdI = hdr.findIndex(h=>h.includes('storeid')||h.includes('mallid'));
 
   const progId = document.getElementById('imp-prog').value;
-  let added=0;
-  const toInsert=[];
+  let added=0, updated=0;
+  const toInsert=[], toUpdate=[];
 
   lines.slice(1).forEach(line => {
     if (!line.trim()) return;
-    const cols = line.split(separator).map(c=>c.trim().replace(/^"|"$/g,''));
+    const cols = parseLine(line, separator);
 
-    const email = eI>=0 ? cols[eI].toLowerCase() : '';
-    let storeId = sdI>=0 ? cols[sdI] : '';
-    let companyName = coI>=0 ? cols[coI] : '';
+    const email = eI>=0 && cols[eI] ? cols[eI].toLowerCase() : '';
+    let storeId = sdI>=0 && cols[sdI] ? cols[sdI] : '';
+    let companyName = coI>=0 && cols[coI] ? cols[coI] : '';
 
     // Smart fix: If "Store ID" contains letters, they actually pasted the Store Name there.
     if (storeId && /[a-zA-Z]/.test(storeId)) {
         if (!companyName) companyName = storeId;
-        storeId = ''; // Blank out the invalid ID
+        storeId = ''; 
     }
 
     if (!email && !storeId && !companyName) return;
 
-    const src = srI>=0 && cols[srI] ? cols[srI] : 'Marketing Campaigns';
-    const data = {
+    // Parse multiple sources and tags (split by comma or semicolon)
+    let parsedSources = srI>=0 && cols[srI] ? cols[srI].split(/[,;]/).map(s=>s.trim()).filter(Boolean) : [];
+    if (parsedSources.length === 0) parsedSources = ['Marketing Campaigns']; // fallback
+
+    let parsedTags = tgI>=0 && cols[tgI] ? cols[tgI].split(/[,;]/).map(t=>t.trim()).filter(Boolean) : [];
+
+    let status = stI>=0 && cols[stI] ? cols[stI] : 'EMAIL FOLLOW UP IN PROGRESS';
+    let bda = asI>=0 && cols[asI] ? cols[asI] : '';
+
+    // Check for duplicates
+    const existing = SELLERS.find(s => 
+      (email && s.email && s.email.toLowerCase() === email) || 
+      (storeId && s.store_id && s.store_id === storeId)
+    );
+
+    if (existing && existing.program_id === progId) {
+      // Merge logic
+      const mergedSources = [...new Set([...(existing.sources||[]), ...parsedSources])];
+      const mergedTags = [...new Set([...(existing.tags||[]), ...parsedTags])];
+      
+      toUpdate.push({
+        id: existing.id,
+        sources: mergedSources,
+        tags: mergedTags,
+        status: status !== 'EMAIL FOLLOW UP IN PROGRESS' ? status : existing.status,
+        associate: bda || existing.associate
+      });
+      updated++;
+    } else {
+      // Insert logic
+      const data = {
         id: uid(),
         email: email || null,
         company: companyName || '',
         store_id: storeId || null,
-        status: stI>=0 && cols[stI] ? cols[stI] : 'EMAIL FOLLOW UP IN PROGRESS',
-        sources: [src],
-        associate: asI>=0 ? cols[asI] : '',
-        tags: tgI>=0 && cols[tgI] ? cols[tgI].split(';').map(t=>t.trim()).filter(Boolean) : [],
+        status: status,
+        sources: parsedSources,
+        associate: bda,
+        tags: parsedTags,
         program_id: progId,
-        qualified: false,
+        qualified: status.toUpperCase().includes('ONBOARD'),
         updated_at: new Date().toISOString()
-    };
-
-    if (data.status.toUpperCase().includes('ONBOARD')) data.qualified=true;
-    toInsert.push(data);
-    added++;
+      };
+      toInsert.push(data);
+      added++;
+    }
   });
 
-  if(toInsert.length === 0) {
+  if(toInsert.length === 0 && toUpdate.length === 0) {
      alert("No valid rows found to import. Check your column headers.");
      return;
   }
 
   try {
-    await DB.from('sellers').insert(toInsert);
-    SELLERS.unshift(...toInsert);
+    if (toInsert.length > 0) {
+      await DB.from('sellers').insert(toInsert);
+      SELLERS.unshift(...toInsert);
+    }
+    
+    // Update existing records
+    for (const u of toUpdate) {
+      await DB.from('sellers').update(u.id, {
+         sources: u.sources, 
+         tags: u.tags,
+         status: u.status,
+         associate: u.associate,
+         updated_at: new Date().toISOString()
+      });
+      // Update local state
+      const s = SELLERS.find(x => x.id === u.id);
+      if (s) {
+         s.sources = u.sources;
+         s.tags = u.tags;
+         s.status = u.status;
+         s.associate = u.associate;
+         if (s.status.toUpperCase().includes('ONBOARD')) s.qualified = true;
+      }
+    }
+
     document.getElementById('imp-csv').value='';
-    document.getElementById('csv-result').innerHTML='<div class="info-box green">Import successful: '+added+' sellers added</div>';
-    renderView(); // refresh UI automatically
+    document.getElementById('csv-result').innerHTML=`<div class="info-box green">Import successful: ${added} new sellers added, ${updated} existing sellers updated.</div>`;
+    renderView(); 
     toast('Data imported successfully');
   } catch(e) { toast('Error: '+e.message, true); }
 }

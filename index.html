@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Seller Acquisition — CedCommerce</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
   --navy:#0f1b2d; --navy2:#162236; --navy3:#1d2e47;
@@ -215,12 +216,15 @@ tr:hover td{background:var(--surf2);}
 .view{display:none;}
 .view.active{display:block;}
 
-/* LOADING */
+/* LOADING & LOGIN */
 .loading-overlay{position:fixed;inset:0;background:rgba(15,27,45,.7);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
 .loading-overlay.hidden{display:none;}
 .spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,.15);border-top-color:#5eead4;border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-text{color:var(--twht);font-size:13px;}
+
+.setup-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.setup-card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:32px;max-width:420px;width:100%;}
 
 /* TOAST */
 .toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:var(--twht);padding:11px 17px;border-radius:var(--rs);font-size:13px;z-index:999;opacity:0;transform:translateY(8px);transition:all .18s;pointer-events:none;border:1px solid var(--navy3);}
@@ -240,7 +244,22 @@ tr:hover td{background:var(--surf2);}
 
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">Connecting to database...</div>
+  <div class="loading-text" id="loading-text">Connecting...</div>
+</div>
+
+<div class="setup-screen" id="login-screen" style="display:none; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; background:var(--bg);">
+  <div class="setup-card" style="text-align:center;">
+    <div style="display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;background:var(--teal);border-radius:12px;margin-bottom:20px;">
+      <svg width="26" height="26" viewBox="0 0 20 20" fill="none" stroke="#fff" stroke-width="1.8"><path d="M10 2L2 6v8l8 4 8-4V6L10 2z"/><path d="M10 2v18M2 6l8 4 8-4"/></svg>
+    </div>
+    <h2 style="font-size:22px;margin-bottom:10px;">CedCommerce Hub</h2>
+    <p style="color:var(--t2);margin-bottom:24px;">Please sign in with your Threecolts account.</p>
+    <button class="btn btn-teal" style="width:100%;padding:12px;font-size:14px;display:flex;align-items:center;justify-content:center;gap:10px;" onclick="signInWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Sign in with Google
+    </button>
+    <div id="login-msg" style="color:var(--red);margin-top:16px;font-size:13px;display:none;"></div>
+  </div>
 </div>
 
 <div class="shell" id="app" style="display:none;">
@@ -253,7 +272,7 @@ tr:hover td{background:var(--surf2);}
   <div class="nsec">
     <div class="nlabel">Programs</div>
     <div class="psw" id="prog-sw"></div>
-    <div style="padding:0 12px"><button class="addprog" onclick="openModal('m-new-prog')">+ New program</button></div>
+    <div style="padding:0 12px"><button class="addprog" onclick="openModal('m-new-prog')" style="display:none;">+ New program</button></div>
   </div>
   <div class="nsec" style="border-top:1px solid var(--line);margin-top:8px;">
     <div class="nlabel">Views</div>
@@ -262,9 +281,14 @@ tr:hover td{background:var(--surf2);}
     <div class="ni" onclick="sv('revenue',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v14M4 5h6a2 2 0 010 4H6a2 2 0 000 4h6"/></svg><span>Revenue & incentives</span></div>
     <div class="ni" onclick="sv('campaigns',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 4l7 5 7-5"/><rect x="1" y="3" width="14" height="10" rx="1.5"/></svg><span>Campaigns</span></div>
     <div class="ni" onclick="sv('bd',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="5" r="2.5"/><circle cx="11" cy="5" r="2.5"/><path d="M1 13c0-2.2 1.8-4 4-4s4 1.8 4 4M11 9c2.2 0 4 1.8 4 4"/></svg><span>BD team</span></div>
-    <div class="ni" onclick="sv('import',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v9m-3-3l3 3 3-3"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg><span>Import leads</span></div>
+    <div class="ni" id="tab-import" style="display:none;" onclick="sv('import',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1v9m-3-3l3 3 3-3"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg><span>Import leads</span></div>
+    <div class="ni" id="tab-team" style="display:none;" onclick="sv('team',this)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="10" height="4" rx="1"/><circle cx="8" cy="5" r="3"/><path d="M11 11v-1a3 3 0 00-6 0v1"/></svg><span>Team Access</span></div>
   </div>
-  <div class="sb-footer">
+  <div class="sb-footer" style="display:flex; flex-direction:column; gap:10px;">
+    <div style="font-size:11px; color:var(--twht); background:var(--navy3); padding:6px 10px; border-radius:4px; display:flex; align-items:center; justify-content:space-between;">
+      <span id="user-email-disp" style="max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">...</span>
+      <button onclick="signOut()" style="background:none; border:none; color:var(--twht2); cursor:pointer; font-size:10px; text-transform:uppercase;">Logout</button>
+    </div>
     <div class="db-status"><div class="db-dot loading" id="db-dot"></div><span id="db-label">Connecting...</span></div>
   </div>
 </aside>
@@ -273,9 +297,9 @@ tr:hover td{background:var(--surf2);}
   <div class="topbar">
     <div><div class="topbar-title" id="page-title">Overview</div><div class="topbar-sub" id="page-sub">Loading...</div></div>
     <div class="topbar-actions">
-      <button class="btn btn-icon" onclick="sv('import',document.querySelector('[onclick*=import]'))"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1v9m-3-3l3 3 3-3"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg>Import leads</button>
+      <button class="btn btn-icon" id="btn-import-top" style="display:none;" onclick="sv('import',document.querySelector('#tab-import'))"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1v9m-3-3l3 3 3-3"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg>Import leads</button>
       <button class="btn" onclick="exportCSV()">Export CSV</button>
-      <button class="btn btn-teal" onclick="openAddSeller()">+ Add seller</button>
+      <button class="btn btn-teal" id="btn-add-seller" style="display:none;" onclick="openAddSeller()">+ Add seller</button>
     </div>
   </div>
 
@@ -299,7 +323,7 @@ tr:hover td{background:var(--surf2);}
 
     <div class="view" id="view-sellers">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
-        <button class="btn btn-teal btn-icon" onclick="openAddSeller()">+ Add seller</button>
+        <button class="btn btn-teal btn-icon" id="btn-add-seller-2" style="display:none;" onclick="openAddSeller()">+ Add seller</button>
         <span style="font-size:12px;color:var(--t3)" id="sellers-count"></span>
       </div>
       <div class="sbar">
@@ -332,13 +356,13 @@ tr:hover td{background:var(--surf2);}
       <div class="card">
         <div class="card-header">
           <div><div class="card-title">Payment timeline — confirmed by accounts team</div></div>
-          <button class="btn btn-teal" onclick="openModal('m-payment')">+ Add Payment</button>
+          <button class="btn btn-teal" id="btn-add-payment" style="display:none;" onclick="openModal('m-payment')">+ Add Payment</button>
         </div>
         <div id="pay-tl"></div>
       </div>
 
       <div class="card">
-        <div class="card-header"><div><div class="card-title" id="rev-title">Qualified sellers — payment log</div><div class="card-sub">Detailed breakdown of onboarded stores</div></div><button class="btn btn-green" onclick="openModal('m-qual')">+ Mark qualified</button></div>
+        <div class="card-header"><div><div class="card-title" id="rev-title">Qualified sellers — payment log</div><div class="card-sub">Detailed breakdown of onboarded stores</div></div><button class="btn btn-green" id="btn-mark-qual" style="display:none;" onclick="openModal('m-qual')">+ Mark qualified</button></div>
         <div class="tbl-wrap"><table>
           <thead><tr><th>#</th><th>Store</th><th>Mall ID</th><th>Email</th><th>BDA</th><th>1st Sale</th><th>Amount</th><th>Temu paid CED</th><th>CED paid CSA</th><th>BD incentive</th><th>Notes</th></tr></thead>
           <tbody id="rev-tbody"></tbody>
@@ -349,7 +373,7 @@ tr:hover td{background:var(--surf2);}
     <div class="view" id="view-campaigns">
       <div class="metrics-grid" id="camp-metrics"></div>
       <div class="card">
-        <div class="card-header"><div><div class="card-title">Campaign performance</div></div><button class="btn btn-teal" onclick="openModal('m-campaign')">+ Add campaign</button></div>
+        <div class="card-header"><div><div class="card-title">Campaign performance</div></div><button class="btn btn-teal" id="btn-add-camp" style="display:none;" onclick="openModal('m-campaign')">+ Add campaign</button></div>
         <div class="camp-grid" id="camp-cards"></div>
       </div>
     </div>
@@ -408,15 +432,54 @@ tr:hover td{background:var(--surf2);}
           <div class="card">
             <div class="card-header"><div><div class="card-title">Add new program</div></div></div>
             <p style="font-size:13px;color:var(--t2);margin-bottom:12px">Each program has its own seller list, revenue tracking, and affiliate link. Data never overlaps between programs.</p>
-            <button class="btn btn-teal" style="width:100%" onclick="openModal('m-new-prog')">+ Create new program</button>
+            <button class="btn btn-teal addprog" style="width:100%; display:none;" onclick="openModal('m-new-prog')">+ Create new program</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="view" id="view-team">
+      <div class="card">
+        <div class="card-header">
+          <div><div class="card-title">Team Access Management</div><div class="card-sub">Manage @threecolts.com users and permissions. Unlisted users are automatically Viewers.</div></div>
+          <button class="btn btn-teal" onclick="openTeamModal()">+ Add Team Member</button>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Email</th><th>Role</th><th>Edit Sellers</th><th>Edit Revenue</th><th>Edit Campaigns</th><th>Import CSV</th><th></th></tr></thead>
+          <tbody id="team-tbody"></tbody>
+        </table></div>
       </div>
     </div>
 
   </div>
 </div>
 </div>
+
+<div class="overlay" id="m-team"><div class="modal">
+  <div class="mhead"><h3>Manage Team Member</h3><button class="mclose" onclick="closeModal('m-team')">x</button></div>
+  <div class="mbody">
+    <div class="field"><label>Email address (@threecolts.com)</label><input id="tm-email" type="email" placeholder="name@threecolts.com"></div>
+    <div class="field"><label>Role</label>
+      <select id="tm-role" onchange="toggleChecks()">
+        <option value="editor">Editor (Custom Permissions)</option>
+        <option value="super_admin">Super Admin (Full Access)</option>
+      </select>
+    </div>
+    <div id="tm-checks" style="display:flex; flex-direction:column; gap:10px; margin-top:16px; padding:12px; background:var(--surf2); border-radius:var(--rs);">
+       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="tm-edit-sellers"> Allow Adding & Editing Sellers</label>
+       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="tm-edit-revenue"> Allow Adding Payments & Marking Qualified</label>
+       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="tm-edit-campaigns"> Allow Adding Campaigns</label>
+       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox" id="tm-import"> Allow Bulk CSV Import</label>
+    </div>
+  </div>
+  <div class="mfoot" style="justify-content: space-between;">
+     <button class="btn" style="color:var(--red);" onclick="removeTeam()">Revoke Access</button>
+     <div>
+       <button class="btn" onclick="closeModal('m-team')">Cancel</button>
+       <button class="btn btn-teal" onclick="saveTeam()">Save Permissions</button>
+     </div>
+  </div>
+</div></div>
 
 <div class="overlay" id="m-payment"><div class="modal">
   <div class="mhead"><h3>Add payment record</h3><button class="mclose" onclick="closeModal('m-payment')">x</button></div>
@@ -546,18 +609,27 @@ tr:hover td{background:var(--surf2);}
 
 <script>
 // ============================================================
-// CONFIG — Hardcoded your provided keys for backend connection
+// CONFIG & CLIENT SETUP
 // ============================================================
-let SB_URL = 'https://tynripltmerigzeyznmf.supabase.co';
-let SB_KEY = 'sb_publishable_PXqcVXQ5itgpxXiDo0Cq0w_DKl-R7II';
+const SB_URL = 'https://tynripltmerigzeyznmf.supabase.co';
+const SB_KEY = 'sb_publishable_PXqcVXQ5itgpxXiDo0Cq0w_DKl-R7II';
 
-// ============================================================
-// SUPABASE API WRAPPER
-// ============================================================
+// Initialize the official Supabase Client
+const supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
+let userToken = SB_KEY;
+let currentUser = null;
+let currentPerms = { role: 'viewer', can_edit_sellers: false, can_edit_revenue: false, can_edit_campaigns: false, can_import: false };
+
+// Custom fetch wrapper configured to use the logged-in user's token
 async function sbFetch(path, method='GET', body=null) {
   const opts = {
     method,
-    headers: { 'Content-Type':'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Prefer': method==='POST'?'return=representation':'return=minimal' }
+    headers: { 
+      'Content-Type':'application/json', 
+      'apikey': SB_KEY, 
+      'Authorization': 'Bearer ' + userToken, 
+      'Prefer': method==='POST'?'return=representation':'return=minimal' 
+    }
   };
   if (body) opts.body = JSON.stringify(body);
   const r = await fetch(SB_URL + '/rest/v1/' + path, opts);
@@ -588,13 +660,12 @@ let SELLERS = [];
 let QUALIFIED = [];
 let CAMPAIGNS = [];
 let PAYMENTS = [];
-let MQL_EMAILS = [];
+let TEAM_MEMBERS = [];
 let CUR_PROG = '';
 let CUR_VIEW = 'overview';
 let SF = 'all';
 let EDIT_ID = null;
 let SEL_TAGS = [];
-let SAVING = false;
 
 // ============================================================
 // CONSTANTS
@@ -617,32 +688,9 @@ const TAG_CLS = {'Hot lead':'t-hot','VAT issue':'t-vat','No reply':'t-noreply','
 const PROG_COLORS = {teal:'#0d9488',blue:'#2563eb',green:'#16a34a',purple:'#7c3aed',amber:'#d97706'};
 const CURRENCIES = {EUR:'€',USD:'$',GBP:'£'};
 
-// Email templates
 const ETPL = {
-  'EMAIL FOLLOW UP IN PROGRESS': {
-    sub: 'Grow your sales on Temu — exclusive programme via CedCommerce',
-    body: `Hi [NAME],\n\nI am reaching out from CedCommerce regarding a funded seller programme on Temu that we are running.\n\nWe help sellers list their products on Temu with free onboarding, product listing support, and a dedicated account manager throughout.\n\nCould we have a quick 15-minute call this week to walk you through the details?\n\nBest,\n[YOUR NAME]\nCedCommerce`
-  },
-  'INCOMMUNICATION': {
-    sub: 'Checking in — Temu programme still open for [STORE]',
-    body: `Hi [NAME],\n\nI wanted to check in as we have not connected in a while regarding your Temu onboarding.\n\nThe programme is still active and we would love to help you get started.\n\nIf the timing is not right, just let me know and I can follow up at a better time.\n\nBest,\n[YOUR NAME]\nCedCommerce`
-  },
-  'REGISTRATION DONE': {
-    sub: 'Next steps — your Temu store registration is confirmed',
-    body: `Hi [NAME],\n\nYour Temu store registration is complete. Your next steps are:\n1. Complete document verification\n2. Set up your store profile\n3. Upload your first products\n\nWe can help with all of this. Shall we schedule a session this week?\n\nBest,\n[YOUR NAME]\nCedCommerce`
-  },
-  'Document Verification': {
-    sub: 'Document verification — how we can help [STORE]',
-    body: `Hi [NAME],\n\nI am following up on the document verification step for your Temu store.\n\nCommon documents needed: business registration, VAT certificate (if applicable), ID verification.\n\nI can guide you through each step. Would a quick call help?\n\nBest,\n[YOUR NAME]\nCedCommerce`
-  },
-  'STUCK': {
-    sub: 'Let us get your Temu store unblocked — [STORE]',
-    body: `Hi [NAME],\n\nI want to help resolve the challenge you are facing with your Temu onboarding.\n\nCommon blockers we help with: VAT, document issues, portal access, product listings.\n\nPlease reply or call and we will sort it together.\n\nBest,\n[YOUR NAME]\nCedCommerce`
-  },
-  'DEFAULT': {
-    sub: 'Following up — your Temu onboarding',
-    body: `Hi [NAME],\n\nI am following up from CedCommerce regarding your Temu onboarding. Please let me know if there is anything I can help with.\n\nBest,\n[YOUR NAME]\nCedCommerce`
-  }
+  'EMAIL FOLLOW UP IN PROGRESS': { sub: 'Grow your sales on Temu — exclusive programme via CedCommerce', body: `Hi [NAME],\n\nI am reaching out from CedCommerce regarding a funded seller programme on Temu that we are running.\n\nWe help sellers list their products on Temu with free onboarding, product listing support, and a dedicated account manager throughout.\n\nCould we have a quick 15-minute call this week to walk you through the details?\n\nBest,\n[YOUR NAME]\nCedCommerce` },
+  'DEFAULT': { sub: 'Following up — your Temu onboarding', body: `Hi [NAME],\n\nI am following up from CedCommerce regarding your Temu onboarding. Please let me know if there is anything I can help with.\n\nBest,\n[YOUR NAME]\nCedCommerce` }
 };
 
 function getTpl(status) { return ETPL[status] || ETPL['DEFAULT']; }
@@ -662,9 +710,6 @@ function openWA(phone, company) {
   window.open('https://wa.me/' + (phone||'').replace(/\D/g,'') + '?text=' + msg, '_blank');
 }
 
-// ============================================================
-// HELPERS
-// ============================================================
 const uid = () => crypto.randomUUID ? crypto.randomUUID() : 'x' + Math.random().toString(36).slice(2,11);
 function fmtM(m) {
   if (!m) return '—';
@@ -711,7 +756,6 @@ function srcTags(sources) {
     else if (sl.includes('bd')) c = 'stag-bd';
     else if (sl.includes('cadence')) c = 'stag-mql';
     else if (sl.includes('marketing') || sl.includes('campaign')) c = 'stag-camp';
-    
     return '<span class="stag ' + c + '">' + s + '</span>';
   }).join('');
 }
@@ -727,14 +771,103 @@ function curQualified() { return QUALIFIED.filter(q => q.program_id === CUR_PROG
 function curPayments() { return PAYMENTS.filter(p => p.program_id === CUR_PROG); }
 function curCampaigns() { return CAMPAIGNS.filter(c => c.program_id === CUR_PROG); }
 
+
+// ============================================================
+// AUTHENTICATION & RBAC
+// ============================================================
+async function signInWithGoogle() {
+  const { data, error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin }
+  });
+  if (error) {
+    document.getElementById('login-msg').style.display = 'block';
+    document.getElementById('login-msg').textContent = error.message;
+  }
+}
+
+async function signOut() {
+  await supabaseClient.auth.signOut();
+  window.location.reload();
+}
+
+async function handleAuth() {
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  
+  if (session) {
+    currentUser = session.user;
+    userToken = session.access_token;
+    
+    // Domain lock
+    const email = currentUser.email.toLowerCase();
+    if (!email.endsWith('@threecolts.com') && !email.includes('your.email')) { 
+       document.getElementById('loading').classList.add('hidden');
+       document.getElementById('login-screen').style.display = 'flex';
+       document.getElementById('login-msg').style.display = 'block';
+       document.getElementById('login-msg').textContent = "Unauthorized domain. Please use a @threecolts.com email.";
+       await supabaseClient.auth.signOut();
+       return false;
+    }
+
+    // Fetch user permissions
+    try {
+      const res = await DB.from('team_permissions').selectEq('*', 'email', email);
+      if (res && res.length > 0) currentPerms = res[0];
+    } catch(err) {
+      console.warn("User has no custom permissions. Defaulting to Viewer role.");
+    }
+    
+    applyRBAC();
+    return true;
+  }
+  return false;
+}
+
+function applyRBAC() {
+   const isAdmin = currentPerms.role === 'super_admin';
+   
+   const setDisplay = (id, show) => { const el = document.getElementById(id); if (el) el.style.display = show ? '' : 'none'; };
+   
+   setDisplay('btn-import-top', isAdmin || currentPerms.can_import);
+   setDisplay('tab-import', isAdmin || currentPerms.can_import);
+   
+   setDisplay('btn-add-seller', isAdmin || currentPerms.can_edit_sellers);
+   setDisplay('btn-add-seller-2', isAdmin || currentPerms.can_edit_sellers);
+   
+   setDisplay('btn-add-payment', isAdmin || currentPerms.can_edit_revenue);
+   setDisplay('btn-mark-qual', isAdmin || currentPerms.can_edit_revenue);
+   
+   setDisplay('btn-add-camp', isAdmin || currentPerms.can_edit_campaigns);
+   
+   setDisplay('tab-team', isAdmin);
+   
+   document.querySelectorAll('.addprog').forEach(e => e.style.display = isAdmin ? 'flex' : 'none');
+   document.getElementById('user-email-disp').textContent = currentUser?.email || 'User';
+}
+
 // ============================================================
 // INIT & DATA LOAD
 // ============================================================
 async function initApp() {
   document.getElementById('loading').classList.remove('hidden');
-  document.getElementById('loading-text').textContent = 'Connecting to database...';
+  
+  // Clean URL hash after Google redirect
+  supabaseClient.auth.onAuthStateChange(async (event, session) => {
+     if (event === 'SIGNED_IN') { window.location.hash = ''; }
+  });
+
+  const isLoggedIn = await handleAuth();
+  
+  if (!isLoggedIn) {
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('login-screen').style.display = 'flex';
+    return;
+  }
+  document.getElementById('login-screen').style.display = 'none';
+
   try {
     await refreshAll(true);
+    if (currentPerms.role === 'super_admin') { await loadTeam(); }
     document.getElementById('loading').classList.add('hidden');
     document.getElementById('app').style.display = 'flex';
     setDBStatus('ok');
@@ -744,7 +877,7 @@ async function initApp() {
   } catch(e) {
     document.getElementById('loading').classList.add('hidden');
     setDBStatus('err');
-    alert("Database connection failed: " + e.message + "\n\nPlease ensure you have run your setup SQL schema in Supabase.");
+    alert("Database connection failed: " + e.message);
   }
 }
 
@@ -755,12 +888,12 @@ async function refreshAll(init=false) {
   QUALIFIED  = await sbFetch('qualified_sellers?select=*&order=created_at.asc');
   CAMPAIGNS  = await sbFetch('campaigns?select=*&order=campaign_date.desc');
   PAYMENTS   = await sbFetch('payments?select=*&order=created_at.asc');
-  MQL_EMAILS = JSON.parse(localStorage.getItem('ced_mql_emails')||'[]');
   if (!init) { renderProgs(); renderView(); toast('Data refreshed'); }
 }
 
+
 // ============================================================
-// PROGRAMS
+// PROGRAMS & NAVIGATION
 // ============================================================
 function renderProgs() {
   document.getElementById('prog-sw').innerHTML = PROGRAMS.map(p =>
@@ -773,22 +906,6 @@ function renderProgs() {
 
 function switchProg(id) { CUR_PROG=id; renderProgs(); renderView(); }
 
-async function saveProgram() {
-  const name = document.getElementById('pn-name').value.trim();
-  if (!name) { alert('Program name required'); return; }
-  const data = { id: uid(), name, market:document.getElementById('pn-mkt').value, region:document.getElementById('pn-region').value, incentive_amount:parseInt(document.getElementById('pn-inc').value)||800, currency:document.getElementById('pn-cur').value, color:document.getElementById('pn-col').value, affiliate_link:document.getElementById('pn-link').value, notes:document.getElementById('pn-notes').value, active:true };
-  try {
-    await DB.from('programs').insert(data);
-    PROGRAMS.push(data);
-    renderProgs();
-    closeModal('m-new-prog');
-    toast('Program created');
-  } catch(e) { toast('Error: ' + e.message, true); }
-}
-
-// ============================================================
-// NAVIGATION
-// ============================================================
 function sv(name, el) {
   CUR_VIEW = name;
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -796,8 +913,8 @@ function sv(name, el) {
   document.getElementById('view-' + name).classList.add('active');
   if (el) el.classList.add('active');
   const p = curProg();
-  document.getElementById('page-title').textContent = (p.name||'') + ' — ' + name.charAt(0).toUpperCase() + name.slice(1);
-  document.getElementById('page-sub').textContent = 'Program: ' + (p.region||'') + ' · ' + (p.market||'');
+  document.getElementById('page-title').textContent = name === 'team' ? 'Team Access Management' : (p.name||'') + ' — ' + name.charAt(0).toUpperCase() + name.slice(1);
+  document.getElementById('page-sub').textContent = name === 'team' ? 'Super Admin Control Panel' : 'Program: ' + (p.region||'') + ' · ' + (p.market||'');
   renderView();
 }
 
@@ -807,6 +924,7 @@ function renderView() {
   else if (CUR_VIEW==='revenue') renderRevenue();
   else if (CUR_VIEW==='campaigns') renderCampaigns();
   else if (CUR_VIEW==='bd') renderBD();
+  else if (CUR_VIEW==='team') renderTeam();
 }
 
 // ============================================================
@@ -822,7 +940,6 @@ function renderOverview() {
   
   const onboardedCount = sellers.filter(s => (s.status||'').toUpperCase().includes('ONBOARD')).length;
   const totalPotential = onboardedCount * inc;
-  
   const paymentsList = pays.filter(p => p.received === true);
   const totalReceived = paymentsList.reduce((sum, p) => sum + (parseFloat(String(p.amount).replace(/[^0-9.-]+/g,"")) || 0), 0);
   const totalPending = Math.max(0, totalPotential - totalReceived);
@@ -874,7 +991,6 @@ function renderOverview() {
 
   document.getElementById('ov-q-title').textContent = qual.length + ' qualified sellers — ' + prog.name;
   
-  // FIXED BDA MAPPING BUG: Smart Fallback checking main sellers database
   document.getElementById('ov-q-tbl').innerHTML = qual.map((q,i) => {
     const matchedSeller = sellers.find(x => (q.email && x.email === q.email) || (q.store_id && x.store_id === q.store_id) || (x.company === q.store_name));
     const displayBda = q.bda || (matchedSeller ? matchedSeller.associate : '') || '—';
@@ -929,6 +1045,8 @@ function buildSellersTable() {
   const q = (document.getElementById('s-search')||{value:''}).value.toLowerCase();
   const sf = (document.getElementById('s-src-f')||{value:''}).value;
   const tf = (document.getElementById('s-tag-f')||{value:''}).value;
+  const canEditSellers = currentPerms.role === 'super_admin' || currentPerms.can_edit_sellers;
+
   let rows = curSellers().filter(s => {
     if (q && !((s.email||'').toLowerCase().includes(q)||(s.company||'').toLowerCase().includes(q)||(s.associate||'').toLowerCase().includes(q)||(s.tags||[]).join(' ').toLowerCase().includes(q)||(s.store_id||'').includes(q))) return false;
     if (SF!=='all' && !(s.status||'').toUpperCase().includes(SF.toUpperCase())) return false;
@@ -953,7 +1071,7 @@ function buildSellersTable() {
         (!noEmail ? '<button class="ob" onclick="openEmail(\'' + (s.email||'') + '\',\'' + (s.company||'').replace(/'/g,"\\'") + '\',\'' + (s.status||'').replace(/'/g,"\\'") + '\')">Email</button>' : '') +
         (s.phone ? '<button class="ob ob-wa" onclick="openWA(\'' + s.phone + '\',\'' + (s.company||'').replace(/'/g,"\\'") + '\')">WA</button>' : '') +
       '</td>' +
-      '<td><button class="btn btn-sm" onclick="editSeller(\'' + s.id + '\')">Update</button></td></tr>';
+      '<td>' + (canEditSellers ? `<button class="btn btn-sm" onclick="editSeller('${s.id}')">Update</button>` : '') + '</td></tr>';
   }).join('') : '<tr><td colspan="9" style="text-align:center;padding:22px;color:var(--t3)">No sellers match</td></tr>';
 }
 
@@ -1107,7 +1225,6 @@ function renderRevenue() {
     <div class="mcard purple"><div class="ml">BD incentives due</div><div class="mv">$${qual.filter(q=>q.bd_incentive==='pending').length*bdInc}</div><div class="ms">$${bdInc} per BD completion</div></div>
   `;
 
-  // FIXED BDA MAPPING BUG: Smart Fallback checking main sellers database
   document.getElementById('rev-tbody').innerHTML = qual.map((q,i) => {
     const noEmail = !q.email || q.email.includes('update');
     const matchedSeller = sellers.find(x => (q.email && x.email === q.email) || (q.store_id && x.store_id === q.store_id) || (x.company === q.store_name));
@@ -1135,7 +1252,7 @@ function renderRevenue() {
     '<div style="font-size:15px;font-weight:700;color:' + (p.received?'var(--green)':(!p.amount || p.amount==='0'?'var(--amber)':'var(--t3)')) + '">' + displayAmt + '</div>' +
     (p.received?'<span class="paid">'+p.seller_count+' seller'+(p.seller_count!==1?'s':'')+'</span>':(!p.amount || p.amount==='0'?'<span class="pend">TBC</span>':'<span class="pill p-gray" style="font-size:10px">No payment</span>')) +
     '</div>';
-  }).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px 0">No payment records. You can add them here once confirmed by accounts.</div>';
+  }).join('') : '<div style="color:var(--t3);font-size:13px;padding:8px 0">No payment records.</div>';
 }
 
 async function saveQualified() {
@@ -1236,7 +1353,7 @@ async function saveCampaign() {
 }
 
 // ============================================================
-// BD
+// BD TEAM
 // ============================================================
 function renderBD() {
   const prog = curProg();
@@ -1263,7 +1380,6 @@ function renderBD() {
     '<tr><td><strong>'+n+'</strong></td><td>'+d.r+'</td><td>'+d.c+'</td><td>'+(d.r?Math.round(d.c/d.r*100)+'%':'—')+'</td><td style="font-weight:600;color:var(--green)">'+(d.c?'$'+(d.c*bdInc):'—')+'</td></tr>'
   ).join('') || '<tr><td colspan="5" style="text-align:center;padding:18px;color:var(--t3)">No associates yet</td></tr>';
 
-  // FIXED BDA MAPPING BUG for BD Team tab
   document.getElementById('bd-inc-list').innerHTML = curQualified().map(q => {
     const matchedSeller = curSellers().find(x => (q.email && x.email === q.email) || (q.store_id && x.store_id === q.store_id) || (x.company === q.store_name));
     const displayBda = q.bda || (matchedSeller ? matchedSeller.associate : '') || '—';
@@ -1271,6 +1387,94 @@ function renderBD() {
     '<span class="'+(q.bd_incentive==='paid'?'paid':'pend')+'">'+(q.bd_incentive==='paid'?'$'+bdInc+' paid':'Pending')+'</span></div>';
   }).join('') || '<div style="color:var(--t3);font-size:13px;padding:8px">No qualified sellers yet</div>';
 }
+
+// ============================================================
+// TEAM ACCESS (SUPER ADMIN)
+// ============================================================
+async function loadTeam() {
+  try { TEAM_MEMBERS = await DB.from('team_permissions').select('*'); } catch(e) {}
+}
+
+function renderTeam() {
+  if (currentPerms.role !== 'super_admin') return;
+  document.getElementById('team-tbody').innerHTML = TEAM_MEMBERS.map(t => `
+    <tr>
+      <td><strong>${t.email}</strong></td>
+      <td><span class="pill ${t.role==='super_admin'?'p-purple':'p-blue'}">${t.role}</span></td>
+      <td>${t.can_edit_sellers?'✅':'❌'}</td>
+      <td>${t.can_edit_revenue?'✅':'❌'}</td>
+      <td>${t.can_edit_campaigns?'✅':'❌'}</td>
+      <td>${t.can_import?'✅':'❌'}</td>
+      <td><button class="btn btn-sm" onclick="editTeam('${t.email}')">Edit</button></td>
+    </tr>
+  `).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--t3);padding:16px;">No custom permissions set. Everyone else defaults to Viewer.</td></tr>';
+}
+
+function toggleChecks() {
+  const isSuper = document.getElementById('tm-role').value === 'super_admin';
+  document.getElementById('tm-checks').style.opacity = isSuper ? '0.5' : '1';
+  if (isSuper) {
+     ['tm-edit-sellers','tm-edit-revenue','tm-edit-campaigns','tm-import'].forEach(id => document.getElementById(id).checked = true);
+  }
+}
+
+function openTeamModal() {
+  document.getElementById('tm-email').value = '';
+  document.getElementById('tm-email').disabled = false;
+  document.getElementById('tm-role').value = 'editor';
+  ['tm-edit-sellers','tm-edit-revenue','tm-edit-campaigns','tm-import'].forEach(id => document.getElementById(id).checked = false);
+  toggleChecks();
+  openModal('m-team');
+}
+
+function editTeam(email) {
+  const t = TEAM_MEMBERS.find(x => x.email === email);
+  if (!t) return;
+  document.getElementById('tm-email').value = t.email;
+  document.getElementById('tm-email').disabled = true;
+  document.getElementById('tm-role').value = t.role;
+  document.getElementById('tm-edit-sellers').checked = t.can_edit_sellers;
+  document.getElementById('tm-edit-revenue').checked = t.can_edit_revenue;
+  document.getElementById('tm-edit-campaigns').checked = t.can_edit_campaigns;
+  document.getElementById('tm-import').checked = t.can_import;
+  toggleChecks();
+  openModal('m-team');
+}
+
+async function saveTeam() {
+  const email = document.getElementById('tm-email').value.trim().toLowerCase();
+  if (!email) return alert("Email required");
+  const data = {
+     email: email,
+     role: document.getElementById('tm-role').value,
+     can_edit_sellers: document.getElementById('tm-edit-sellers').checked,
+     can_edit_revenue: document.getElementById('tm-edit-revenue').checked,
+     can_edit_campaigns: document.getElementById('tm-edit-campaigns').checked,
+     can_import: document.getElementById('tm-import').checked,
+     created_at: new Date().toISOString()
+  };
+  try {
+     await DB.from('team_permissions').upsert(data);
+     const idx = TEAM_MEMBERS.findIndex(x => x.email === email);
+     if (idx >= 0) TEAM_MEMBERS[idx] = data; else TEAM_MEMBERS.push(data);
+     closeModal('m-team');
+     renderTeam();
+     toast("Permissions saved");
+  } catch(e) { alert(e.message); }
+}
+
+async function removeTeam() {
+  const email = document.getElementById('tm-email').value.trim();
+  if(!email || !confirm(`Revoke custom access for ${email}? They will instantly become a Viewer.`)) return;
+  try {
+     await sbFetch(`team_permissions?email=eq.${encodeURIComponent(email)}`, 'DELETE');
+     TEAM_MEMBERS = TEAM_MEMBERS.filter(x => x.email !== email);
+     closeModal('m-team');
+     renderTeam();
+     toast("Access revoked");
+  } catch(e) { alert(e.message); }
+}
+
 
 // ============================================================
 // IMPORT (SMART EXCEL / CSV PARSER)
@@ -1303,7 +1507,6 @@ async function runCSVImport() {
   const raw = document.getElementById('imp-csv').value.trim();
   if (!raw) { alert('Paste data first'); return; }
 
-  // Detect if pasted from Excel/Sheets (tabs) or actual CSV (commas)
   const separator = raw.includes('\t') ? '\t' : ',';
   
   function parseLine(line, delimiter) {
@@ -1314,7 +1517,7 @@ async function runCSVImport() {
       const char = line[i];
       if (inQuotes) {
         if (char === '"') {
-          if (i + 1 < line.length && line[i + 1] === '"') { cur += '"'; i++; } // escaped quote
+          if (i + 1 < line.length && line[i + 1] === '"') { cur += '"'; i++; } 
           else { inQuotes = false; }
         } else { cur += char; }
       } else {
@@ -1350,7 +1553,6 @@ async function runCSVImport() {
     let storeId = sdI>=0 && cols[sdI] ? cols[sdI] : '';
     let companyName = coI>=0 && cols[coI] ? cols[coI] : '';
 
-    // Smart fix: If "Store ID" contains letters, they actually pasted the Store Name there.
     if (storeId && /[a-zA-Z]/.test(storeId)) {
         if (!companyName) companyName = storeId;
         storeId = ''; 
@@ -1358,23 +1560,20 @@ async function runCSVImport() {
 
     if (!email && !storeId && !companyName) return;
 
-    // Parse multiple sources and tags (split by comma or semicolon)
     let parsedSources = srI>=0 && cols[srI] ? cols[srI].split(/[,;]/).map(s=>s.trim()).filter(Boolean) : [];
-    if (parsedSources.length === 0) parsedSources = ['Marketing Campaigns']; // fallback
+    if (parsedSources.length === 0) parsedSources = ['Marketing Campaigns'];
 
     let parsedTags = tgI>=0 && cols[tgI] ? cols[tgI].split(/[,;]/).map(t=>t.trim()).filter(Boolean) : [];
 
     let status = stI>=0 && cols[stI] ? cols[stI] : 'EMAIL FOLLOW UP IN PROGRESS';
     let bda = asI>=0 && cols[asI] ? cols[asI] : '';
 
-    // Check for duplicates
     const existing = SELLERS.find(s => 
       (email && s.email && s.email.toLowerCase() === email) || 
       (storeId && s.store_id && s.store_id === storeId)
     );
 
     if (existing && existing.program_id === progId) {
-      // Merge logic
       const mergedSources = [...new Set([...(existing.sources||[]), ...parsedSources])];
       const mergedTags = [...new Set([...(existing.tags||[]), ...parsedTags])];
       
@@ -1387,7 +1586,6 @@ async function runCSVImport() {
       });
       updated++;
     } else {
-      // Insert logic
       const data = {
         id: uid(),
         email: email || null,
@@ -1416,8 +1614,6 @@ async function runCSVImport() {
       await DB.from('sellers').insert(toInsert);
       SELLERS.unshift(...toInsert);
     }
-    
-    // Update existing records
     for (const u of toUpdate) {
       await DB.from('sellers').update(u.id, {
          sources: u.sources, 
@@ -1426,7 +1622,6 @@ async function runCSVImport() {
          associate: u.associate,
          updated_at: new Date().toISOString()
       });
-      // Update local state
       const s = SELLERS.find(x => x.id === u.id);
       if (s) {
          s.sources = u.sources;
@@ -1436,7 +1631,6 @@ async function runCSVImport() {
          if (s.status.toUpperCase().includes('ONBOARD')) s.qualified = true;
       }
     }
-
     document.getElementById('imp-csv').value='';
     document.getElementById('csv-result').innerHTML=`<div class="info-box green">Import successful: ${added} new sellers added, ${updated} existing sellers updated.</div>`;
     renderView(); 

@@ -363,9 +363,9 @@ tr:hover td{background:var(--surf2);}
       </div>
 
       <div class="card">
-        <div class="card-header"><div><div class="card-title" id="rev-title">Qualified sellers — payment log</div><div class="card-sub">Detailed breakdown of onboarded stores</div></div><button class="btn btn-green" id="btn-mark-qual" style="display:none;" onclick="openModal('m-qual')">+ Mark qualified</button></div>
+        <div class="card-header"><div><div class="card-title" id="rev-title">Qualified sellers</div><div class="card-sub">Detailed breakdown of onboarded stores</div></div><button class="btn btn-green" id="btn-mark-qual" style="display:none;" onclick="openModal('m-qual')">+ Mark qualified</button></div>
         <div class="tbl-wrap"><table>
-          <thead><tr><th>#</th><th>Store</th><th>Mall ID</th><th>Email</th><th>BDA</th><th>1st Sale</th><th>Amount</th><th>Temu paid CED</th><th>CED paid CSA</th><th>BD incentive</th><th>Notes</th></tr></thead>
+          <thead><tr><th>#</th><th>Store</th><th>Mall ID</th><th>Email</th><th>BDA</th><th>1st Sale</th><th>Amount</th><th>Temu paid CED</th><th>CED paid CSA</th><th>Notes</th></tr></thead>
           <tbody id="rev-tbody"></tbody>
         </table></div>
       </div>
@@ -383,9 +383,9 @@ tr:hover td{background:var(--surf2);}
       <div class="metrics-grid" id="bd-metrics"></div>
       <div class="g2">
         <div class="card"><div class="card-header"><div><div class="card-title">Associate performance</div></div></div>
-          <div class="tbl-wrap"><table><thead><tr><th>Associate</th><th>Referred</th><th>Completed</th><th>Rate</th><th>Incentive</th></tr></thead><tbody id="bd-tbody"></tbody></table></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Associate</th><th>Referred</th><th>Completions</th><th>Win Rate</th></tr></thead><tbody id="bd-tbody"></tbody></table></div>
         </div>
-        <div class="card"><div class="card-header"><div><div class="card-title">BD incentive log</div><div class="card-sub" id="bd-inc-sub"></div></div></div><div id="bd-inc-list"></div></div>
+        <div class="card"><div class="card-header"><div><div class="card-title">BD Completed Sellers Log</div><div class="card-sub">Successfully onboarded sellers</div></div></div><div id="bd-inc-list"></div></div>
       </div>
     </div>
 
@@ -513,6 +513,7 @@ tr:hover td{background:var(--surf2);}
       <div class="field"><label>Program</label><select id="f-prog"></select></div>
       <div class="field"><label>Lead source</label>
         <select id="f-src">
+          <option value="">-- Select Source --</option>
           <option value="Marketing Campaigns">Marketing Campaigns</option>
           <option value="BD referred">BD referred</option>
           <option value="Cadences">Cadences</option>
@@ -797,7 +798,7 @@ async function handleAuth() {
     currentUser = session.user;
     userToken = session.access_token;
     
-    const email = currentUser.email.toLowerCase();
+    const email = currentUser.email.toLowerCase().trim();
     if (!email.endsWith('@threecolts.com') && !email.includes('your.email')) { 
        document.getElementById('loading').classList.add('hidden');
        document.getElementById('login-screen').style.display = 'flex';
@@ -809,9 +810,23 @@ async function handleAuth() {
 
     try {
       const res = await DB.from('team_permissions').selectEq('*', 'email', email);
-      if (res && res.length > 0) currentPerms = res[0];
+      if (res && res.length > 0) {
+          currentPerms = res[0];
+      }
     } catch(err) {
       console.warn("User has no custom permissions. Defaulting to Viewer role.");
+    }
+    
+    // GOD MODE BYPASS: Guarantees you are never locked out of your own app!
+    if (email === 'hsrivastava@threecolts.com' || email.includes('hsrivastava')) {
+      console.log("God mode activated for: " + email);
+      currentPerms = { 
+          role: 'super_admin', 
+          can_edit_sellers: true, 
+          can_edit_revenue: true, 
+          can_edit_campaigns: true, 
+          can_import: true 
+      };
     }
     
     applyRBAC();
@@ -822,7 +837,20 @@ async function handleAuth() {
 
 function applyRBAC() {
    const isAdmin = currentPerms.role === 'super_admin';
-   const setDisplay = (id, show) => { const el = document.getElementById(id); if (el) el.style.display = show ? '' : 'none'; };
+   
+   // A robust display toggle that actually removes inline "display: none"
+   const setDisplay = (id, show) => { 
+       const el = document.getElementById(id); 
+       if (el) {
+           if (show) {
+               // Allow CSS to take over, or force flex if it's a specific button
+               if(el.classList.contains('addprog')) el.style.display = 'flex';
+               else el.style.display = '';
+           } else {
+               el.style.display = 'none';
+           }
+       } 
+   };
    
    setDisplay('btn-import-top', isAdmin || currentPerms.can_import);
    setDisplay('tab-import', isAdmin || currentPerms.can_import);
@@ -1137,7 +1165,7 @@ function editSeller(id) {
   document.getElementById('f-status').value = s.status||'EMAIL FOLLOW UP IN PROGRESS';
   document.getElementById('f-assoc').value = s.associate||'';
   document.getElementById('f-prog').value = s.program_id||CUR_PROG;
-  document.getElementById('f-src').value = (s.sources||['Marketing Campaigns'])[0]||'Marketing Campaigns';
+  document.getElementById('f-src').value = (s.sources && s.sources.length > 0) ? s.sources[0] : '';
   toggleQualSec();
   openModal('m-seller');
 }
@@ -1151,10 +1179,10 @@ async function saveSeller() {
   const storeId = document.getElementById('f-storeid').value.trim();
   if (!email && !storeId) { alert('Enter at least an email or Mall ID'); return; }
   const srcVal = document.getElementById('f-src').value;
-  let sources = [srcVal];
+  let sources = srcVal ? [srcVal] : [];
   if (EDIT_ID) {
     const prev = SELLERS.find(s => s.id===EDIT_ID);
-    sources = prev ? [...new Set([...(prev.sources||[]), srcVal])] : [srcVal];
+    if (prev && prev.sources) sources = srcVal ? [...new Set([...prev.sources, srcVal])] : prev.sources;
   }
   const data = {
     email: email || null,
@@ -1198,7 +1226,6 @@ function renderRevenue() {
   const sellers = curSellers();
   const curr = progCurr();
   const inc = prog.incentive_amount || 800;
-  const bdInc = prog.currency==='USD' ? 100 : 100;
   
   const onboardedCount = sellers.filter(s => (s.status||'').toUpperCase().includes('ONBOARD')).length;
   const totalPotential = onboardedCount * inc;
@@ -1208,14 +1235,16 @@ function renderRevenue() {
   const totalPending = Math.max(0, totalPotential - totalReceived);
 
   document.getElementById('rev-title').textContent = qual.length + ' qualified sellers — ' + (prog.name||'');
+  
+  // STRIPPED OUT BD INCENTIVE CARD
   document.getElementById('rev-metrics').innerHTML = `
     <div class="mcard green"><div class="ml">Total Received</div><div class="mv">${curr}${totalReceived.toLocaleString()}</div><div class="ms">From Payment Log</div></div>
     <div class="mcard amber"><div class="ml">Outstanding</div><div class="mv">${curr}${totalPending.toLocaleString()}</div><div class="ms">Pending from Marketplace</div></div>
     <div class="mcard teal"><div class="ml">Onboarded Sellers</div><div class="mv">${onboardedCount}</div><div class="ms">${curr}${inc} per seller</div></div>
     <div class="mcard blue"><div class="ml">Pipeline Potential</div><div class="mv">${curr}${totalPotential.toLocaleString()}</div><div class="ms">If all paid</div></div>
-    <div class="mcard purple"><div class="ml">BD incentives due</div><div class="mv">$${qual.filter(q=>q.bd_incentive==='pending').length*bdInc}</div><div class="ms">$${bdInc} per BD completion</div></div>
   `;
 
+  // STRIPPED OUT BD INCENTIVE COLUMN
   document.getElementById('rev-tbody').innerHTML = qual.map((q,i) => {
     const noEmail = !q.email || q.email.includes('update');
     const matchedSeller = sellers.find(x => (q.email && x.email === q.email) || (q.store_id && x.store_id === q.store_id) || (x.company === q.store_name));
@@ -1230,9 +1259,8 @@ function renderRevenue() {
       '<td style="font-weight:700;color:var(--green)">' + curr + (q.amount||inc) + '</td>' +
       '<td>' + (q.temu_paid_ced==='paid'?'<span class="paid">Paid</span>':'<span class="pend">Pending</span>') + '</td>' +
       '<td>' + (q.ced_paid_csa==='paid'?'<span class="paid">Paid</span>':'<span class="pend">Pending</span>') + '</td>' +
-      '<td>' + (q.bd_incentive==='paid'?'<span class="paid">$'+bdInc+'</span>':'<span class="pend">Pending</span>') + '</td>' +
       '<td style="font-size:11px;color:var(--t3)">' + (q.notes||'') + '</td></tr>';
-  }).join('') || '<tr><td colspan="11" style="text-align:center;padding:22px;color:var(--t3)">No qualified sellers yet</td></tr>';
+  }).join('') || '<tr><td colspan="10" style="text-align:center;padding:22px;color:var(--t3)">No qualified sellers yet</td></tr>';
 
   document.getElementById('pay-tl').innerHTML = pays.length ? pays.map(p => {
     const pAmt = parseFloat(String(p.amount).replace(/[^0-9.-]+/g,"")) || 0;
@@ -1262,7 +1290,7 @@ async function saveQualified() {
     currency: prog.currency||'EUR',
     temu_paid_ced: document.getElementById('q-cedpaid').value,
     ced_paid_csa: document.getElementById('q-csapaid').value,
-    bd_incentive: 'pending',
+    bd_incentive: 'pending', // kept for DB stability, hidden from UI
     notes: document.getElementById('q-notes').value
   };
   try {
@@ -1344,38 +1372,54 @@ async function saveCampaign() {
 }
 
 // ============================================================
-// BD TEAM
+// BD TEAM (BULLETPROOF FIX)
 // ============================================================
 function renderBD() {
-  const prog = curProg();
-  const bdInc = 100;
   const bdMap = {};
+  
+  // 1. Gather all active sellers/referrals from the main table
   curSellers().forEach(s => {
-    if (!s.associate) return;
-    const a = s.associate.trim();
+    const a = (s.associate || '').trim();
+    if (!a) return;
     if (!bdMap[a]) bdMap[a] = {r:0,c:0};
     bdMap[a].r++;
     if ((s.status||'').toUpperCase().includes('ONBOARD')) bdMap[a].c++;
   });
+
+  // 2. Cross-reference with the Qualified table so NO ONE is missed
+  curQualified().forEach(q => {
+    // Check if this seller was already counted in step 1
+    const matchedSeller = curSellers().find(x => (q.email && x.email === q.email) || (q.store_id && x.store_id === q.store_id) || (x.company === q.store_name));
+    const a = (q.bda || (matchedSeller ? matchedSeller.associate : '') || '').trim();
+    if (!a) return;
+    
+    if (!bdMap[a]) bdMap[a] = {r:0, c:0}; // Create entry if they weren't in the main table at all
+    
+    // Only increment 'c' if it wasn't already caught by the ONBOARD check in Step 1
+    if (!matchedSeller || !(matchedSeller.status||'').toUpperCase().includes('ONBOARD')) {
+        bdMap[a].c++;
+    }
+  });
+
   const rows = Object.entries(bdMap).sort((a,b)=>b[1].c-a[1].c);
   const totalC = rows.reduce((a,r)=>a+r[1].c,0);
 
+  // STRIPPED OUT INCENTIVES (Clean pure metrics)
   document.getElementById('bd-metrics').innerHTML = `
     <div class="mcard"><div class="ml">Active associates</div><div class="mv">${rows.length}</div></div>
     <div class="mcard teal"><div class="ml">Total referrals</div><div class="mv">${rows.reduce((a,r)=>a+r[1].r,0)}</div></div>
     <div class="mcard green"><div class="ml">Completions</div><div class="mv">${totalC}</div></div>
-    <div class="mcard amber"><div class="ml">Incentives due</div><div class="mv">$${totalC*bdInc}</div><div class="ms">$${bdInc} per completion</div></div>
   `;
-  document.getElementById('bd-inc-sub').textContent = '$' + bdInc + ' per BD-referred seller who goes live';
+  
   document.getElementById('bd-tbody').innerHTML = rows.map(([n,d]) =>
-    '<tr><td><strong>'+n+'</strong></td><td>'+d.r+'</td><td>'+d.c+'</td><td>'+(d.r?Math.round(d.c/d.r*100)+'%':'—')+'</td><td style="font-weight:600;color:var(--green)">'+(d.c?'$'+(d.c*bdInc):'—')+'</td></tr>'
-  ).join('') || '<tr><td colspan="5" style="text-align:center;padding:18px;color:var(--t3)">No associates yet</td></tr>';
+    '<tr><td><strong>'+n+'</strong></td><td>'+d.r+'</td><td>'+d.c+'</td><td>'+(d.r?Math.round(d.c/d.r*100)+'%':'—')+'</td></tr>'
+  ).join('') || '<tr><td colspan="4" style="text-align:center;padding:18px;color:var(--t3)">No associates yet</td></tr>';
 
   document.getElementById('bd-inc-list').innerHTML = curQualified().map(q => {
     const matchedSeller = curSellers().find(x => (q.email && x.email === q.email) || (q.store_id && x.store_id === q.store_id) || (x.company === q.store_name));
     const displayBda = q.bda || (matchedSeller ? matchedSeller.associate : '') || '—';
     return '<div class="rev-row"><div><div style="font-size:13px;font-weight:500">'+q.store_name+'</div><div style="font-size:11px;color:var(--t3)">'+displayBda+' · '+fmtM(q.first_sale_month)+'</div></div>' +
-    '<span class="'+(q.bd_incentive==='paid'?'paid':'pend')+'">'+(q.bd_incentive==='paid'?'$'+bdInc+' paid':'Pending')+'</span></div>';
+    '<span class="paid">Live</span></div>';
   }).join('') || '<div style="color:var(--t3);font-size:13px;padding:8px">No qualified sellers yet</div>';
 }
 
@@ -1551,8 +1595,8 @@ async function runCSVImport() {
 
     if (!email && !storeId && !companyName) return;
 
+    // STRIPPED FALLBACK: If source is blank, it stays blank
     let parsedSources = srI>=0 && cols[srI] ? cols[srI].split(/[,;]/).map(s=>s.trim()).filter(Boolean) : [];
-    if (parsedSources.length === 0) parsedSources = ['Marketing Campaigns'];
 
     let parsedTags = tgI>=0 && cols[tgI] ? cols[tgI].split(/[,;]/).map(t=>t.trim()).filter(Boolean) : [];
 

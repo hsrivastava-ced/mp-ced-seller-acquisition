@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Seller Acquisition — CedCommerce</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%230d9488' stroke-width='2'><path d='M10 2L2 6v8l8 4 8-4V6L10 2z'/><path d='M10 2v18M2 6l8 4 8-4'/></svg>">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -614,13 +615,11 @@ tr:hover td{background:var(--surf2);}
 const SB_URL = 'https://tynripltmerigzeyznmf.supabase.co';
 const SB_KEY = 'sb_publishable_PXqcVXQ5itgpxXiDo0Cq0w_DKl-R7II';
 
-// Initialize the official Supabase Client
 const supabaseClient = window.supabase.createClient(SB_URL, SB_KEY);
 let userToken = SB_KEY;
 let currentUser = null;
 let currentPerms = { role: 'viewer', can_edit_sellers: false, can_edit_revenue: false, can_edit_campaigns: false, can_import: false };
 
-// Custom fetch wrapper configured to use the logged-in user's token
 async function sbFetch(path, method='GET', body=null) {
   const opts = {
     method,
@@ -661,6 +660,7 @@ let QUALIFIED = [];
 let CAMPAIGNS = [];
 let PAYMENTS = [];
 let TEAM_MEMBERS = [];
+let MQL_EMAILS = [];
 let CUR_PROG = '';
 let CUR_VIEW = 'overview';
 let SF = 'all';
@@ -771,14 +771,13 @@ function curQualified() { return QUALIFIED.filter(q => q.program_id === CUR_PROG
 function curPayments() { return PAYMENTS.filter(p => p.program_id === CUR_PROG); }
 function curCampaigns() { return CAMPAIGNS.filter(c => c.program_id === CUR_PROG); }
 
-
 // ============================================================
 // AUTHENTICATION & RBAC
 // ============================================================
 async function signInWithGoogle() {
   const { data, error } = await supabaseClient.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.origin }
+    options: { redirectTo: window.location.href.split('#')[0] }
   });
   if (error) {
     document.getElementById('login-msg').style.display = 'block';
@@ -798,7 +797,6 @@ async function handleAuth() {
     currentUser = session.user;
     userToken = session.access_token;
     
-    // Domain lock
     const email = currentUser.email.toLowerCase();
     if (!email.endsWith('@threecolts.com') && !email.includes('your.email')) { 
        document.getElementById('loading').classList.add('hidden');
@@ -809,7 +807,6 @@ async function handleAuth() {
        return false;
     }
 
-    // Fetch user permissions
     try {
       const res = await DB.from('team_permissions').selectEq('*', 'email', email);
       if (res && res.length > 0) currentPerms = res[0];
@@ -825,20 +822,15 @@ async function handleAuth() {
 
 function applyRBAC() {
    const isAdmin = currentPerms.role === 'super_admin';
-   
    const setDisplay = (id, show) => { const el = document.getElementById(id); if (el) el.style.display = show ? '' : 'none'; };
    
    setDisplay('btn-import-top', isAdmin || currentPerms.can_import);
    setDisplay('tab-import', isAdmin || currentPerms.can_import);
-   
    setDisplay('btn-add-seller', isAdmin || currentPerms.can_edit_sellers);
    setDisplay('btn-add-seller-2', isAdmin || currentPerms.can_edit_sellers);
-   
    setDisplay('btn-add-payment', isAdmin || currentPerms.can_edit_revenue);
    setDisplay('btn-mark-qual', isAdmin || currentPerms.can_edit_revenue);
-   
    setDisplay('btn-add-camp', isAdmin || currentPerms.can_edit_campaigns);
-   
    setDisplay('tab-team', isAdmin);
    
    document.querySelectorAll('.addprog').forEach(e => e.style.display = isAdmin ? 'flex' : 'none');
@@ -851,7 +843,6 @@ function applyRBAC() {
 async function initApp() {
   document.getElementById('loading').classList.remove('hidden');
   
-  // Clean URL hash after Google redirect
   supabaseClient.auth.onAuthStateChange(async (event, session) => {
      if (event === 'SIGNED_IN') { window.location.hash = ''; }
   });

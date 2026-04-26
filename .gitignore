@@ -1,0 +1,18 @@
+# Local data dumps (contain PII, do not commit)
+uk_sellers_import.sql
+*_import.sql
+*.local.sql
+
+# Wrangler / Cloudflare
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
+node_modules/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp

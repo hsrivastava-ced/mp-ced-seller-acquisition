@@ -1,0 +1,10 @@
+# Local data dumps (contain PII, do not commit)
+uk_sellers_import.sql
+*_import.sql
+*.local.sql
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp

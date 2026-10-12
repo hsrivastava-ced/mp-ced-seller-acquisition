@@ -16,3 +16,9 @@ node_modules/
 .idea/
 .vscode/
 *.swp
+
+# Seed builds + confidential partner data (PII / SHEIN brand list)
+data/
+__pycache__/
+.cursorrules
+.windsurfrules

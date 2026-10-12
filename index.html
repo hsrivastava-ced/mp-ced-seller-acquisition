@@ -360,7 +360,7 @@ tr:hover td{background:var(--surf2);}
     </div>
     <div class="topbar-actions">
       <button class="btn btn-icon" id="btn-import-top" style="display:none;" onclick="sv('import',document.querySelector('#tab-import'))"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1v9m-3-3l3 3 3-3"/><path d="M2 11v2a1 1 0 001 1h10a1 1 0 001-1v-2"/></svg>Import leads</button>
-      <button class="btn" onclick="exportCSV()">Export CSV</button>
+      <button class="btn" id="btn-export-top" style="display:none;" onclick="exportCSV()">Export CSV</button>
       <button class="btn btn-teal" id="btn-add-seller" style="display:none;" onclick="openAddSeller()">+ Add seller</button>
     </div>
   </div>
@@ -1127,6 +1127,7 @@ function applyRBAC() {
    setDisplay('btn-add-payment', isAdmin || currentPerms.can_edit_revenue);
    setDisplay('btn-mark-qual', isAdmin || currentPerms.can_edit_revenue);
    setDisplay('btn-add-camp', isAdmin || currentPerms.can_edit_campaigns);
+   setDisplay('btn-export-top', canExport());
    setDisplay('tab-team', isAdmin);
    setDisplay('tab-settings', isAdmin);
    setDisplay('tab-audit', isAdmin);
@@ -2802,7 +2803,14 @@ function handleDrop(e) {
   } else toast('Use CSV format');
 }
 
+// Viewers can browse but not bulk-download seller contact data.
+function canExport() {
+  return currentPerms.role === 'super_admin' || currentPerms.can_edit_sellers || currentPerms.can_edit_revenue
+    || currentPerms.can_edit_campaigns || currentPerms.can_import;
+}
+
 function exportCSV() {
+  if (!canExport()) return;
   const sellers = curSellers();
   const h = ['Email','Store','Status','Tags','Sources','Associate','Mall ID','Phone','Website','Program','Updated','Remarks'];
   const rows = sellers.map(s=>[s.email||'',s.company||'',s.status||'',(s.tags||[]).join(';'),(s.sources||[]).join(';'),s.associate||'',s.store_id||'',s.phone||'',s.website||'',PROGRAMS.find(p=>p.id===s.program_id)?.name||'',s.updated_at?new Date(s.updated_at).toLocaleDateString('en-GB'):'',s.remarks||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
